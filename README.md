@@ -59,7 +59,7 @@ Federation Management System built with Next.js 15, Prisma, tRPC, and shadcn/ui.
 5. Setup husky:
 
    ```bash
-   pnpm prepare
+   pnpm prepare-husky
    ```
 
 6. Start the development server:

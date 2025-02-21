@@ -7,18 +7,17 @@ export const usersRouter = router({
     const users = await ctx.db.user.findMany({
       take: 10,
       select: {
-        uuid: true,
+        id: true,
         firstName: true,
         lastName: true,
         email: true,
-        role: true,
       },
     });
     return users;
   }),
   getById: procedure.input(z.string()).query(async ({ ctx, input }) => {
     return await ctx.db.user.findUnique({
-      where: { uuid: input },
+      where: { id: input },
     });
   }),
 });
