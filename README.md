@@ -11,7 +11,7 @@ Federation Management System built with Next.js 15, Prisma, tRPC, and shadcn/ui.
 ## Tech Stack
 
 - **Framework:** Next.js 15 (App Router)
-- **Database:** PostgreSQL
+- **Database:** MongoDB
 - **ORM:** Prisma
 - **Authentication:** Next-Auth + 2FA
 - **UI:** shadcn/ui
