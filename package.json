@@ -10,7 +10,8 @@
     "format": "prettier --write .",
     "prepare": "husky",
     "prepare-husky": "npx husky init; echo \"# pnpm test\nnpx lint-staged\" > .husky/pre-commit",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "echo \"No tests specified\" && exit 0",
+    "prisma-studio": "prisma studio"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
