@@ -7,9 +7,174 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Organization Schema
+model Organization {
+  id             String   @id @default(auto()) @map("_id")
+  name           String
+  type           OrgType
+  country        String
+  domain         String   @unique // White-labeling domain
+  logo           String?
+  clubs          Club[]
+  members        User[]
+  events         Event[]
+  subscriptions  Subscription[]
+  admins         User[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+enum OrgType {
+  NATIONAL
+  REGIONAL
+}
+
+// Club Schema
+model Club {
+  id             String   @id @default(auto()) @map("_id")
+  name           String
+  manager        User     @relation(fields: [managerId], references: [id])
+  managerId      String   @unique
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  members        User[]
+  createdAt      DateTime @default(now())
+}
+
+// User Schema (Members & Admins)
 model User {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  email     String @unique
-  firstName  String
-  lastName  String
+  id             String  @id @default(auto()) @map("_id")
+  email          String  @unique
+  password       String
+  role           Role    @default(MEMBER)
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?
+  club           Club? @relation(fields: [clubId], references: [id])
+  clubId         String?
+
+  // Personal Info
+  firstName      String
+  lastName       String
+  middleName     String?
+  nameSuffix     String?
+  birthDate      DateTime
+  gender         Gender
+  avatarUrl      String?
+  ageProof       String? // URL of uploaded age proof document
+
+  // Mailing Details
+  streetAddress  String
+  streetAddress2 String?
+  country        String
+  state          String
+  city           String
+  postalCode     String
+  phoneNumber    String //add country code
+
+  // Other Info
+  fideId          String? @unique
+  schoolName     String?
+  graduationYear Int?
+  gradeInSchool  String?
+  gradeDate      DateTime?
+  clubName       String?
+
+  subscriptions  Subscription[]
+  createdAt      DateTime @default(now())
+}
+
+enum Role {
+  SUPER_ADMIN  // Platform-wide admin
+  ORG_ADMIN    // Organization-level admin
+  CLUB_MANAGER // Manages a club
+  MEMBER       // Regular user
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+// Subscription Schema
+model Subscription {
+  id              String   @id @default(auto()) @map("_id")
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  organizationId  String
+  subscriber      User @relation(fields: [subscriberId], references: [id])
+  subscriberId    String
+  type            SubscriptionType
+  status          SubscriptionStatus
+  startDate       DateTime
+  endDate         DateTime
+  createdAt       DateTime @default(now())
+}
+
+enum SubscriptionType {
+  INDIVIDUAL
+  EVENT
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELED
+}
+
+// Event Schema
+model Event {
+  id              String   @id @default(auto()) @map("_id")
+  name            String
+  description     String?
+  image           String?
+  video           String?
+  mode            EventMode
+  venue           String?
+  startDate       DateTime
+  startTime       String
+  endDate         DateTime
+  endTime         String
+  contactInfo     ContactInfo
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  organizationId  String
+  format          EventFormat
+  numberOfRounds  Int
+  isRated         Boolean
+  timeControl     String?
+  entryFees       EntryFee[]
+  brochure        String?  // URL to brochure (PDF/Image)
+  aboutEvent      String?  // Quill formatted content
+  prizesAwards    String?  // Quill formatted content
+  faq             String?  // Quill formatted content
+  createdAt       DateTime @default(now())
+}
+
+enum EventMode {
+  ONLINE
+  OFFLINE
+}
+
+enum EventFormat {
+  SWISS
+  QUAD
+  TEAM
+}
+
+// Entry Fee Model
+model EntryFee {
+  id         String  @id @default(auto()) @map("_id")
+  event      Event   @relation(fields: [eventId], references: [id])
+  eventId    String
+  category   String  // e.g., "Open", "Under 19", "Under 9"
+  amount     Float
+  currency   String  // e.g., "USD", "EUR"
+}
+
+// ContactInfo Embedded Model
+model ContactInfo {
+  id          String @id @default(auto()) @map("_id")
+  name        String
+  phoneNumber String
+  email       String
+  website     String?
 }
