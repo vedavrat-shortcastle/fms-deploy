@@ -1,66 +1,79 @@
-datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
-// Organization Schema
-model Organization {
-  id             String   @id @default(auto()) @map("_id")
-  name           String
-  type           OrgType
-  country        String
-  domain         String   @unique // White-labeling domain
-  logo           String?
-  clubs          Club[]
-  members        User[]
-  events         Event[]
-  subscriptions  Subscription[]
-  admins         User[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-enum OrgType {
-  NATIONAL
-  REGIONAL
+// Organization Schema
+model Organization {
+  id      String  @id @default(uuid())
+  name    String
+  type    OrgType
+  country String
+  domain  String  @unique // White-labeling domain
+  logo    String?
+
+  // Relation Fix: Differentiate members and admins
+  members User[] @relation(name: "OrgMembers")
+  admins  User[] @relation(name: "OrgAdmins")
+
+  clubs         Club[]
+  events        Event[]
+  subscriptions Subscription[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Club Schema
 model Club {
-  id             String   @id @default(auto()) @map("_id")
-  name           String
-  manager        User     @relation(fields: [managerId], references: [id])
-  managerId      String   @unique
+  id   String @id @default(uuid())
+  name String
+
+  // Relation Fix: Differentiate manager and members
+  manager   User   @relation(name: "ClubManager", fields: [managerId], references: [id])
+  managerId String @unique
+
+  members User[] @relation(name: "ClubMembers")
+
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String
-  members        User[]
-  createdAt      DateTime @default(now())
+
+  createdAt DateTime @default(now())
 }
 
-// User Schema (Members & Admins)
+// User Schema
 model User {
-  id             String  @id @default(auto()) @map("_id")
-  email          String  @unique
-  password       String
-  role           Role    @default(MEMBER)
-  organization   Organization? @relation(fields: [organizationId], references: [id])
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+  role     Role   @default(MEMBER)
+
+  // Relation Fix: Reference named relations
+  organization   Organization? @relation(name: "OrgMembers", fields: [organizationId], references: [id])
   organizationId String?
-  club           Club? @relation(fields: [clubId], references: [id])
-  clubId         String?
+
+  adminOf             Organization? @relation(name: "OrgAdmins", fields: [adminOrganizationId], references: [id])
+  adminOrganizationId String?
+
+  club   Club?   @relation(name: "ClubMembers", fields: [clubId], references: [id])
+  clubId String?
+
+  managedClub Club? @relation(name: "ClubManager")
 
   // Personal Info
-  firstName      String
-  lastName       String
-  middleName     String?
-  nameSuffix     String?
-  birthDate      DateTime
-  gender         Gender
-  avatarUrl      String?
-  ageProof       String? // URL of uploaded age proof document
+  firstName  String
+  lastName   String
+  middleName String?
+  nameSuffix String?
+  birthDate  DateTime
+  gender     Gender
+  avatarUrl  String?
+  ageProof   String? // URL of uploaded age proof document
 
   // Mailing Details
   streetAddress  String
@@ -69,45 +82,102 @@ model User {
   state          String
   city           String
   postalCode     String
-  phoneNumber    String //add country code
+  phoneNumber    String // Add country code
 
   // Other Info
-  fideId          String? @unique
+  fideId         String?   @unique
   schoolName     String?
   graduationYear Int?
   gradeInSchool  String?
   gradeDate      DateTime?
   clubName       String?
 
-  subscriptions  Subscription[]
-  createdAt      DateTime @default(now())
+  subscriptions Subscription[]
+  createdAt     DateTime       @default(now())
+}
+
+// Subscription Schema
+model Subscription {
+  id             String       @id @default(uuid())
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+
+  subscriber   User   @relation(fields: [subscriberId], references: [id])
+  subscriberId String
+
+  type      SubscriptionType
+  status    SubscriptionStatus
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime           @default(now())
+}
+
+// Event Schema
+model Event {
+  id             String       @id @default(uuid())
+  name           String
+  description    String?
+  image          String?
+  video          String?
+  mode           EventMode
+  venue          String?
+  startDate      DateTime
+  startTime      String
+  endDate        DateTime
+  endTime        String
+  contactInfo    ContactInfo  @relation(fields: [contactInfoId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  format         EventFormat
+  numberOfRounds Int
+  isRated        Boolean
+  timeControl    String?
+  entryFees      EntryFee[]
+  brochure       String? // URL to brochure (PDF/Image)
+  aboutEvent     String? // Quill formatted content
+  prizesAwards   String? // Quill formatted content
+  faq            String? // Quill formatted content
+  createdAt      DateTime     @default(now())
+  contactInfoId  String
+}
+
+// Entry Fee Model
+model EntryFee {
+  id       String @id @default(uuid())
+  event    Event  @relation(fields: [eventId], references: [id])
+  eventId  String
+  category String // e.g., "Open", "Under 19", "Under 9"
+  amount   Float
+  currency String // e.g., "USD", "EUR"
+}
+
+// ContactInfo Embedded Model
+model ContactInfo {
+  id          String  @id @default(uuid())
+  name        String
+  phoneNumber String
+  email       String
+  website     String?
+  Event       Event[]
+}
+
+// Enums
+enum OrgType {
+  NATIONAL
+  REGIONAL
 }
 
 enum Role {
-  SUPER_ADMIN  // Platform-wide admin
-  ORG_ADMIN    // Organization-level admin
+  SUPER_ADMIN // Platform-wide admin
+  ORG_ADMIN // Organization-level admin
   CLUB_MANAGER // Manages a club
-  MEMBER       // Regular user
+  MEMBER // Regular user
 }
 
 enum Gender {
   MALE
   FEMALE
   OTHER
-}
-
-// Subscription Schema
-model Subscription {
-  id              String   @id @default(auto()) @map("_id")
-  organization    Organization @relation(fields: [organizationId], references: [id])
-  organizationId  String
-  subscriber      User @relation(fields: [subscriberId], references: [id])
-  subscriberId    String
-  type            SubscriptionType
-  status          SubscriptionStatus
-  startDate       DateTime
-  endDate         DateTime
-  createdAt       DateTime @default(now())
 }
 
 enum SubscriptionType {
@@ -121,34 +191,6 @@ enum SubscriptionStatus {
   CANCELED
 }
 
-// Event Schema
-model Event {
-  id              String   @id @default(auto()) @map("_id")
-  name            String
-  description     String?
-  image           String?
-  video           String?
-  mode            EventMode
-  venue           String?
-  startDate       DateTime
-  startTime       String
-  endDate         DateTime
-  endTime         String
-  contactInfo     ContactInfo
-  organization    Organization @relation(fields: [organizationId], references: [id])
-  organizationId  String
-  format          EventFormat
-  numberOfRounds  Int
-  isRated         Boolean
-  timeControl     String?
-  entryFees       EntryFee[]
-  brochure        String?  // URL to brochure (PDF/Image)
-  aboutEvent      String?  // Quill formatted content
-  prizesAwards    String?  // Quill formatted content
-  faq             String?  // Quill formatted content
-  createdAt       DateTime @default(now())
-}
-
 enum EventMode {
   ONLINE
   OFFLINE
@@ -158,23 +200,4 @@ enum EventFormat {
   SWISS
   QUAD
   TEAM
-}
-
-// Entry Fee Model
-model EntryFee {
-  id         String  @id @default(auto()) @map("_id")
-  event      Event   @relation(fields: [eventId], references: [id])
-  eventId    String
-  category   String  // e.g., "Open", "Under 19", "Under 9"
-  amount     Float
-  currency   String  // e.g., "USD", "EUR"
-}
-
-// ContactInfo Embedded Model
-model ContactInfo {
-  id          String @id @default(auto()) @map("_id")
-  name        String
-  phoneNumber String
-  email       String
-  website     String?
 }
