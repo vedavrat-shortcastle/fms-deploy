@@ -1,10 +1,10 @@
-import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/Logo';
 import React from 'react';
 
 const Home = () => {
   return (
-    <div>
-      <Button className="hover:bg-blue-100">Hello</Button>
+    <div className="bg-secondary size-24">
+      <Logo />
     </div>
   );
 };
