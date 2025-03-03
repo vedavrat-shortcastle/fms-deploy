@@ -1,0 +1,169 @@
+'use client';
+
+import { AuthLayout } from '@/components/layouts/AuthLayout';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Logo } from '@/components/Logo';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  signupClubSchema,
+  SignupClubFormValues,
+} from '@/schemas/form-schemas/signupClubSchema';
+
+// All the imports
+
+interface SignupProps {
+  imageSrc: string;
+}
+//Props for this component
+
+// The component will accept an image as a prop and will pass that image to AuthLayout.
+export const SignupClub = ({ imageSrc }: SignupProps) => {
+  //React hook form Logic
+  const form = useForm<SignupClubFormValues>({
+    resolver: zodResolver(signupClubSchema),
+    defaultValues: {
+      clubName: '',
+      clubLocation: '',
+      clubAddress: '',
+      contactPerson: '',
+      phoneNumber: '',
+    },
+  });
+
+  // Function to handle submit
+  const onSubmit = (values: SignupClubFormValues) => {
+    console.log('Submitting values:', values);
+    // Replace with actual API request
+    // On Successful Validation, Push to the required page.
+  };
+
+  return (
+    // Pass the image you accepted as prop to AuthLayout.
+    <AuthLayout imageSrc={imageSrc}>
+      <Logo />
+      {/* Global Logo component */}
+
+      <div className="m-40">
+        {/* Container Div */}
+        <h1 className="flex justify-center text-4xl m-10 font-bold">
+          Tell us a bit about Club
+        </h1>
+
+        {/* The below is the form-logic for the signup-club */}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="clubName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-input-grey">Club Name *</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter Club Name"
+                      {...field}
+                      aria-label="Club Name"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="clubLocation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-input-grey">
+                    Club Location *
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter Club Location"
+                      {...field}
+                      aria-label="Club Location"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="clubAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-input-grey">
+                    Club Address *
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter Club Address"
+                      {...field}
+                      aria-label="Club Address"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="contactPerson"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-input-grey">
+                    Contact Person *
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter Contact Person Name"
+                      {...field}
+                      aria-label="Contact Person"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-input-grey">
+                    Phone Number
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="tel"
+                      placeholder="+1 555-123-4567"
+                      {...field}
+                      aria-label="Phone Number"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full font-extrabold bg-primary">
+              Get Started
+            </Button>
+          </form>
+        </Form>
+      </div>
+    </AuthLayout>
+  );
+};
+
+export default SignupClub;
