@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 
-// This function can be marked `async` if using `await` inside
-export function middleware(request: NextRequest) {
-  return NextResponse.redirect(new URL('/home', request.url));
+export async function middleware() {
+  return NextResponse.next();
 }
 
-// See "Matching Paths" below to learn more
 export const config = {
-  matcher: '/about/:path*',
+  matcher: [
+    // Protected routes
+    '/dashboard/:path*',
+    '/api/trpc/:path*',
+    // Exclude public routes and static files
+    '/((?!api|_next/static|_next/image|favicon.ico|auth/login|auth/error).*)',
+  ],
 };

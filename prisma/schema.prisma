@@ -48,10 +48,11 @@ model Club {
 
 // User Schema
 model User {
-  id       String @id @default(uuid())
-  email    String @unique
-  password String
-  role     Role   @default(MEMBER)
+  id          String           @id @default(uuid())
+  email       String           @unique
+  password    String
+  role        Role             @default(MEMBER)
+  permissions UserPermission[]
 
   // Relation Fix: Reference named relations
   organization   Organization? @relation(name: "OrgMembers", fields: [organizationId], references: [id])
@@ -200,4 +201,32 @@ enum EventFormat {
   SWISS
   QUAD
   TEAM
+}
+
+//
+//***************************************************    RBAC SETUP    ***************************************************
+//
+
+model Permission {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  code        String           @unique
+  description String?
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @default(now()) @map("updated_at")
+  users       UserPermission[]
+
+  @@map("permission")
+}
+
+model UserPermission {
+  userId       String     @map("admin_user_id")
+  permissionId String     @map("permission_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @default(now()) @map("updated_at")
+  user         User       @relation(fields: [userId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([userId, permissionId])
+  @@map("user_permission")
 }
