@@ -64,9 +64,9 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
       <Logo />
       {/* Global Logo component */}
 
-      <div className="max-w-lg mx-auto mt-10">
+      <div className=" mx-auto mt-10">
         {/* Container Div */}
-        <h1 className="text-2xl font-bold mb-6 text-center">
+        <h1 className="text-3xl font-bold mb-6">
           Tell us a bit about yourself.
         </h1>
 
@@ -74,7 +74,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Personal Details */}
-            <h2 className="text-lg font-semibold">Personal details</h2>
+            <h2 className="text-2xl font-semibold mt-10">Personal details</h2>
             <FormField
               control={form.control}
               name="fullName"
@@ -95,7 +95,28 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                 <FormItem>
                   <FormLabel>Phone number</FormLabel>
                   <FormControl>
-                    <Input placeholder="+91 55555-55555" {...field} />
+                    <div className="flex items-center space-x-2">
+                      {/* Country Code Selector */}
+                      <Select
+                        onValueChange={(value) => console.log(value)}
+                        defaultValue="+91"
+                      >
+                        <SelectTrigger className="w-[125px]">
+                          <SelectValue placeholder="Code" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="+91">+91 (India)</SelectItem>
+                          <SelectItem value="+1">+1 (USA)</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      {/* Phone Number Input */}
+                      <Input
+                        placeholder="55555-55555"
+                        {...field}
+                        className="w-[338px]"
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -103,7 +124,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
             />
 
             {/* Organization Details */}
-            <h2 className="text-lg font-semibold mt-6">Organization details</h2>
+            <h2 className="text-lg font-semibold mb-2">Organization details</h2>
             <FormField
               control={form.control}
               name="type"

@@ -18,6 +18,13 @@ import {
   signupClubSchema,
   SignupClubFormValues,
 } from '@/schemas/form-schemas/signupClubSchema';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // All the imports
 
@@ -67,7 +74,9 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
               name="clubName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-input-grey">Club Name *</FormLabel>
+                  <FormLabel className="text-input-grey">
+                    Club Name <span className="text-primary">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Enter Club Name"
@@ -85,7 +94,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-input-grey">
-                    Club Location *
+                    Club Location <span className="text-primary">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -104,7 +113,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-input-grey">
-                    Club Address *
+                    Club Address <span className="text-primary">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -123,7 +132,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-input-grey">
-                    Contact Person *
+                    Contact Person <span className="text-primary">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -142,20 +151,39 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-input-grey">
-                    Phone Number
+                    Phone Number <span className="text-primary">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      type="tel"
-                      placeholder="+1 555-123-4567"
-                      {...field}
-                      aria-label="Phone Number"
-                    />
+                    <div className="flex items-center space-x-2">
+                      {/* Country Code Selector */}
+                      <Select
+                        onValueChange={(value) => console.log(value)}
+                        defaultValue="+91"
+                      >
+                        <SelectTrigger className="w-[125px]">
+                          <SelectValue placeholder="+1" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="+1"> +1 (USA)</SelectItem>
+                          <SelectItem value="+91"> +91 (India)</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      {/* Phone Number Input */}
+                      <Input
+                        type="tel"
+                        placeholder="555-123-4567"
+                        {...field}
+                        aria-label="Phone Number"
+                        className="w-[330px]"
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <Button type="submit" className="w-full font-extrabold bg-primary">
               Get Started
             </Button>

@@ -154,7 +154,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
               )}
             />
             <Button type="submit" className="w-full font-extrabold">
-              Sign up
+              Create My Account
             </Button>
           </form>
         </Form>
