@@ -20,11 +20,11 @@ export default function StudentDetailsSection({
     <section className="mb-8">
       <h2 className="text-xl font-semibold mb-4">Student Details</h2>
       <div className="rounded-lg border border-gray-200 bg-white p-4 grid grid-cols-2 gap-4">
-        {/* School Name */}
-        <div>
-          <label className="block text-sm font-medium">School Name</label>
-          {isEditing ? (
-            <>
+        {isEditing ? (
+          <>
+            {/* School Name */}
+            <div>
+              <label className="block text-sm font-medium">School Name</label>
               <Input
                 {...register('studentDetails.schoolName')}
                 className={`w-full p-1 border rounded ${
@@ -36,17 +36,13 @@ export default function StudentDetailsSection({
                   {errors.studentDetails.schoolName.message}
                 </p>
               )}
-            </>
-          ) : (
-            <p>{player.studentDetails.schoolName}</p>
-          )}
-        </div>
+            </div>
 
-        {/* Grade */}
-        <div>
-          <label className="block text-sm font-medium">Grade in School</label>
-          {isEditing ? (
-            <>
+            {/* Grade */}
+            <div>
+              <label className="block text-sm font-medium">
+                Grade in School
+              </label>
               <Input
                 {...register('studentDetails.grade')}
                 className={`w-full p-1 border rounded ${
@@ -58,17 +54,13 @@ export default function StudentDetailsSection({
                   {errors.studentDetails.grade.message}
                 </p>
               )}
-            </>
-          ) : (
-            <p>{player.studentDetails.grade}</p>
-          )}
-        </div>
+            </div>
 
-        {/* Graduation Year */}
-        <div>
-          <label className="block text-sm font-medium">Graduation Year</label>
-          {isEditing ? (
-            <>
+            {/* Graduation Year */}
+            <div>
+              <label className="block text-sm font-medium">
+                Graduation Year
+              </label>
               <Input
                 {...register('studentDetails.graduationYear')}
                 className={`w-full p-1 border rounded ${
@@ -80,19 +72,13 @@ export default function StudentDetailsSection({
                   {errors.studentDetails.graduationYear.message}
                 </p>
               )}
-            </>
-          ) : (
-            <p>{player.studentDetails.graduationYear}</p>
-          )}
-        </div>
+            </div>
 
-        {/* Grade as of */}
-        <div>
-          <label className="block text-sm font-medium">
-            Grade as of (Date)
-          </label>
-          {isEditing ? (
-            <>
+            {/* Grade as of */}
+            <div>
+              <label className="block text-sm font-medium">
+                Grade as of (Date)
+              </label>
               <Input
                 {...register('studentDetails.gradeAsOf')}
                 className={`w-full p-1 border rounded ${
@@ -104,11 +90,41 @@ export default function StudentDetailsSection({
                   {errors.studentDetails.gradeAsOf.message}
                 </p>
               )}
-            </>
-          ) : (
-            <p>{player.studentDetails.gradeAsOf}</p>
-          )}
-        </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* School Name */}
+            <div>
+              <label className="block text-sm font-medium">School Name</label>
+              <p>{player.studentDetails.schoolName}</p>
+            </div>
+
+            {/* Grade */}
+            <div>
+              <label className="block text-sm font-medium">
+                Grade in School
+              </label>
+              <p>{player.studentDetails.grade}</p>
+            </div>
+
+            {/* Graduation Year */}
+            <div>
+              <label className="block text-sm font-medium">
+                Graduation Year
+              </label>
+              <p>{player.studentDetails.graduationYear}</p>
+            </div>
+
+            {/* Grade as of */}
+            <div>
+              <label className="block text-sm font-medium">
+                Grade as of (Date)
+              </label>
+              <p>{player.studentDetails.gradeAsOf}</p>
+            </div>
+          </>
+        )}
       </div>
     </section>
   );

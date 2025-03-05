@@ -22,11 +22,11 @@ export default function PersonalInfoSection({
         Personal & Contact Information
       </h2>
       <div className="rounded-lg border border-gray-200 bg-white p-4 grid grid-cols-2 gap-4">
-        {/* First Name */}
-        <div>
-          <label className="block text-sm font-medium">First Name</label>
-          {isEditing ? (
-            <>
+        {isEditing ? (
+          <>
+            {/* First Name */}
+            <div>
+              <label className="block text-sm font-medium">First Name</label>
               <Input
                 {...register('firstName')}
                 className={`w-full p-1 border rounded ${
@@ -38,17 +38,11 @@ export default function PersonalInfoSection({
                   {errors.firstName.message}
                 </p>
               )}
-            </>
-          ) : (
-            <p>{player.firstName}</p>
-          )}
-        </div>
+            </div>
 
-        {/* Birth Date */}
-        <div>
-          <label className="block text-sm font-medium">Birth Date</label>
-          {isEditing ? (
-            <>
+            {/* Birth Date */}
+            <div>
+              <label className="block text-sm font-medium">Birth Date</label>
               <Input
                 {...register('birthDate')}
                 className={`w-full p-1 border rounded ${
@@ -60,30 +54,20 @@ export default function PersonalInfoSection({
                   {errors.birthDate.message}
                 </p>
               )}
-            </>
-          ) : (
-            <p>{player.birthDate}</p>
-          )}
-        </div>
+            </div>
 
-        {/* Middle Name */}
-        <div>
-          <label className="block text-sm font-medium">Middle Name</label>
-          {isEditing ? (
-            <Input
-              {...register('middleName')}
-              className="w-full p-1 border rounded"
-            />
-          ) : (
-            <p>{player.middleName}</p>
-          )}
-        </div>
+            {/* Middle Name */}
+            <div>
+              <label className="block text-sm font-medium">Middle Name</label>
+              <Input
+                {...register('middleName')}
+                className="w-full p-1 border rounded"
+              />
+            </div>
 
-        {/* Gender */}
-        <div>
-          <label className="block text-sm font-medium">Gender</label>
-          {isEditing ? (
-            <>
+            {/* Gender */}
+            <div>
+              <label className="block text-sm font-medium">Gender</label>
               <Input
                 {...register('gender')}
                 className={`w-full p-1 border rounded ${
@@ -93,17 +77,11 @@ export default function PersonalInfoSection({
               {errors.gender && (
                 <p className="text-red-500 text-sm">{errors.gender.message}</p>
               )}
-            </>
-          ) : (
-            <p>{player.gender}</p>
-          )}
-        </div>
+            </div>
 
-        {/* Last Name */}
-        <div>
-          <label className="block text-sm font-medium">Last Name</label>
-          {isEditing ? (
-            <>
+            {/* Last Name */}
+            <div>
+              <label className="block text-sm font-medium">Last Name</label>
               <Input
                 {...register('lastName')}
                 className={`w-full p-1 border rounded ${
@@ -115,17 +93,11 @@ export default function PersonalInfoSection({
                   {errors.lastName.message}
                 </p>
               )}
-            </>
-          ) : (
-            <p>{player.lastName}</p>
-          )}
-        </div>
+            </div>
 
-        {/* Email */}
-        <div>
-          <label className="block text-sm font-medium">Email</label>
-          {isEditing ? (
-            <>
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium">Email</label>
               <Input
                 type="email"
                 {...register('email')}
@@ -136,30 +108,74 @@ export default function PersonalInfoSection({
               {errors.email && (
                 <p className="text-red-500 text-sm">{errors.email.message}</p>
               )}
-            </>
-          ) : (
-            <p>{player.email}</p>
-          )}
-        </div>
+            </div>
 
-        {/* Name Suffix */}
-        <div>
-          <label className="block text-sm font-medium">Name Suffix</label>
-          {isEditing ? (
-            <Input
-              {...register('nameSuffix')}
-              className="w-full p-1 border rounded"
-            />
-          ) : (
-            <p>{player.nameSuffix}</p>
-          )}
-        </div>
+            {/* Name Suffix */}
+            <div>
+              <label className="block text-sm font-medium">Name Suffix</label>
+              <Input
+                {...register('nameSuffix')}
+                className="w-full p-1 border rounded"
+              />
+            </div>
 
-        {/* Age Proof */}
-        <div>
-          <label className="block text-sm font-medium">Age Proof</label>
-          <p>{player.ageProof}</p>
-        </div>
+            {/* Age Proof */}
+            <div>
+              <label className="block text-sm font-medium">Age Proof</label>
+              <p>{player.ageProof}</p>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* First Name */}
+            <div>
+              <label className="block text-sm font-medium">First Name</label>
+              <p>{player.firstName}</p>
+            </div>
+
+            {/* Birth Date */}
+            <div>
+              <label className="block text-sm font-medium">Birth Date</label>
+              <p>{player.birthDate}</p>
+            </div>
+
+            {/* Middle Name */}
+            <div>
+              <label className="block text-sm font-medium">Middle Name</label>
+              <p>{player.middleName}</p>
+            </div>
+
+            {/* Gender */}
+            <div>
+              <label className="block text-sm font-medium">Gender</label>
+              <p>{player.gender}</p>
+            </div>
+
+            {/* Last Name */}
+            <div>
+              <label className="block text-sm font-medium">Last Name</label>
+              <p>{player.lastName}</p>
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium">Email</label>
+              <p>{player.email}</p>
+            </div>
+
+            {/* Name Suffix */}
+            <div>
+              <label className="block text-sm font-medium">Name Suffix</label>
+              <p>{player.nameSuffix}</p>
+            </div>
+
+            {/* Age Proof */}
+            <div>
+              <label className="block text-sm font-medium">Age Proof</label>
+              <p>{player.ageProof}</p>
+            </div>
+          </>
+        )}
       </div>
     </section>
   );

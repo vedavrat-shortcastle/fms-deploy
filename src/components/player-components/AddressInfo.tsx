@@ -20,11 +20,13 @@ export default function AddressSection({
     <section className="mb-8">
       <h2 className="text-xl font-semibold mb-4">Mailing Address</h2>
       <div className="rounded-lg border border-gray-200 bg-white p-4 grid grid-cols-2 gap-4">
-        {/* Street Address */}
-        <div>
-          <label className="block text-sm font-medium">Street Address</label>
-          {isEditing ? (
-            <>
+        {isEditing ? (
+          <>
+            {/* Street Address */}
+            <div>
+              <label className="block text-sm font-medium">
+                Street Address
+              </label>
               <Input
                 {...register('address.street')}
                 className={`w-full p-1 border rounded ${
@@ -36,17 +38,11 @@ export default function AddressSection({
                   {errors.address.street.message}
                 </p>
               )}
-            </>
-          ) : (
-            <p>{player.address.street}</p>
-          )}
-        </div>
+            </div>
 
-        {/* Postal Code */}
-        <div>
-          <label className="block text-sm font-medium">Postal Code</label>
-          {isEditing ? (
-            <>
+            {/* Postal Code */}
+            <div>
+              <label className="block text-sm font-medium">Postal Code</label>
               <Input
                 {...register('address.postalCode')}
                 className={`w-full p-1 border rounded ${
@@ -58,32 +54,22 @@ export default function AddressSection({
                   {errors.address.postalCode.message}
                 </p>
               )}
-            </>
-          ) : (
-            <p>{player.address.postalCode}</p>
-          )}
-        </div>
+            </div>
 
-        {/* Street Address Line 2 */}
-        <div>
-          <label className="block text-sm font-medium">
-            Street Address Line 2
-          </label>
-          {isEditing ? (
-            <Input
-              {...register('address.street2')}
-              className="w-full p-1 border rounded"
-            />
-          ) : (
-            <p>{player.address.street2}</p>
-          )}
-        </div>
+            {/* Street Address Line 2 */}
+            <div>
+              <label className="block text-sm font-medium">
+                Street Address Line 2
+              </label>
+              <Input
+                {...register('address.street2')}
+                className="w-full p-1 border rounded"
+              />
+            </div>
 
-        {/* Country */}
-        <div>
-          <label className="block text-sm font-medium">Country</label>
-          {isEditing ? (
-            <>
+            {/* Country */}
+            <div>
+              <label className="block text-sm font-medium">Country</label>
               <Input
                 {...register('address.country')}
                 className={`w-full p-1 border rounded ${
@@ -95,17 +81,11 @@ export default function AddressSection({
                   {errors.address.country.message}
                 </p>
               )}
-            </>
-          ) : (
-            <p>{player.address.country}</p>
-          )}
-        </div>
+            </div>
 
-        {/* City */}
-        <div>
-          <label className="block text-sm font-medium">City</label>
-          {isEditing ? (
-            <>
+            {/* City */}
+            <div>
+              <label className="block text-sm font-medium">City</label>
               <Input
                 {...register('address.city')}
                 className={`w-full p-1 border rounded ${
@@ -117,17 +97,11 @@ export default function AddressSection({
                   {errors.address.city.message}
                 </p>
               )}
-            </>
-          ) : (
-            <p>{player.address.city}</p>
-          )}
-        </div>
+            </div>
 
-        {/* Phone Number */}
-        <div>
-          <label className="block text-sm font-medium">Phone Number</label>
-          {isEditing ? (
-            <>
+            {/* Phone Number */}
+            <div>
+              <label className="block text-sm font-medium">Phone Number</label>
               <Input
                 {...register('address.phone')}
                 className={`w-full p-1 border rounded ${
@@ -139,17 +113,13 @@ export default function AddressSection({
                   {errors.address.phone.message}
                 </p>
               )}
-            </>
-          ) : (
-            <p>{player.address.phone}</p>
-          )}
-        </div>
+            </div>
 
-        {/* State/Province */}
-        <div>
-          <label className="block text-sm font-medium">State/Province</label>
-          {isEditing ? (
-            <>
+            {/* State/Province */}
+            <div>
+              <label className="block text-sm font-medium">
+                State/Province
+              </label>
               <Input
                 {...register('address.state')}
                 className={`w-full p-1 border rounded ${
@@ -161,11 +131,59 @@ export default function AddressSection({
                   {errors.address.state.message}
                 </p>
               )}
-            </>
-          ) : (
-            <p>{player.address.state}</p>
-          )}
-        </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Street Address */}
+            <div>
+              <label className="block text-sm font-medium">
+                Street Address
+              </label>
+              <p>{player.address.street}</p>
+            </div>
+
+            {/* Postal Code */}
+            <div>
+              <label className="block text-sm font-medium">Postal Code</label>
+              <p>{player.address.postalCode}</p>
+            </div>
+
+            {/* Street Address Line 2 */}
+            <div>
+              <label className="block text-sm font-medium">
+                Street Address Line 2
+              </label>
+              <p>{player.address.street2}</p>
+            </div>
+
+            {/* Country */}
+            <div>
+              <label className="block text-sm font-medium">Country</label>
+              <p>{player.address.country}</p>
+            </div>
+
+            {/* City */}
+            <div>
+              <label className="block text-sm font-medium">City</label>
+              <p>{player.address.city}</p>
+            </div>
+
+            {/* Phone Number */}
+            <div>
+              <label className="block text-sm font-medium">Phone Number</label>
+              <p>{player.address.phone}</p>
+            </div>
+
+            {/* State/Province */}
+            <div>
+              <label className="block text-sm font-medium">
+                State/Province
+              </label>
+              <p>{player.address.state}</p>
+            </div>
+          </>
+        )}
       </div>
     </section>
   );
