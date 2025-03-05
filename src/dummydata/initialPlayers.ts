@@ -22,7 +22,7 @@ export const initialPlayers: Player[] = [
     email: 'taylor.morgan@example.com',
     phone: '+1 (555) 456-7890',
     gender: 'Female',
-    image: '/api/placeholder/90/90',
+    image: '',
   },
   {
     id: 3,
