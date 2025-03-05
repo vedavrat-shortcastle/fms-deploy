@@ -1,7 +1,6 @@
-// page.tsx
 'use client';
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, PlusCircle, Upload, Download } from 'lucide-react';
 import Sidebar from '@/components/SideBar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +14,7 @@ export default function Page() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Filter players based on the search term
+  // Filter players based on the search term need to handle through api
   const filteredPlayers = players.filter(
     (player) =>
       player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -23,7 +22,7 @@ export default function Page() {
       player.phone.includes(searchTerm)
   );
 
-  // Delete player
+  // Delete player need to handle through api
   const handleDelete = (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
     if (window.confirm('Are you sure you want to delete this player?')) {
@@ -57,7 +56,7 @@ export default function Page() {
     alert('Export functionality would download player data');
   };
 
-  // Pagination
+  // implement pagination logic
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -68,19 +67,7 @@ export default function Page() {
       <main className="flex-1 overflow-auto p-6">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <svg
-              className="h-5 w-5 text-red-500"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 8v8" />
-              <path d="M8 12h8" />
-            </svg>
+            <PlusCircle className="h-5 w-5 text-red-500" />
             <h1 className="text-lg font-medium text-gray-700">Players</h1>
           </div>
           <Button
@@ -107,19 +94,7 @@ export default function Page() {
             className="border-gray-200 text-gray-600 rounded-md"
             onClick={handleImport}
           >
-            <svg
-              className="h-4 w-4 mr-2"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="17 8 12 3 7 8" />
-              <line x1="12" y1="3" x2="12" y2="15" />
-            </svg>
+            <Upload className="h-4 w-4 mr-2" />
             Import
           </Button>
           <Button
@@ -127,19 +102,7 @@ export default function Page() {
             className="border-gray-200 text-gray-600 rounded-md"
             onClick={handleExport}
           >
-            <svg
-              className="h-4 w-4 mr-2"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
+            <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
         </div>

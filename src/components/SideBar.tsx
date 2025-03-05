@@ -11,16 +11,16 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FC, ReactElement } from 'react';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 
-// Interface for our component props
 interface SidebarLinkProps {
-  href: string;
+  href?: string;
   icon: ReactElement;
   label: string;
-  active: boolean;
+  active?: boolean;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
-// Main Sidebar component that contains all the subcomponents
 const Sidebar: FC = () => {
   const pathname = usePathname();
 
@@ -37,14 +37,12 @@ const Sidebar: FC = () => {
       label: 'Memberships',
       active: pathname === '/memberships',
     },
-
     {
       href: '/events',
       icon: <Calendar size={20} />,
       label: 'Events',
       active: pathname === '/events',
     },
-
     {
       href: '/support',
       icon: <LifeBuoy size={20} />,
@@ -60,9 +58,16 @@ const Sidebar: FC = () => {
   ];
 
   // SidebarLink component defined within the main component
-  const SidebarLink = ({ href, icon, label, active }: SidebarLinkProps) => (
+  const SidebarLink = ({
+    href = '#',
+    icon,
+    label,
+    active,
+    onClick,
+  }: SidebarLinkProps) => (
     <Link
       href={href}
+      onClick={onClick}
       className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
         active
           ? 'bg-red-600 text-white'
@@ -105,7 +110,10 @@ const Sidebar: FC = () => {
       {/* Footer */}
       <div className="border-t border-gray-700 p-4">
         <SidebarLink
-          href="/logout"
+          onClick={(e) => {
+            e.preventDefault();
+            signOut();
+          }}
           icon={<LogOut size={20} />}
           label="Logout Account"
           active={false}
