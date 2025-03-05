@@ -80,6 +80,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
                   <FormControl>
                     <Input
                       placeholder="Enter Club Name"
+                      className="w-[450px]"
                       {...field}
                       aria-label="Club Name"
                     />
@@ -99,6 +100,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
                   <FormControl>
                     <Input
                       placeholder="Enter Club Location"
+                      className="w-[450px]"
                       {...field}
                       aria-label="Club Location"
                     />
@@ -118,6 +120,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
                   <FormControl>
                     <Input
                       placeholder="Enter Club Address"
+                      className="w-[450px]"
                       {...field}
                       aria-label="Club Address"
                     />
@@ -137,6 +140,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
                   <FormControl>
                     <Input
                       placeholder="Enter Contact Person Name"
+                      className="w-[450px]"
                       {...field}
                       aria-label="Contact Person"
                     />
@@ -175,7 +179,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
                         placeholder="555-123-4567"
                         {...field}
                         aria-label="Phone Number"
-                        className="w-[330px]"
+                        className="w-[450px]"
                       />
                     </div>
                   </FormControl>

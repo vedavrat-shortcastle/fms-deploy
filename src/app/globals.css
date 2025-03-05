@@ -85,10 +85,6 @@ body {
   * {
     @apply border-border;
   }
-  input::placeholder {
-    @apply text-lg opacity-70;
-  }
-
   body {
     @apply bg-background text-foreground;
   }

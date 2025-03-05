@@ -82,7 +82,11 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                 <FormItem>
                   <FormLabel>Full name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Full name" {...field} />
+                    <Input
+                      placeholder="Full name"
+                      className="w-[450px]"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -114,7 +118,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                       <Input
                         placeholder="55555-55555"
                         {...field}
-                        className="w-[338px]"
+                        className="w-[450px]"
                       />
                     </div>
                   </FormControl>
@@ -156,7 +160,11 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                 <FormItem>
                   <FormLabel>Federation Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Federation name" {...field} />
+                    <Input
+                      placeholder="Federation name"
+                      className="w-[450px]"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

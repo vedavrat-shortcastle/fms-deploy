@@ -84,6 +84,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                       placeholder="Email Address"
                       {...field}
                       aria-label="Email"
+                      className="w-[450px]"
                     />
                   </FormControl>
                   <FormMessage />
@@ -102,6 +103,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                       placeholder="Enter your password"
                       {...field}
                       aria-label="Password"
+                      className="w-[450px]"
                     />
                   </FormControl>
                   <FormMessage />
@@ -122,6 +124,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                       placeholder="Enter your password"
                       {...field}
                       aria-label="Confirm Password"
+                      className="w-[450px]"
                     />
                   </FormControl>
                   <FormMessage />
