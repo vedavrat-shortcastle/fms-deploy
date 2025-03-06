@@ -13,8 +13,6 @@ import { FC, ReactElement } from 'react';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 
-// All the imports
-
 interface SidebarLinkProps {
   href?: string;
   icon: ReactElement;
@@ -22,7 +20,6 @@ interface SidebarLinkProps {
   active?: boolean;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
-// Props for the SidebarLinks component.
 
 const Sidebar: FC = () => {
   const pathname = usePathname();
@@ -83,7 +80,7 @@ const Sidebar: FC = () => {
   );
 
   return (
-    <aside className="flex w-64flex-col bg-[#595959] text-white">
+    <aside className="flex h-full w-64 flex-col bg-[#595959] text-white">
       {/* Header */}
       <div className="p-6">
         <h1 className="text-2xl font-bold text-red-600">FedChess</h1>
