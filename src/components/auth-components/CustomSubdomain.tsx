@@ -43,7 +43,7 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
   const onSubmit = (values: { subdomain: string }) => {
     console.log('Subdomain:', values.subdomain);
     // Replace with actual API request
-    router.push('/welcome-federation');
+    router.push('/onboarding-welcome');
     // On Successful Validation, Push to the welcome page.
   };
 
