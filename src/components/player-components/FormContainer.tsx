@@ -1,5 +1,7 @@
+'use client';
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 interface FormContainerProps {
   title: string;
@@ -23,27 +25,36 @@ export const FormContainer: React.FC<FormContainerProps> = ({
   <div className="max-w-4xl mx-auto p-6">
     <h2 className="mb-4 text-2xl font-bold text-gray-800">{title}</h2>
     <div className="bg-white border rounded-md shadow-lg">
-      <div className="flex p-4 border-b">
-        <TabButton
-          active={activeTab === 'personal'}
-          onClick={() => onTabChange('personal')}
-        >
-          Personal &amp; Contact
-        </TabButton>
-        <TabButton
-          active={activeTab === 'mailing'}
-          onClick={() => onTabChange('mailing')}
-        >
-          Mailing Address
-        </TabButton>
-        <TabButton
-          active={activeTab === 'other'}
-          onClick={() => onTabChange('other')}
-        >
-          Other Information
-        </TabButton>
-      </div>
-      <div className="p-6">{children}</div>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) =>
+          onTabChange(value as 'personal' | 'mailing' | 'other')
+        }
+      >
+        <TabsList className="flex p-6 border-b">
+          <TabsTrigger
+            value="personal"
+            className="flex-1 text-lg font-semibold px-4 py-2 data-[state=active]:bg-red-500 data-[state=active]:text-white text-gray-700"
+          >
+            Personal &amp; Contact
+          </TabsTrigger>
+          <TabsTrigger
+            value="mailing"
+            className="flex-1 text-lg font-semibold px-4 py-2 data-[state=active]:bg-red-500 data-[state=active]:text-white text-gray-700"
+          >
+            Mailing Address
+          </TabsTrigger>
+          <TabsTrigger
+            value="other"
+            className="flex-1 text-lg font-semibold px-4 py-2 data-[state=active]:bg-red-500 data-[state=active]:text-white text-gray-700"
+          >
+            Other Information
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value={activeTab} className="p-6">
+          {children}
+        </TabsContent>
+      </Tabs>
       <div className="flex justify-end space-x-3 p-4 border-t">
         <Button variant="outline" onClick={onBack}>
           Back
@@ -54,20 +65,4 @@ export const FormContainer: React.FC<FormContainerProps> = ({
       </div>
     </div>
   </div>
-);
-
-interface TabButtonProps {
-  active: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
-}
-
-const TabButton: React.FC<TabButtonProps> = ({ active, children, onClick }) => (
-  <Button
-    variant={active ? 'destructive' : 'ghost'}
-    onClick={onClick}
-    className={`flex-1 py-3 text-sm font-medium ${active ? 'text-white' : 'text-gray-700'}`}
-  >
-    {children}
-  </Button>
 );

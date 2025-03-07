@@ -20,14 +20,14 @@ export function OtherInfoForm() {
 
   const renderLabel = (text: string, isRequired: boolean = false) => (
     <>
-      {text}
+      <span className="text-sm text-gray-900">{text}</span>
       {isRequired && <span className="text-red-500"> *</span>}
     </>
   );
 
   return (
-    <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-gray-700 mb-4">
+    <div className="space-y-6 max-w-3xl mx-auto bg-white p-6 rounded-lg">
+      <h3 className="text-xl font-semibold text-gray-900 mb-4">
         Player Details
       </h3>
 
@@ -42,6 +42,7 @@ export function OtherInfoForm() {
               <Input
                 placeholder="Enter FIDE ID"
                 {...register('other.fideId')}
+                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
             <FormMessage>{errors.other?.fideId?.message}</FormMessage>
@@ -49,7 +50,7 @@ export function OtherInfoForm() {
         )}
       />
 
-      <h3 className="text-xl font-semibold text-gray-700 mt-6 mb-4">
+      <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-4">
         Student Details
       </h3>
 
@@ -64,6 +65,7 @@ export function OtherInfoForm() {
               <Input
                 placeholder="Enter School Name"
                 {...register('other.schoolName')}
+                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
             <FormMessage>{errors.other?.schoolName?.message}</FormMessage>
@@ -82,6 +84,7 @@ export function OtherInfoForm() {
               <Input
                 placeholder="Enter Graduation Year"
                 {...register('other.graduationYear')}
+                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
             <FormMessage>{errors.other?.graduationYear?.message}</FormMessage>
@@ -97,7 +100,11 @@ export function OtherInfoForm() {
           <FormItem>
             <FormLabel>{renderLabel('Grade in School', true)}</FormLabel>
             <FormControl>
-              <Input placeholder="Enter Grade" {...register('other.grade')} />
+              <Input
+                placeholder="Enter Grade"
+                {...register('other.grade')}
+                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
+              />
             </FormControl>
             <FormMessage>{errors.other?.grade?.message}</FormMessage>
           </FormItem>
@@ -112,14 +119,18 @@ export function OtherInfoForm() {
           <FormItem>
             <FormLabel>{renderLabel('Grade as of (Date)', true)}</FormLabel>
             <FormControl>
-              <Input type="date" {...register('other.gradeAsOf')} />
+              <Input
+                type="date"
+                {...register('other.gradeAsOf')}
+                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
+              />
             </FormControl>
             <FormMessage>{errors.other?.gradeAsOf?.message}</FormMessage>
           </FormItem>
         )}
       />
 
-      <h3 className="text-xl font-semibold text-gray-700 mt-6 mb-4">
+      <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-4">
         Club Information
       </h3>
 
@@ -134,6 +145,7 @@ export function OtherInfoForm() {
               <Input
                 placeholder="Enter Club Name"
                 {...register('other.clubName')}
+                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
             <FormMessage>{errors.other?.clubName?.message}</FormMessage>
