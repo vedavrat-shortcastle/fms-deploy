@@ -41,14 +41,14 @@ export default function MailingAddressForm() {
 
   const renderLabel = (text: string, isRequired: boolean = false) => (
     <>
-      {text}
+      <span className="text-sm text-gray-900">{text}</span>
       {isRequired && <span className="text-red-500"> *</span>}
     </>
   );
 
   return (
-    <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-gray-700 mb-4">
+    <div className="space-y-6 max-w-3xl mx-auto bg-white p-6 rounded-lg">
+      <h3 className="text-xl font-semibold text-gray-900 mb-4">
         Mailing Address
       </h3>
 
@@ -60,7 +60,11 @@ export default function MailingAddressForm() {
           <FormItem>
             <FormLabel>{renderLabel('Street Address', true)}</FormLabel>
             <FormControl>
-              <Input placeholder="Enter Street Address" {...field} />
+              <Input
+                placeholder="Enter Street Address"
+                {...field}
+                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
+              />
             </FormControl>
             <FormMessage>{errors.mailing?.streetAddress?.message}</FormMessage>
           </FormItem>
@@ -73,9 +77,13 @@ export default function MailingAddressForm() {
         name="mailing.streetAddressLine2"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Street Address Line 2</FormLabel>
+            <FormLabel>{renderLabel('Street Address Line 2')}</FormLabel>
             <FormControl>
-              <Input placeholder="Enter Address Line 2" {...field} />
+              <Input
+                placeholder="Enter Address Line 2"
+                {...field}
+                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
+              />
             </FormControl>
             <FormMessage>
               {errors.mailing?.streetAddressLine2?.message}
@@ -93,7 +101,7 @@ export default function MailingAddressForm() {
             <FormLabel>{renderLabel('Country', true)}</FormLabel>
             <FormControl>
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500">
                   <SelectValue placeholder="Select Country" />
                 </SelectTrigger>
                 <SelectContent>
@@ -119,7 +127,7 @@ export default function MailingAddressForm() {
             <FormLabel>{renderLabel('State/Province', true)}</FormLabel>
             <FormControl>
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500">
                   <SelectValue placeholder="Select State/Province" />
                 </SelectTrigger>
                 <SelectContent>
@@ -144,7 +152,11 @@ export default function MailingAddressForm() {
           <FormItem>
             <FormLabel>{renderLabel('City', true)}</FormLabel>
             <FormControl>
-              <Input placeholder="Enter City" {...field} />
+              <Input
+                placeholder="Enter City"
+                {...field}
+                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
+              />
             </FormControl>
             <FormMessage>{errors.mailing?.city?.message}</FormMessage>
           </FormItem>
@@ -159,7 +171,11 @@ export default function MailingAddressForm() {
           <FormItem>
             <FormLabel>{renderLabel('Postal Code', true)}</FormLabel>
             <FormControl>
-              <Input placeholder="Enter Postal Code" {...field} />
+              <Input
+                placeholder="Enter Postal Code"
+                {...field}
+                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
+              />
             </FormControl>
             <FormMessage>{errors.mailing?.postalCode?.message}</FormMessage>
           </FormItem>
@@ -172,9 +188,13 @@ export default function MailingAddressForm() {
         name="mailing.phoneNumber"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{renderLabel('Phone Number')}</FormLabel>
+            <FormLabel>{renderLabel('Phone Number', true)}</FormLabel>
             <FormControl>
-              <Input placeholder="Enter Phone Number" {...field} />
+              <Input
+                placeholder="Enter Phone Number"
+                {...field}
+                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
+              />
             </FormControl>
             <FormMessage>{errors.mailing?.phoneNumber?.message}</FormMessage>
           </FormItem>
