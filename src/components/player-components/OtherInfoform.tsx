@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
+import { format } from 'date-fns';
 
 import {
   FormField,
@@ -11,10 +12,13 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { AddPlayerFormData } from '@/schemas/addplayer.schema';
+import { DatePicker } from '@/components/player-components/DatePicker';
 
 export function OtherInfoForm() {
   const {
-    register,
+    control,
+    setValue,
+    trigger,
     formState: { errors },
   } = useFormContext<AddPlayerFormData>();
 
@@ -33,15 +37,15 @@ export function OtherInfoForm() {
 
       {/* FIDE ID */}
       <FormField
-        control={undefined as any}
+        control={control}
         name="other.fideId"
-        render={() => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('FIDE ID')}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter FIDE ID"
-                {...register('other.fideId')}
+                {...field}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -56,15 +60,15 @@ export function OtherInfoForm() {
 
       {/* School Name */}
       <FormField
-        control={undefined as any}
+        control={control}
         name="other.schoolName"
-        render={() => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('School Name', true)}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter School Name"
-                {...register('other.schoolName')}
+                {...field}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -75,15 +79,15 @@ export function OtherInfoForm() {
 
       {/* Graduation Year */}
       <FormField
-        control={undefined as any}
+        control={control}
         name="other.graduationYear"
-        render={() => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('Graduation Year', true)}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter Graduation Year"
-                {...register('other.graduationYear')}
+                {...field}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -94,15 +98,15 @@ export function OtherInfoForm() {
 
       {/* Grade in School */}
       <FormField
-        control={undefined as any}
+        control={control}
         name="other.grade"
-        render={() => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('Grade in School', true)}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter Grade"
-                {...register('other.grade')}
+                {...field}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -111,18 +115,34 @@ export function OtherInfoForm() {
         )}
       />
 
-      {/* Grade as of (Date) */}
+      {/* Grade as of (Date) - Using DatePicker */}
       <FormField
-        control={undefined as any}
+        control={control}
         name="other.gradeAsOf"
-        render={() => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('Grade as of (Date)', true)}</FormLabel>
             <FormControl>
-              <Input
-                type="date"
-                {...register('other.gradeAsOf')}
+              <DatePicker
+                value={field.value ? new Date(field.value) : undefined}
+                onChange={(date) => {
+                  if (date) {
+                    setValue('other.gradeAsOf', format(date, 'yyyy-MM-dd'));
+                    // Trigger validation immediately after date change
+                    trigger('other.gradeAsOf');
+                  } else {
+                    setValue('other.gradeAsOf', '');
+                    trigger('other.gradeAsOf');
+                  }
+                }}
+                onBlur={() => {
+                  // Trigger validation on blur
+                  trigger('other.gradeAsOf');
+                }}
+                // No disabled prop here to allow future dates
+                placeholder="Select date"
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
+                error={!!errors.other?.gradeAsOf}
               />
             </FormControl>
             <FormMessage>{errors.other?.gradeAsOf?.message}</FormMessage>
@@ -136,15 +156,15 @@ export function OtherInfoForm() {
 
       {/* Club Name */}
       <FormField
-        control={undefined as any}
+        control={control}
         name="other.clubName"
-        render={() => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('Club Name', true)}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter Club Name"
-                {...register('other.clubName')}
+                {...field}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>

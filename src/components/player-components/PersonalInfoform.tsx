@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { Calendar } from 'lucide-react';
+import { format } from 'date-fns';
 
 import {
   FormField,
@@ -19,11 +19,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { AddPlayerFormData } from '@/schemas/addplayer.schema';
+import { DatePicker } from '@/components/player-components/DatePicker';
 
 export function PersonalInformationForm() {
   const {
     control,
     register,
+    setValue,
+    trigger,
     formState: { errors },
   } = useFormContext<AddPlayerFormData>();
   const [isClient, setIsClient] = useState(false);
@@ -31,6 +34,9 @@ export function PersonalInformationForm() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Get current date for maximum date validation
+  const today = new Date();
 
   if (!isClient) return null;
 
@@ -82,7 +88,7 @@ export function PersonalInformationForm() {
         )}
       />
 
-      {/* Birth Date */}
+      {/* Birth Date with custom DatePicker */}
       <FormField
         control={control}
         name="personal.birthDate"
@@ -91,16 +97,29 @@ export function PersonalInformationForm() {
             <FormLabel className="text-sm text-gray-900">
               Birth Date <span className="text-red-500">*</span>
             </FormLabel>
-            <div className="relative">
-              <FormControl>
-                <Input
-                  type="date"
-                  {...field}
-                  className="w-full p-3 pr-10 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-                />
-              </FormControl>
-              <Calendar className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
-            </div>
+            <FormControl>
+              <DatePicker
+                value={field.value ? new Date(field.value) : undefined}
+                onChange={(date) => {
+                  if (date) {
+                    setValue('personal.birthDate', format(date, 'yyyy-MM-dd'));
+                    // Trigger validation immediately after date change
+                    trigger('personal.birthDate');
+                  } else {
+                    setValue('personal.birthDate', '');
+                    trigger('personal.birthDate');
+                  }
+                }}
+                onBlur={() => {
+                  // Trigger validation on blur
+                  trigger('personal.birthDate');
+                }}
+                disabled={(date) => date > today}
+                placeholder="Select birth date"
+                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
+                error={!!errors.personal?.birthDate}
+              />
+            </FormControl>
             <FormMessage>{errors.personal?.birthDate?.message}</FormMessage>
           </FormItem>
         )}
