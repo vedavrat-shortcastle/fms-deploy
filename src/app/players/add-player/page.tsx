@@ -24,7 +24,7 @@ export default function AddPlayerPage() {
     'personal'
   );
 
-  const methods = useForm<AddPlayerFormData>({
+  const form = useForm<AddPlayerFormData>({
     resolver: zodResolver(addPlayerSchema),
     mode: 'onChange', // Validate on every change for instant feedback
     defaultValues: {
@@ -59,7 +59,7 @@ export default function AddPlayerPage() {
     },
   });
 
-  const { handleSubmit, reset, trigger } = methods;
+  const { handleSubmit, reset, trigger } = form;
 
   // When manually switching tabs, validate the current tab if moving forward.
   const handleTabChange = async (newTab: 'personal' | 'mailing' | 'other') => {
@@ -96,7 +96,7 @@ export default function AddPlayerPage() {
   };
 
   return (
-    <FormProvider {...methods}>
+    <FormProvider {...form}>
       <div className="flex h-screen bg-gray-50">
         <Sidebar />
         <main className="flex-1 overflow-auto p-6">
