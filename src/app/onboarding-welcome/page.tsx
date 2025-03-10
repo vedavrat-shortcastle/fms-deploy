@@ -53,10 +53,11 @@ export default function Home() {
       {/* Wave background at bottom - matching the subtle curve in the image */}
       {/* The svg is stored in public/assets/waveBackground.svg for now */}
       <div className="relative w-full h-36 overflow-hidden">
-        <img
+        <Image
           src="/assets/waveBackground.svg"
           alt="Wave Background"
-          className="absolute bottom-0 left-0 w-full h-full"
+          layout="fill"
+          objectFit="cover"
         />
       </div>
     </div>
