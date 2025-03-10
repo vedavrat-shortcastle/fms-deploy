@@ -19,9 +19,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   signupFederationSchema,
   SignupFederationFormValues,
-} from '../../schemas/form-schemas/signupFederationSchema';
+} from '../../schemas/form-schemas/signupFederationSchema'; // Zod Validation logic for this component.
 
-// All the imports
+// All the imports\
+// This component is being used for 1 route as of now - /sign-up-federation
 
 interface SignupProps {
   imageSrc: string;
@@ -56,15 +57,15 @@ export const SignupFederation = ({ imageSrc }: SignupProps) => {
       <Logo />
       {/* Global Logo component */}
 
-      <div className="m-40">
+      <div className="m-20">
         {/* Container Div */}
-        <h1 className="flex justify-center text-4xl m-10 font-bold">
+        <h1 className="flex justify-center text-2xl m-10 font-bold">
           Federation Sign Up
         </h1>
 
         {/* The below is the form-logic for the signup-federation */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             <FormField
               control={form.control}
               name="email"

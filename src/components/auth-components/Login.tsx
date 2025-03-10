@@ -19,9 +19,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   loginSchema,
   LoginFormValues,
-} from '../../schemas/form-schemas/loginMemberSchema';
+} from '../../schemas/form-schemas/loginMemberSchema'; // Zod Validation logic for the component.
 
 // All the imports
+
+// This is a reusable component which is currently being used for two routes.
+// 1. login-federation
+// 2. login-member
 
 interface LoginProps {
   imageSrc: string;
@@ -60,23 +64,23 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
       <Logo />
       {/* Global Logo component */}
 
-      <div className="m-40">
+      <div className="m-20">
         {/* Container Div */}
 
-        <h1 className="flex justify-center text-3xl m-10 ">{heading} Login</h1>
+        <h1 className="flex justify-center text-2xl m-5 ">{heading} Login</h1>
         {/* Pass the heading string you accepted as a prop above */}
 
-        <h1 className="flex justify-center text-4xl m-10 font-bold">
+        <h1 className="flex justify-center text-3xl m-5 font-bold">
           Hello Again!
         </h1>
-        <p className="text-center text-gray-600 mb-6 text-lg">
+        <p className="text-center text-gray-600 mb-3 text-sm">
           Connect Effortlessly, Control Securely, Collaborate Seamlessly Across
           Federated Networks
         </p>
 
         {/* The below is the form-logic for member login */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             <FormField
               control={form.control}
               name="email"
