@@ -1,10 +1,19 @@
 import Image from 'next/image';
 
+// All the imports
+
 interface AuthLayoutProps {
   children: React.ReactNode;
   imageSrc: string;
 }
 // Props for this component.
+
+// This will serve as a wrapper for all the onboarding routes - why?
+// Since all the onboarding routes have same structure - 50% width is form and 50% is image.
+
+// The Layout will accept 2 Props for now -
+// 1. children - Individual Auth form component (Form logic) - Currently stored in auth components.
+// 2. imageSrc - Image link - Currently stored in public/assets.
 
 export const AuthLayout = ({ children, imageSrc }: AuthLayoutProps) => {
   return (
@@ -15,15 +24,15 @@ export const AuthLayout = ({ children, imageSrc }: AuthLayoutProps) => {
       </div>
 
       {/* Right Section with Grey Background , This is where the Image will go */}
-      <div className="w-1/2 h-full bg-gray-200 flex justify-center items-center relative">
+      <div className="w-1/2 h-full bg-gray-100 flex justify-center items-center relative">
         <Image
-          src={imageSrc}
+          src={imageSrc} // Pass the imageSrc recieved from props
           alt="Signup Illustration"
-          width={500}
-          height={500}
+          width={400}
+          height={400}
           className="absolute"
           style={{
-            top: '280px',
+            top: '230px',
           }}
         />
       </div>

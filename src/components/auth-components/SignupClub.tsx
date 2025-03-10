@@ -17,7 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   signupClubSchema,
   SignupClubFormValues,
-} from '@/schemas/form-schemas/signupClubSchema';
+} from '@/schemas/form-schemas/signupClubSchema'; // Zod Validation logic for this component.
 import {
   Select,
   SelectContent,
@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/select';
 
 // All the imports
+// This component is being used for 1 route as of now - /sign-up-club
 
 interface SignupProps {
   imageSrc: string;
@@ -60,15 +61,15 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
       <Logo />
       {/* Global Logo component */}
 
-      <div className="m-40">
+      <div className="m-20">
         {/* Container Div */}
-        <h1 className="flex justify-center text-4xl m-10 font-bold">
+        <h1 className="flex text-2xl mb-6 font-bold">
           Tell us a bit about Club
         </h1>
 
         {/* The below is the form-logic for the signup-club */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             <FormField
               control={form.control}
               name="clubName"
@@ -179,7 +180,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
                         placeholder="555-123-4567"
                         {...field}
                         aria-label="Phone Number"
-                        className="w-[450px]"
+                        className="w-[320px]"
                       />
                     </div>
                   </FormControl>

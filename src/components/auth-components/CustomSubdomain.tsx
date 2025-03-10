@@ -18,9 +18,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   subdomainSchema,
   SubdomainFormValues,
-} from '@/schemas/form-schemas/subdomainSchema';
+} from '@/schemas/form-schemas/subdomainSchema'; // Zod Validation logic for the component.
 
 // All the imports
+
+// This component is currently being used by 1 route - /onboarding-federation-subdomain
 
 interface CustomSubdomainProps {
   imageSrc: string;
@@ -53,9 +55,9 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
       <Logo />
       {/* Global Logo component */}
 
-      <div className="max-w-3xl w-[500px] mx-auto mt-16 p-10 bg-white ">
+      <div className="mx-auto mt-16 p-10 w">
         {/* Container Div */}
-        <h1 className="text-3xl font-bold mb-10">Custom Subdomain Creation</h1>
+        <h1 className="text-2xl font-bold mb-10">Custom Subdomain Creation</h1>
 
         {/* The below is the form-logic for the custom-subdomain */}
         <Form {...form}>
@@ -66,11 +68,11 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
               name="subdomain"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xl">Subdomain</FormLabel>
+                  <FormLabel className="text-lg">Subdomain</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Enter subdomain"
-                      className="h-12 px-4 text-lg w-full"
+                      className="h-12 px-4 text-lg w-[450px]"
                       {...field}
                     />
                   </FormControl>
@@ -81,11 +83,11 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
 
             {/* Generated URL Display */}
             <div>
-              <FormLabel className="text-xl">URL</FormLabel>
+              <FormLabel className="text-lg">URL</FormLabel>
               <div className="flex items-center border rounded px-3 py-2 bg-gray-100">
-                <span className="text-gray-500">https://</span>
+                <span className="text-gray-800">https://</span>
                 <Input
-                  className="border-0 bg-transparent focus:ring-0 w-full pl-1"
+                  className="border-0 bg-transparent focus:ring-0 w-[350px] pl-4 bg-white"
                   disabled
                   value={`${form.watch('subdomain')}.fedchess.com`}
                 />
