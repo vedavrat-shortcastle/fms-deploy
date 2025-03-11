@@ -11,7 +11,6 @@ export const superUserRouter = router({
     .input(createPermissionSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        console.log('input', input);
         const existingPermission = await ctx.db.permission.findFirst({
           where: {
             OR: [{ name: input.name }, { code: input.code }],
@@ -73,7 +72,6 @@ export const superUserRouter = router({
             message: 'One or more permission IDs are invalid',
           });
         }
-        console.log('input', input);
         // Create user with permissions
         const user = await ctx.db.user.create({
           data: {
@@ -98,7 +96,6 @@ export const superUserRouter = router({
 
         return { ...user, password: undefined };
       } catch (error: any) {
-        console.log('error', error.message);
         handleError(error, {
           message: 'Failed to create user',
           cause: error.message,
