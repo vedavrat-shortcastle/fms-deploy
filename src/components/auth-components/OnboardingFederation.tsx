@@ -25,7 +25,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   onboardingFederationSchema,
   OnboardingFederationFormValues,
-} from '@/schemas/form-schemas/onboardingFederationSchema';
+} from '@/schemas/form-schemas/onboardingFederationSchema'; // Zod Validation logic for the component.
 
 // All the imports
 
@@ -64,27 +64,25 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
       <Logo />
       {/* Global Logo component */}
 
-      <div className=" mx-auto mt-10">
+      <div className="mx-auto mt-10">
         {/* Container Div */}
-        <h1 className="text-3xl font-bold mb-6">
-          Tell us a bit about yourself.
-        </h1>
+        <h1 className="text-2xl font-bold">Tell us a bit about yourself.</h1>
 
         {/* The below is the form-logic for the onboarding-federation */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             {/* Personal Details */}
-            <h2 className="text-2xl font-semibold mt-10">Personal details</h2>
+            <h2 className="text-md font-semibold mt-5">Personal details</h2>
             <FormField
               control={form.control}
               name="fullName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full name</FormLabel>
+                  <FormLabel className="text-input-grey">Full name</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Full name"
-                      className="w-[450px]"
+                      className="w-[350px]"
                       {...field}
                     />
                   </FormControl>
@@ -97,7 +95,9 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               name="phoneNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone number</FormLabel>
+                  <FormLabel className="text-input-grey">
+                    Phone number
+                  </FormLabel>
                   <FormControl>
                     <div className="flex items-center space-x-2">
                       {/* Country Code Selector */}
@@ -118,7 +118,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                       <Input
                         placeholder="55555-55555"
                         {...field}
-                        className="w-[450px]"
+                        className="w-[220px]"
                       />
                     </div>
                   </FormControl>
@@ -128,13 +128,13 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
             />
 
             {/* Organization Details */}
-            <h2 className="text-lg font-semibold mb-2">Organization details</h2>
+            <h2 className="text-lg font-semibold pt-5">Organization details</h2>
             <FormField
               control={form.control}
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Type</FormLabel>
+                  <FormLabel className="text-input-grey">Type</FormLabel>
                   <FormControl>
                     <Select
                       onValueChange={field.onChange}
@@ -158,11 +158,13 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               name="federationName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Federation Name</FormLabel>
+                  <FormLabel className="text-input-grey">
+                    Federation Name
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Federation name"
-                      className="w-[450px]"
+                      className="w-[350px]"
                       {...field}
                     />
                   </FormControl>
@@ -175,7 +177,9 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               name="federationCountry"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Federation Country</FormLabel>
+                  <FormLabel className="text-input-grey">
+                    Federation Country
+                  </FormLabel>
                   <FormControl>
                     <Select
                       onValueChange={field.onChange}
