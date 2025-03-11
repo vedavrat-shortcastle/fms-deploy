@@ -34,6 +34,7 @@ export const authConfig: AuthOptions = {
 
         return {
           id: user.id,
+          orgId: user.organizationId || '',
           email: user.email,
           role: user.role,
           firstName: user.firstName,
@@ -55,12 +56,14 @@ export const authConfig: AuthOptions = {
         token.firstName = user.firstName;
         token.lastName = user.lastName;
         token.permissions = user.permissions;
+        token.orgId = user.orgId;
       }
       return token;
     },
     session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id;
+        session.user.orgId = token.orgId;
         session.user.role = token.role;
         session.user.firstName = token.firstName;
         session.user.lastName = token.lastName;

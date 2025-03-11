@@ -25,3 +25,8 @@ export const createUserSchema = z.object({
   phoneNumber: z.string(),
   permissions: z.array(z.string()), // Array of permission codes
 });
+
+export const createClubSchema = z.object({
+  name: z.string(),
+  managerId: z.string(),
+});

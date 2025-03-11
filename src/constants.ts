@@ -17,9 +17,9 @@ export const PERMISSIONS = {
   EVENT_UPDATE: 'event.update',
   EVENT_DELETE: 'event.delete',
 
-  // User permissions
-  USER_VIEW: 'user.view',
-  USER_CREATE: 'user.create',
-  USER_UPDATE: 'user.update',
-  USER_DELETE: 'user.delete',
+  // Member permissions
+  MEMBER_VIEW: 'member.view',
+  MEMBER_CREATE: 'member.create',
+  MEMBER_UPDATE: 'member.update',
+  MEMBER_DELETE: 'member.delete',
 } as const;

@@ -95,6 +95,8 @@ model User {
 
   subscriptions Subscription[]
   createdAt     DateTime       @default(now())
+
+  @@unique([email, organizationId])
 }
 
 // Subscription Schema
