@@ -1,10 +1,11 @@
 import Link from 'next/link';
+// All the imports
 
 export const Logo = () => {
   return (
     <Link
       href="/"
-      className="absolute top-10 left-10 text-3xl font-bold text-primary"
+      className="absolute top-10 left-10 text-2xl font-bold text-primary"
     >
       FedChess
     </Link>
