@@ -1,15 +1,22 @@
 import { TRPCError } from '@trpc/server';
-import { permissionProtectedProcedure, router } from '@/app/server/trpc';
-import { createClubSchema, createUserSchema } from '@/schemas/user.schema';
+import {
+  permissionProtectedProcedure,
+  router,
+  publicProcedure,
+} from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
 import { hashPassword } from '@/utils/encoder';
 import { Role } from '@prisma/client';
 import { PERMISSIONS } from '@/constants';
+import {
+  createMemberSchema,
+  signupMemberSchema,
+} from '@/schemas/member.schema';
 
-export const userRouter = router({
+export const memberRouter = router({
   // Create a new member
   createMember: permissionProtectedProcedure(PERMISSIONS.MEMBER_CREATE)
-    .input(createUserSchema)
+    .input(createMemberSchema)
     .mutation(async ({ ctx, input }) => {
       try {
         if (!ctx.session.user.orgId) {
@@ -21,7 +28,12 @@ export const userRouter = router({
 
         const hashedPassword = await hashPassword(input.password);
         const existingUser = await ctx.db.user.findUnique({
-          where: { email: input.email, organizationId: ctx.session.user.orgId },
+          where: {
+            email_organizationId: {
+              email: input.email,
+              organizationId: ctx.session.user.orgId,
+            },
+          },
         });
 
         if (existingUser) {
@@ -37,6 +49,7 @@ export const userRouter = router({
             role: Role.MEMBER,
             password: hashedPassword,
             organizationId: ctx.session.user.orgId,
+            countryCode: input.countryCode,
             permissions: {
               create: input.permissions.map((permission: string) => ({
                 permission: { connect: { id: permission } },
@@ -84,106 +97,57 @@ export const userRouter = router({
       }
     }
   ),
-  createClub: permissionProtectedProcedure(PERMISSIONS.CLUB_CREATE)
-    .input(createClubSchema)
+  // Signup a new member
+  signup: publicProcedure
+    .input(signupMemberSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        if (!ctx.session.user.orgId) {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'No organization context found',
-          });
-        }
-
-        // Check if manager exists and belongs to the same organization
-        const manager = await ctx.db.user.findFirst({
-          where: {
-            id: input.managerId,
-            organizationId: ctx.session.user.orgId,
-          },
+        const currentOrg = await ctx.db.organization.findFirst({
+          where: { domain: input.domain },
+          select: { id: true },
         });
-
-        if (!manager) {
+        if (!currentOrg) {
           throw new TRPCError({
             code: 'NOT_FOUND',
-            message: 'Manager not found in organization',
+            message: 'Organization not found',
+          });
+        }
+        const hashedPassword = await hashPassword(input.password);
+        const existingUser = await ctx.db.user.findUnique({
+          where: {
+            email_organizationId: {
+              email: input.email,
+              organizationId: currentOrg.id,
+            },
+          },
+        });
+
+        if (existingUser) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: 'User already exists',
           });
         }
 
-        // Create club and update manager's role
-        const club = await ctx.db.club.create({
+        const user = await ctx.db.user.create({
           data: {
-            name: input.name,
-            organizationId: ctx.session.user.orgId,
-            managerId: input.managerId,
-          },
-          include: {
-            manager: true,
-            organization: true,
-            members: true,
+            email: input.email,
+            password: hashedPassword,
+            firstName: input.firstName,
+            lastName: input.lastName,
+            gender: input.gender,
+            phoneNumber: input.phoneNumber,
+            countryCode: input.countryCode,
+            role: Role.MEMBER,
           },
         });
 
-        // Update manager's role
-        await ctx.db.user.update({
-          where: { id: input.managerId },
-          data: { role: Role.CLUB_MANAGER },
-        });
-
-        return club;
+        return { ...user, password: undefined };
       } catch (error: any) {
         handleError(error, {
-          message: 'Failed to create club',
+          message: 'Failed to sign up member',
           cause: error.message,
         });
       }
     }),
-
-  // Get all clubs
-  getClubs: permissionProtectedProcedure(PERMISSIONS.CLUB_VIEW).query(
-    async ({ ctx }) => {
-      try {
-        if (!ctx.session.user.orgId) {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'No organization context found',
-          });
-        }
-
-        const clubs = await ctx.db.club.findMany({
-          where: {
-            organizationId: ctx.session.user.orgId,
-          },
-          include: {
-            manager: {
-              select: {
-                id: true,
-                email: true,
-                firstName: true,
-                lastName: true,
-                role: true,
-              },
-            },
-            members: {
-              select: {
-                id: true,
-                email: true,
-                firstName: true,
-                lastName: true,
-                role: true,
-              },
-            },
-            organization: true,
-          },
-        });
-
-        return clubs;
-      } catch (error: any) {
-        handleError(error, {
-          message: 'Failed to fetch clubs',
-          cause: error.message,
-        });
-      }
-    }
-  ),
 });

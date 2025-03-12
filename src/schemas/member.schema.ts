@@ -1,7 +1,7 @@
 import { Gender, Role } from '@prisma/client';
 import { z } from 'zod';
 
-export const createUserSchema = z.object({
+export const createMemberSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   role: z.enum([
@@ -22,11 +22,18 @@ export const createUserSchema = z.object({
   state: z.string(),
   city: z.string(),
   postalCode: z.string(),
+  countryCode: z.string(),
   phoneNumber: z.string(),
   permissions: z.array(z.string()), // Array of permission codes
 });
 
-export const createClubSchema = z.object({
-  name: z.string(),
-  managerId: z.string(),
+export const signupMemberSchema = z.object({
+  domain: z.string(),
+  email: z.string().email(),
+  password: z.string().min(6),
+  firstName: z.string(),
+  lastName: z.string(),
+  gender: z.nativeEnum(Gender),
+  phoneNumber: z.string(),
+  countryCode: z.string(),
 });
