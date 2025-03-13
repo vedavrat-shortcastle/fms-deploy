@@ -1,15 +1,10 @@
 import { Gender, Role } from '@prisma/client';
 import { z } from 'zod';
 
-export const createMemberSchema = z.object({
+export const createUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
-  role: z.enum([
-    Role.SUPER_ADMIN,
-    Role.ORG_ADMIN,
-    Role.CLUB_MANAGER,
-    Role.MEMBER,
-  ]),
+  role: z.nativeEnum(Role),
   firstName: z.string(),
   lastName: z.string(),
   middleName: z.string().optional(),
@@ -25,7 +20,14 @@ export const createMemberSchema = z.object({
   countryCode: z.string(),
   phoneNumber: z.string(),
   permissions: z.array(z.string()), // Array of permission codes
+  domain: z.string(),
 });
+
+export const createMemberSchema = createUserSchema
+  .omit({ domain: true })
+  .extend({
+    role: z.literal(Role.MEMBER),
+  });
 
 export const signupMemberSchema = z.object({
   domain: z.string(),
