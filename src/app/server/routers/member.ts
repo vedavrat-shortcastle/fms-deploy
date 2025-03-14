@@ -8,10 +8,14 @@ import { handleError } from '@/utils/errorHandler';
 import { hashPassword } from '@/utils/encoder';
 import { Role } from '@prisma/client';
 import { PERMISSIONS } from '@/constants';
+import { Prisma } from '@prisma/client';
 import {
   createMemberSchema,
   signupMemberSchema,
+  editMemberSchema,
+  deleteMemberSchema,
 } from '@/schemas/member.schema';
+import { z } from 'zod';
 
 export const memberRouter = router({
   // Create a new member
@@ -67,16 +71,27 @@ export const memberRouter = router({
       }
     }),
   // Get all members
-  getMembers: permissionProtectedProcedure(PERMISSIONS.MEMBER_VIEW).query(
-    async ({ ctx }) => {
+  getMembers: permissionProtectedProcedure(PERMISSIONS.MEMBER_VIEW)
+    .input(
+      z.object({
+        page: z.number().default(1),
+        limit: z.number().default(20),
+      })
+    )
+    .query(async ({ ctx, input }) => {
       try {
-        const where = {
+        const { page, limit } = input;
+        const offset = (page - 1) * limit;
+        const where: Prisma.UserWhereInput = {
           role: Role.MEMBER,
           organizationId: ctx.session.user.orgId,
+          isDisabled: false,
         };
 
         const members = await ctx.db.user.findMany({
           where,
+          skip: offset,
+          take: limit,
           select: {
             id: true,
             email: true,
@@ -88,15 +103,102 @@ export const memberRouter = router({
           },
         });
 
-        return members;
+        const totalMembers = await ctx.db.user.count({ where });
+
+        return {
+          members,
+          total: totalMembers,
+          page,
+          limit,
+        };
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to fetch members',
           cause: error.message,
         });
       }
-    }
-  ),
+    }),
+  // Get a member by ID
+  getMemberById: permissionProtectedProcedure(PERMISSIONS.MEMBER_VIEW)
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const member = await ctx.db.user.findUnique({
+          where: { id: input.id },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            organization: true,
+            club: true,
+          },
+        });
+
+        if (!member) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Member not found',
+          });
+        }
+
+        return member;
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to fetch member',
+          cause: error.message,
+        });
+      }
+    }),
+  // Edit a member by ID
+  editMemberById: permissionProtectedProcedure(PERMISSIONS.MEMBER_UPDATE)
+    .input(editMemberSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const { id, data } = input;
+
+        const member = await ctx.db.user.update({
+          where: { id },
+          data: {
+            ...data,
+            permissions: data.permissions
+              ? {
+                  set: [],
+                  create: data.permissions.map((permission: string) => ({
+                    permission: { connect: { id: permission } },
+                  })),
+                }
+              : undefined,
+          },
+        });
+
+        return { ...member, password: undefined };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to edit member',
+          cause: error.message,
+        });
+      }
+    }),
+  // Delete a member by ID
+  deleteMemberById: permissionProtectedProcedure(PERMISSIONS.MEMBER_DELETE)
+    .input(deleteMemberSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        await ctx.db.user.update({
+          where: { id: input.id },
+          data: { isDisabled: true },
+        });
+
+        return { success: true };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to delete member',
+          cause: error.message,
+        });
+      }
+    }),
   // Signup a new member
   signup: publicProcedure
     .input(signupMemberSchema)
