@@ -160,17 +160,7 @@ export const memberRouter = router({
 
         const member = await ctx.db.user.update({
           where: { id },
-          data: {
-            ...data,
-            permissions: data.permissions
-              ? {
-                  set: [],
-                  create: data.permissions.map((permission: string) => ({
-                    permission: { connect: { id: permission } },
-                  })),
-                }
-              : undefined,
-          },
+          data,
         });
 
         return { ...member, password: undefined };

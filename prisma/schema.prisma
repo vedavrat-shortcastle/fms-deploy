@@ -76,20 +76,20 @@ model User {
   lastName   String    @map("last_name")
   middleName String?   @map("middle_name")
   nameSuffix String?   @map("name_suffix")
-  birthDate  DateTime? @map("birth_date")
+  birthDate  DateTime @map("birth_date")
   gender     Gender
   avatarUrl  String?   @map("avatar_url")
-  ageProof   String?   @map("age_proof") // URL of uploaded age proof document
+  ageProof   String   @map("age_proof") // URL of uploaded age proof document
 
   // Mailing Details
-  streetAddress  String? @map("street_address")
+  streetAddress  String @map("street_address")
   streetAddress2 String? @map("street_address2")
-  country        String?
-  state          String?
-  city           String?
-  postalCode     String? @map("postal_code")
-  phoneNumber    String  @map("phone_number")
-  countryCode    String  @map("country_code")
+  country        String
+  state          String
+  city           String
+  postalCode     String @map("postal_code")
+  phoneNumber    String?  @map("phone_number")
+  countryCode    String?  @map("country_code")
 
   // Other Info
   fideId         String?   @unique @map("fide_id")
