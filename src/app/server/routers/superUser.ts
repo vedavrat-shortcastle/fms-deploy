@@ -52,9 +52,10 @@ export const superUserRouter = router({
     .input(createUserSchema)
     .mutation(async ({ ctx, input }) => {
       try {
+        const { domain, ...userData } = input;
         const hashedPassword = await hashPassword(input.password);
         const currentOrg = await ctx.db.organization.findFirst({
-          where: { domain: input.domain },
+          where: { domain: domain },
           select: { id: true },
         });
         if (!currentOrg) {
@@ -86,6 +87,9 @@ export const superUserRouter = router({
               in: input.permissions,
             },
           },
+          select: {
+            id: true,
+          },
         });
 
         if (permissions.length !== input.permissions.length) {
@@ -94,22 +98,16 @@ export const superUserRouter = router({
             message: 'One or more permission IDs are invalid',
           });
         }
-        console.log('data', {
-          ...input,
-          password: hashedPassword,
-          permissions: input.permissions,
-        });
+
         // Create user with permissions
         const user = await ctx.db.user.create({
           data: {
-            ...input,
+            ...userData,
             password: hashedPassword,
             organizationId: currentOrg.id,
             permissions: {
-              create: input.permissions.map((permissionId) => ({
-                permission: {
-                  connect: { id: permissionId },
-                },
+              create: permissions.map((permission) => ({
+                permissionId: permission.id,
               })),
             },
           },

@@ -27,6 +27,8 @@ model Organization {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("organization")
 }
 
 // Club Schema
@@ -44,6 +46,9 @@ model Club {
   organizationId String       @map("organization_id")
 
   createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([name, organizationId])
+  @@map("club")
 }
 
 // User Schema
@@ -98,6 +103,7 @@ model User {
   createdAt     DateTime       @default(now()) @map("created_at")
 
   @@unique([email, organizationId])
+  @@map("user")
 }
 
 // Subscription Schema
@@ -114,6 +120,8 @@ model Subscription {
   startDate DateTime           @map("start_date")
   endDate   DateTime           @map("end_date")
   createdAt DateTime           @default(now()) @map("created_at")
+
+  @@map("subscription")
 }
 
 // Event Schema
@@ -143,6 +151,8 @@ model Event {
   faq            String? // Quill formatted content
   createdAt      DateTime     @default(now()) @map("created_at")
   contactInfoId  String       @map("contact_info_id")
+
+  @@map("event")
 }
 
 // Entry Fee Model
@@ -153,6 +163,8 @@ model EntryFee {
   category String // e.g., "Open", "Under 19", "Under 9"
   amount   Float
   currency String // e.g., "USD", "EUR"
+
+  @@map("entry_fee")
 }
 
 // ContactInfo Embedded Model
@@ -163,6 +175,8 @@ model ContactInfo {
   email       String
   website     String?
   Event       Event[]
+
+  @@map("contact_info")
 }
 
 // Enums
