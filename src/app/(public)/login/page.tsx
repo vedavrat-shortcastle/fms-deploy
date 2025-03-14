@@ -6,12 +6,12 @@ export default function page() {
   return (
     <Login
       imageSrc="/assets/loginImage.svg"
-      heading="Member"
-      signUpHref="/sign-up-member"
+      heading="Player"
+      signUpHref="/sign-up"
     />
   );
   // The component for now accepts three props -
   // 1. Imagesrc      // One Possible Value for now , [public/assets/loginImage.svg]
-  // 2. Heading       // Two Possible Values for now, Pass any one - [Federation, Member].
-  // 3. Signuphref    // Two Possible Values for now, Pass any one - [/sign-up-member, /sign-up-federation].
+  // 2. Heading       // Two Possible Values for now, Pass any one - [Federation, Player].
+  // 3. Signuphref    // Two Possible Values for now, Pass any one - [/sign-up, /sign-up-federation].
 }

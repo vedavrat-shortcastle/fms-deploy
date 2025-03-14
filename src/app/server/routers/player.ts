@@ -7,35 +7,35 @@ import {
 import { handleError } from '@/utils/errorHandler';
 import { hashPassword } from '@/utils/encoder';
 import { Role } from '@prisma/client';
-import { PERMISSIONS, roleMap } from '@/constants';
+import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { Prisma } from '@prisma/client';
-import {
-  createMemberSchema,
-  signupMemberSchema,
-  editMemberSchema,
-  deleteMemberSchema,
-} from '@/schemas/member.schema';
 import { z } from 'zod';
+import {
+  createPlayerSchema,
+  deletePlayerSchema,
+  editPlayerSchema,
+  signupPlayerSchema,
+} from '@/schemas/Player.schema';
 
-export const memberRouter = router({
-  // Create a new member
-  createMember: permissionProtectedProcedure(PERMISSIONS.MEMBER_CREATE)
-    .input(createMemberSchema)
+export const playerRouter = router({
+  // Create a new player
+  createPlayer: permissionProtectedProcedure(PERMISSIONS.PLAYER_CREATE)
+    .input(createPlayerSchema)
     .mutation(async ({ ctx, input }) => {
       try {
         if (!ctx.session.user.orgId) {
           throw new TRPCError({
             code: 'FORBIDDEN',
-            message: 'No organization context found',
+            message: 'No federation context found',
           });
         }
 
         const hashedPassword = await hashPassword(input.password);
         const existingUser = await ctx.db.user.findUnique({
           where: {
-            email_organizationId: {
+            email_federationId: {
               email: input.email,
-              organizationId: ctx.session.user.orgId,
+              federationId: ctx.session.user.orgId,
             },
           },
         });
@@ -50,10 +50,11 @@ export const memberRouter = router({
         const user = await ctx.db.user.create({
           data: {
             ...input,
-            role: Role.MEMBER,
+            role: Role.PLAYER,
             password: hashedPassword,
-            organizationId: ctx.session.user.orgId,
+            federationId: ctx.session.user.orgId,
             countryCode: input.countryCode,
+            postalCode: '',
             permissions: {
               create: input.permissions.map((permission: string) => ({
                 permission: { connect: { id: permission } },
@@ -65,13 +66,13 @@ export const memberRouter = router({
         return { ...user, password: undefined };
       } catch (error: any) {
         handleError(error, {
-          message: 'Failed to create member',
+          message: 'Failed to create player',
           cause: error.message,
         });
       }
     }),
-  // Get all members
-  getMembers: permissionProtectedProcedure(PERMISSIONS.MEMBER_VIEW)
+  // Get all players
+  getMlayers: permissionProtectedProcedure(PERMISSIONS.PLAYER_VIEW)
     .input(
       z.object({
         page: z.number().default(1),
@@ -83,12 +84,12 @@ export const memberRouter = router({
         const { page, limit } = input;
         const offset = (page - 1) * limit;
         const where: Prisma.UserWhereInput = {
-          role: Role.MEMBER,
-          organizationId: ctx.session.user.orgId,
+          role: Role.PLAYER,
+          federationId: ctx.session.user.orgId,
           isDisabled: false,
         };
 
-        const members = await ctx.db.user.findMany({
+        const players = await ctx.db.user.findMany({
           where,
           skip: offset,
           take: limit,
@@ -98,32 +99,32 @@ export const memberRouter = router({
             firstName: true,
             lastName: true,
             role: true,
-            organization: true,
+            federation: true,
             club: true,
           },
         });
 
-        const totalMembers = await ctx.db.user.count({ where });
+        const totalPlayers = await ctx.db.user.count({ where });
 
         return {
-          members,
-          total: totalMembers,
+          players,
+          total: totalPlayers,
           page,
           limit,
         };
       } catch (error: any) {
         handleError(error, {
-          message: 'Failed to fetch members',
+          message: 'Failed to fetch players',
           cause: error.message,
         });
       }
     }),
-  // Get a member by ID
-  getMemberById: permissionProtectedProcedure(PERMISSIONS.MEMBER_VIEW)
+  // Get a player by ID
+  getPlayerById: permissionProtectedProcedure(PERMISSIONS.PLAYER_VIEW)
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       try {
-        const member = await ctx.db.user.findUnique({
+        const player = await ctx.db.user.findUnique({
           where: { id: input.id },
           select: {
             id: true,
@@ -131,49 +132,49 @@ export const memberRouter = router({
             firstName: true,
             lastName: true,
             role: true,
-            organization: true,
+            federation: true,
             club: true,
           },
         });
 
-        if (!member) {
+        if (!player) {
           throw new TRPCError({
             code: 'NOT_FOUND',
-            message: 'Member not found',
+            message: 'Player not found',
           });
         }
 
-        return member;
+        return player;
       } catch (error: any) {
         handleError(error, {
-          message: 'Failed to fetch member',
+          message: 'Failed to fetch player',
           cause: error.message,
         });
       }
     }),
-  // Edit a member by ID
-  editMemberById: permissionProtectedProcedure(PERMISSIONS.MEMBER_UPDATE)
-    .input(editMemberSchema)
+  // Edit a player by ID
+  editPlayerById: permissionProtectedProcedure(PERMISSIONS.PLAYER_UPDATE)
+    .input(editPlayerSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        const { id, data } = input;
+        const { id, ...data } = input;
 
-        const member = await ctx.db.user.update({
+        const player = await ctx.db.user.update({
           where: { id },
-          data,
+          data: data,
         });
 
-        return { ...member, password: undefined };
+        return { ...player, password: undefined };
       } catch (error: any) {
         handleError(error, {
-          message: 'Failed to edit member',
+          message: 'Failed to edit player',
           cause: error.message,
         });
       }
     }),
-  // Delete a member by ID
-  deleteMemberById: permissionProtectedProcedure(PERMISSIONS.MEMBER_DELETE)
-    .input(deleteMemberSchema)
+  // Delete a player by ID
+  deletePlayerById: permissionProtectedProcedure(PERMISSIONS.PLAYER_DELETE)
+    .input(deletePlayerSchema)
     .mutation(async ({ ctx, input }) => {
       try {
         await ctx.db.user.update({
@@ -184,32 +185,32 @@ export const memberRouter = router({
         return { success: true };
       } catch (error: any) {
         handleError(error, {
-          message: 'Failed to delete member',
+          message: 'Failed to delete player',
           cause: error.message,
         });
       }
     }),
-  // Signup a new member
+  // Signup a new player
   signup: publicProcedure
-    .input(signupMemberSchema)
+    .input(signupPlayerSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        const currentOrg = await ctx.db.organization.findFirst({
+        const currentOrg = await ctx.db.federation.findFirst({
           where: { domain: input.domain },
           select: { id: true },
         });
         if (!currentOrg) {
           throw new TRPCError({
             code: 'NOT_FOUND',
-            message: 'Organization not found',
+            message: 'Federation not found',
           });
         }
         const hashedPassword = await hashPassword(input.password);
         const existingUser = await ctx.db.user.findUnique({
           where: {
-            email_organizationId: {
+            email_federationId: {
               email: input.email,
-              organizationId: currentOrg.id,
+              federationId: currentOrg.id,
             },
           },
         });
@@ -230,9 +231,15 @@ export const memberRouter = router({
             gender: input.gender,
             phoneNumber: input.phoneNumber,
             countryCode: input.countryCode,
-            role: Role.MEMBER,
+            role: Role.PLAYER,
+            birthDate: '',
+            streetAddress: '',
+            country: '',
+            state: '',
+            city: '',
+            postalCode: '',
             permissions: {
-              create: roleMap[Role.MEMBER].map((permission) => ({
+              create: roleMap[Role.PLAYER].map((permission) => ({
                 permission: { connect: { code: permission } },
               })),
             },
@@ -242,7 +249,7 @@ export const memberRouter = router({
         return { ...user, password: undefined };
       } catch (error: any) {
         handleError(error, {
-          message: 'Failed to sign up member',
+          message: 'Failed to sign up player',
           cause: error.message,
         });
       }

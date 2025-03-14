@@ -16,10 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  loginSchema,
-  LoginFormValues,
-} from '../../schemas/form-schemas/loginMemberSchema'; // Zod Validation logic for the component.
+import { loginSchema, LoginFormValues } from '../../schemas/LoginSchema'; // Zod Validation logic for the component.
 
 // All the imports
 

@@ -24,9 +24,9 @@ import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  signupMemberSchema,
   SignupMemberFormValues,
-} from '../../schemas/form-schemas/signupMemberSchema'; // Zod Validation logic for the component.
+  signupMemberSchema,
+} from '@/schemas/Member.schema';
 
 // All the imports
 // This component is being used for 1 route as of now - /sign-up-member

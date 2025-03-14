@@ -18,8 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { AddPlayerFormData } from '@/schemas/addplayer.schema';
 import { DatePicker } from '@/components/player-components/DatePicker';
+import { CreatePlayerFormValues } from '@/schemas/Player.schema';
 
 export function PersonalInformationForm() {
   const {
@@ -28,7 +28,7 @@ export function PersonalInformationForm() {
     setValue,
     trigger,
     formState: { errors },
-  } = useFormContext<AddPlayerFormData>();
+  } = useFormContext<CreatePlayerFormValues>();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export function PersonalInformationForm() {
       {/* First Name */}
       <FormField
         control={control}
-        name="personal.firstName"
+        name="firstName"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
@@ -62,7 +62,7 @@ export function PersonalInformationForm() {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>{errors.personal?.firstName?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -70,7 +70,7 @@ export function PersonalInformationForm() {
       {/* Last Name */}
       <FormField
         control={control}
-        name="personal.lastName"
+        name="lastName"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
@@ -83,7 +83,7 @@ export function PersonalInformationForm() {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>{errors.personal?.lastName?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -91,7 +91,7 @@ export function PersonalInformationForm() {
       {/* Birth Date with custom DatePicker */}
       <FormField
         control={control}
-        name="personal.birthDate"
+        name="birthDate"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
@@ -102,25 +102,25 @@ export function PersonalInformationForm() {
                 value={field.value ? new Date(field.value) : undefined}
                 onChange={(date) => {
                   if (date) {
-                    setValue('personal.birthDate', format(date, 'yyyy-MM-dd'));
+                    setValue('birthDate', format(date, 'yyyy-MM-dd'));
                     // Trigger validation immediately after date change
-                    trigger('personal.birthDate');
+                    trigger('birthDate');
                   } else {
-                    setValue('personal.birthDate', '');
-                    trigger('personal.birthDate');
+                    setValue('birthDate', '');
+                    trigger('birthDate');
                   }
                 }}
                 onBlur={() => {
                   // Trigger validation on blur
-                  trigger('personal.birthDate');
+                  trigger('birthDate');
                 }}
                 disabled={(date) => date > today}
                 placeholder="Select birth date"
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-                error={!!errors.personal?.birthDate}
+                error={!!errors?.birthDate}
               />
             </FormControl>
-            <FormMessage>{errors.personal?.birthDate?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -128,7 +128,7 @@ export function PersonalInformationForm() {
       {/* Gender */}
       <FormField
         control={control}
-        name="personal.gender"
+        name="gender"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
@@ -146,7 +146,7 @@ export function PersonalInformationForm() {
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormMessage>{errors.personal?.gender?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -154,7 +154,7 @@ export function PersonalInformationForm() {
       {/* Email */}
       <FormField
         control={control}
-        name="personal.email"
+        name="email"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
@@ -168,7 +168,7 @@ export function PersonalInformationForm() {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>{errors.personal?.email?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -184,7 +184,7 @@ export function PersonalInformationForm() {
             <Input
               type="file"
               accept=".jpg,.jpeg,.png"
-              {...register('personal.photo')}
+              {...register('avatarUrl')}
               className="hidden"
             />
           </label>
@@ -204,7 +204,7 @@ export function PersonalInformationForm() {
             <Input
               type="file"
               accept=".pdf,.jpg,.jpeg,.png"
-              {...register('personal.ageProof')}
+              {...register('ageProof')}
               className="hidden"
             />
           </label>

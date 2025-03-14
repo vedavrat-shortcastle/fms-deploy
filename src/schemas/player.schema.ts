@@ -1,44 +1,94 @@
+import { Gender, Role } from '@prisma/client';
 import { z } from 'zod';
 
-export const addressSchema = z.object({
-  street: z.string().min(1, 'Street address is required'),
-  street2: z.string().optional(),
-  city: z.string().min(1, 'City is required'),
-  state: z.string().min(1, 'State is required'),
-  postalCode: z.string().min(1, 'Postal code is required'),
-  country: z.string().min(1, 'Country is required'),
-  phone: z.string().min(1, 'Phone number is required'),
+export const createUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  role: z.nativeEnum(Role),
+  firstName: z.string(),
+  lastName: z.string(),
+  middleName: z.string().optional(),
+  nameSuffix: z.string().optional(),
+  birthDate: z.string(),
+  gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]),
+  ageProof: z.string(),
+  streetAddress: z.string(),
+  streetAddress2: z.string().optional(),
+  country: z.string(),
+  state: z.string(),
+  city: z.string(),
+  postalCode: z.string(),
+  countryCode: z.string(),
+  phoneNumber: z.string(),
+  permissions: z.array(z.string()), // Array of permission codes
+  domain: z.string(),
 });
 
-export const playerDetailsSchema = z.object({
-  fideId: z.string().min(1, 'FIDE ID is required'),
+export const createPlayerSchema = createUserSchema
+  .omit({ domain: true })
+  .extend({
+    role: z.literal(Role.PLAYER),
+    adminFederationId: z.string().optional(),
+    clubId: z.string().optional(),
+    avatarUrl: z.string().optional(),
+    fideId: z.string().optional(),
+    schoolName: z.string().optional(),
+    graduationYear: z.number().optional(),
+    gradeInSchool: z.string().optional(),
+    gradeDate: z
+      .string()
+      .transform((str) => new Date(str))
+      .optional(),
+    clubName: z.string().optional(),
+  });
+
+export const signupPlayerSchema = z.object({
+  domain: z.string(),
+  email: z.string().email(),
+  password: z.string().min(6),
+  firstName: z.string(),
+  lastName: z.string(),
+  gender: z.nativeEnum(Gender),
+  phoneNumber: z.string(),
+  countryCode: z.string(),
 });
 
-export const studentDetailsSchema = z.object({
-  schoolName: z.string().min(1, 'School name is required'),
-  grade: z.string().min(1, 'Grade is required'),
-  graduationYear: z.string().min(1, 'Graduation year is required'),
-  gradeAsOf: z.string().min(1, 'Grade as of date is required'),
-});
-
-export const clubInfoSchema = z.object({
+//Permissions are omitted from the editPlayerSchema
+export const editPlayerSchema = z.object({
+  id: z.string(),
+  email: z.string().email().optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  middleName: z.string().optional(),
+  nameSuffix: z.string().optional(),
+  birthDate: z.string().optional(),
+  gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]).optional(),
+  ageProof: z.string().optional(),
+  streetAddress: z.string().optional(),
+  streetAddress2: z.string().optional(),
+  country: z.string().optional(),
+  state: z.string().optional(),
+  city: z.string().optional(),
+  postalCode: z.string().optional(),
+  countryCode: z.string().optional(),
+  phoneNumber: z.string().optional(),
+  adminFederationId: z.string().optional(),
+  clubId: z.string().optional(),
+  avatarUrl: z.string().optional(),
+  fideId: z.string().optional(),
+  schoolName: z.string().optional(),
+  graduationYear: z.number().optional(),
+  gradeInSchool: z.string().optional(),
+  gradeDate: z
+    .string()
+    .transform((str) => new Date(str))
+    .optional(),
   clubName: z.string().optional(),
 });
 
-export const playerSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  middleName: z.string().optional(),
-  lastName: z.string().min(1, 'Last name is required'),
-  nameSuffix: z.string().optional(),
-  birthDate: z.string().min(1, 'Birth date is required'),
-  gender: z.string().min(1, 'Gender is required'),
-  email: z.string().email('Invalid email address'),
-  ageProof: z.string().optional(),
-  profileImage: z.string().optional(),
-  address: addressSchema,
-  playerDetails: playerDetailsSchema,
-  studentDetails: studentDetailsSchema,
-  clubInfo: clubInfoSchema,
+export const deletePlayerSchema = z.object({
+  id: z.string(),
 });
 
-export type PlayerFormData = z.infer<typeof playerSchema>;
+export type EditPlayerFormValues = z.infer<typeof editPlayerSchema>;
+export type CreatePlayerFormValues = z.infer<typeof createPlayerSchema>;

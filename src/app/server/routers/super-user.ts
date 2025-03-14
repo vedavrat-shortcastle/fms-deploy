@@ -1,10 +1,10 @@
 import { hashPassword } from '@/utils/encoder';
 import { TRPCError } from '@trpc/server';
 import { publicProcedure, router, validateApiKey } from '@/app/server/trpc';
-import { createPermissionSchema } from '@/schemas/permission.schema';
+import { createPermissionSchema } from '@/schemas/Permission.schema';
 import { handleError } from '@/utils/errorHandler';
-import { createUserSchema } from '@/schemas/member.schema';
-import { createOrganizationSchema } from '@/schemas/organization.schema';
+import { createUserSchema } from '@/schemas/Player.schema';
+import { createFederationSchema } from '@/schemas/Federation.schema';
 
 export const superUserRouter = router({
   createPermission: publicProcedure
@@ -54,21 +54,21 @@ export const superUserRouter = router({
       try {
         const { domain, ...userData } = input;
         const hashedPassword = await hashPassword(input.password);
-        const currentOrg = await ctx.db.organization.findFirst({
+        const currentOrg = await ctx.db.federation.findFirst({
           where: { domain: domain },
           select: { id: true },
         });
         if (!currentOrg) {
           throw new TRPCError({
             code: 'NOT_FOUND',
-            message: 'Organization not found',
+            message: 'Federation not found',
           });
         }
         const existingUser = await ctx.db.user.findUnique({
           where: {
-            email_organizationId: {
+            email_federationId: {
               email: input.email,
-              organizationId: currentOrg.id,
+              federationId: currentOrg.id,
             },
           },
         });
@@ -104,7 +104,7 @@ export const superUserRouter = router({
           data: {
             ...userData,
             password: hashedPassword,
-            organizationId: currentOrg.id,
+            federationId: currentOrg.id,
             permissions: {
               create: permissions.map((permission) => ({
                 permissionId: permission.id,
@@ -129,34 +129,34 @@ export const superUserRouter = router({
       }
     }),
 
-  createOrganization: publicProcedure
+  createFederation: publicProcedure
     .use(validateApiKey())
-    .input(createOrganizationSchema)
+    .input(createFederationSchema)
     .mutation(async ({ ctx, input }) => {
       try {
         console.log('input', input);
-        const existingOrg = await ctx.db.organization.findUnique({
+        const existingOrg = await ctx.db.federation.findUnique({
           where: { domain: input.domain },
         });
 
         if (existingOrg) {
           throw new TRPCError({
             code: 'CONFLICT',
-            message: 'Organization with this domain already exists',
+            message: 'Federation with this domain already exists',
           });
         }
 
-        const organization = await ctx.db.organization.create({
+        const federation = await ctx.db.federation.create({
           data: input,
         });
 
-        return organization;
+        return federation;
       } catch (error) {
         if (error instanceof TRPCError) throw error;
 
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to create organization',
+          message: 'Failed to create federation',
         });
       }
     }),
