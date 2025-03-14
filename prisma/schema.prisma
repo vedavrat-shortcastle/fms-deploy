@@ -16,6 +16,7 @@ model Organization {
   country String
   domain  String  @unique // White-labeling domain
   logo    String?
+  isApproved Boolean @default(false) @map("is_approved")
 
   // Relation Fix: Differentiate members and admins
   members User[] @relation(name: "OrgMembers")

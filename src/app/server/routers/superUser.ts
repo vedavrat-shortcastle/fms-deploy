@@ -4,7 +4,7 @@ import { publicProcedure, router, validateApiKey } from '@/app/server/trpc';
 import { createPermissionSchema } from '@/schemas/permission.schema';
 import { handleError } from '@/utils/errorHandler';
 import { createUserSchema } from '@/schemas/member.schema';
-import { createOrganizationSchema } from '@/app/server/routers/organization';
+import { createOrganizationSchema } from '@/schemas/organization.schema';
 
 export const superUserRouter = router({
   createPermission: publicProcedure
