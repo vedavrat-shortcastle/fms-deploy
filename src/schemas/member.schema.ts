@@ -39,3 +39,32 @@ export const signupMemberSchema = z.object({
   phoneNumber: z.string(),
   countryCode: z.string(),
 });
+
+export const editMemberSchema = z.object({
+  id: z.string(),
+  data: z.object({
+    email: z.string().email().optional(),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    middleName: z.string().optional(),
+    nameSuffix: z.string().optional(),
+    birthDate: z
+      .string()
+      .transform((str) => new Date(str))
+      .optional(),
+    gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]).optional(),
+    streetAddress: z.string().optional(),
+    streetAddress2: z.string().optional(),
+    country: z.string().optional(),
+    state: z.string().optional(),
+    city: z.string().optional(),
+    postalCode: z.string().optional(),
+    countryCode: z.string().optional(),
+    phoneNumber: z.string().optional(),
+    permissions: z.array(z.string()).optional(),
+  }),
+});
+
+export const deleteMemberSchema = z.object({
+  id: z.string(),
+});

@@ -98,6 +98,7 @@ model User {
   gradeInSchool  String?   @map("grade_in_school")
   gradeDate      DateTime? @map("grade_date")
   clubName       String?   @map("club_name")
+  isDisabled     Boolean   @default(false) @map("is_disabled")
 
   subscriptions Subscription[]
   createdAt     DateTime       @default(now()) @map("created_at")
