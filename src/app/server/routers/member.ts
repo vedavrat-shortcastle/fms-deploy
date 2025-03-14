@@ -7,7 +7,7 @@ import {
 import { handleError } from '@/utils/errorHandler';
 import { hashPassword } from '@/utils/encoder';
 import { Role } from '@prisma/client';
-import { PERMISSIONS } from '@/constants';
+import { PERMISSIONS, roleMap } from '@/constants';
 import { Prisma } from '@prisma/client';
 import {
   createMemberSchema,
@@ -231,6 +231,11 @@ export const memberRouter = router({
             phoneNumber: input.phoneNumber,
             countryCode: input.countryCode,
             role: Role.MEMBER,
+            permissions: {
+              create: roleMap[Role.MEMBER].map((permission) => ({
+                permission: { connect: { code: permission } },
+              })),
+            },
           },
         });
 
