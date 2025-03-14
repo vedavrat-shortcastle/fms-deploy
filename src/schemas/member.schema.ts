@@ -11,6 +11,7 @@ export const createUserSchema = z.object({
   nameSuffix: z.string().optional(),
   birthDate: z.string().transform((str) => new Date(str)),
   gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]),
+  ageProof: z.string(),
   streetAddress: z.string(),
   streetAddress2: z.string().optional(),
   country: z.string(),
@@ -27,6 +28,18 @@ export const createMemberSchema = createUserSchema
   .omit({ domain: true })
   .extend({
     role: z.literal(Role.MEMBER),
+    adminOrganizationId: z.string().optional(),
+    clubId: z.string().optional(),
+    avatarUrl: z.string().optional(),
+    fideId: z.string().optional(),
+    schoolName: z.string().optional(),
+    graduationYear: z.number().optional(),
+    gradeInSchool: z.string().optional(),
+    gradeDate: z
+      .string()
+      .transform((str) => new Date(str))
+      .optional(),
+    clubName: z.string().optional(),
   });
 
 export const signupMemberSchema = z.object({
@@ -40,6 +53,7 @@ export const signupMemberSchema = z.object({
   countryCode: z.string(),
 });
 
+//Permissions are omitted from the editMemberSchema
 export const editMemberSchema = z.object({
   id: z.string(),
   data: z.object({
@@ -53,6 +67,7 @@ export const editMemberSchema = z.object({
       .transform((str) => new Date(str))
       .optional(),
     gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]).optional(),
+    ageProof: z.string().optional(),
     streetAddress: z.string().optional(),
     streetAddress2: z.string().optional(),
     country: z.string().optional(),
@@ -61,7 +76,18 @@ export const editMemberSchema = z.object({
     postalCode: z.string().optional(),
     countryCode: z.string().optional(),
     phoneNumber: z.string().optional(),
-    permissions: z.array(z.string()).optional(),
+    adminOrganizationId: z.string().optional(),
+    clubId: z.string().optional(),
+    avatarUrl: z.string().optional(),
+    fideId: z.string().optional(),
+    schoolName: z.string().optional(),
+    graduationYear: z.number().optional(),
+    gradeInSchool: z.string().optional(),
+    gradeDate: z
+      .string()
+      .transform((str) => new Date(str))
+      .optional(),
+    clubName: z.string().optional(),
   }),
 });
 
