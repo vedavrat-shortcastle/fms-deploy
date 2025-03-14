@@ -2,8 +2,8 @@ import { TRPCError } from '@trpc/server';
 import { permissionProtectedProcedure, router } from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
 import { Role } from '@prisma/client';
-import { PERMISSIONS } from '@/constants';
-import { createClubSchema } from '@/schemas/club.schema';
+import { PERMISSIONS } from '@/config/permissions';
+import { createClubSchema } from '@/schemas/Club.schema';
 
 export const clubRouter = router({
   createClub: permissionProtectedProcedure(PERMISSIONS.CLUB_CREATE)
@@ -13,22 +13,22 @@ export const clubRouter = router({
         if (!ctx.session.user.orgId) {
           throw new TRPCError({
             code: 'FORBIDDEN',
-            message: 'No organization context found',
+            message: 'No federation context found',
           });
         }
 
-        // Check if manager exists and belongs to the same organization
+        // Check if manager exists and belongs to the same federation
         const manager = await ctx.db.user.findFirst({
           where: {
             id: input.managerId,
-            organizationId: ctx.session.user.orgId,
+            federationId: ctx.session.user.orgId,
           },
         });
 
         if (!manager) {
           throw new TRPCError({
             code: 'NOT_FOUND',
-            message: 'Manager not found in organization',
+            message: 'Manager not found in federation',
           });
         }
 
@@ -36,13 +36,13 @@ export const clubRouter = router({
         const club = await ctx.db.club.create({
           data: {
             name: input.name,
-            organizationId: ctx.session.user.orgId,
+            federationId: ctx.session.user.orgId,
             managerId: input.managerId,
           },
           include: {
             manager: true,
-            organization: true,
-            members: true,
+            federation: true,
+            players: true,
           },
         });
 
@@ -68,13 +68,13 @@ export const clubRouter = router({
         if (!ctx.session.user.orgId) {
           throw new TRPCError({
             code: 'FORBIDDEN',
-            message: 'No organization context found',
+            message: 'No federation context found',
           });
         }
 
         const clubs = await ctx.db.club.findMany({
           where: {
-            organizationId: ctx.session.user.orgId,
+            federationId: ctx.session.user.orgId,
           },
           include: {
             manager: {
@@ -86,7 +86,7 @@ export const clubRouter = router({
                 role: true,
               },
             },
-            members: {
+            players: {
               select: {
                 id: true,
                 email: true,
@@ -95,7 +95,7 @@ export const clubRouter = router({
                 role: true,
               },
             },
-            organization: true,
+            federation: true,
           },
         });
 

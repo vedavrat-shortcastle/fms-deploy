@@ -1,7 +1,5 @@
 import { Input } from '@/components/ui/input';
-import { Player } from '@/types/player';
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
-import { PlayerFormData } from '@/schemas/player.schema';
 
 interface AddressSectionProps {
   register: UseFormRegister<PlayerFormData>;

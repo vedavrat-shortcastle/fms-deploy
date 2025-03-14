@@ -3,51 +3,51 @@ import { publicProcedure, router } from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
 import { hashPassword } from '@/utils/encoder';
 import { Role } from '@prisma/client';
-import { organizationOnboardingSchema } from '@/schemas/organization.schema';
-import { roleMap } from '@/constants';
+import { roleMap } from '@/config/permissions';
+import { federationOnboardingSchema } from '@/schemas/Federation.schema';
 
-export const organizationRouter = router({
-  organizationOnboarding: publicProcedure
-    .input(organizationOnboardingSchema)
+export const federationRouter = router({
+  federationOnboarding: publicProcedure
+    .input(federationOnboardingSchema)
     .mutation(async ({ ctx, input }) => {
-      const { admin, ...organization } = input;
+      const { admin, ...federation } = input;
 
       try {
-        const existingOrg = await ctx.db.organization.findUnique({
-          where: { domain: organization.domain },
+        const existingOrg = await ctx.db.federation.findUnique({
+          where: { domain: federation.domain },
         });
 
         if (existingOrg) {
           throw new TRPCError({
             code: 'CONFLICT',
-            message: 'Organization with this domain already exists',
+            message: 'Federation with this domain already exists',
           });
         }
 
         const hashedPassword = await hashPassword(admin.password);
 
-        const createdOrganization = await ctx.db.organization.create({
-          data: organization,
+        const createdFederation = await ctx.db.federation.create({
+          data: federation,
         });
 
         const createdAdmin = await ctx.db.user.create({
           data: {
             ...admin,
             password: hashedPassword,
-            role: Role.ORG_ADMIN,
-            adminOrganizationId: createdOrganization.id,
+            role: Role.FED_ADMIN,
+            adminFederationId: createdFederation.id,
             permissions: {
-              create: roleMap[Role.ORG_ADMIN].map((permission) => ({
+              create: roleMap[Role.FED_ADMIN].map((permission) => ({
                 permission: { connect: { code: permission } },
               })),
             },
           },
         });
 
-        return { organization: createdOrganization, admin: createdAdmin };
+        return { federation: createdFederation, admin: createdAdmin };
       } catch (error: any) {
         handleError(error, {
-          message: 'Failed to create organization with admin',
+          message: 'Failed to create federation with admin',
           cause: error.message,
         });
       }

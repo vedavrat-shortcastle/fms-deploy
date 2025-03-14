@@ -16,11 +16,9 @@ import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  subdomainSchema,
   SubdomainFormValues,
-} from '@/schemas/form-schemas/subdomainSchema'; // Zod Validation logic for the component.
-
-// All the imports
+  subdomainSchema,
+} from '@/schemas/Federation.schema';
 
 // This component is currently being used by 1 route - /onboarding-federation-subdomain
 

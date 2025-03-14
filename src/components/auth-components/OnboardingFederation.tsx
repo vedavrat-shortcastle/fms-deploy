@@ -23,9 +23,9 @@ import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  onboardingFederationSchema,
-  OnboardingFederationFormValues,
-} from '@/schemas/form-schemas/onboardingFederationSchema'; // Zod Validation logic for the component.
+  createFederationFormSchema,
+  createFederationFormSchemaValues,
+} from '@/schemas/Federation.schema';
 
 // All the imports
 
@@ -39,14 +39,16 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
   const router = useRouter(); // Initialize the router
 
   //React hook form Logic
-  const form = useForm<OnboardingFederationFormValues>({
-    resolver: zodResolver(onboardingFederationSchema),
+  const form = useForm<createFederationFormSchemaValues>({
+    resolver: zodResolver(createFederationFormSchema),
     defaultValues: {
-      fullName: '',
+      firstName: '',
+      lastName: '',
+      name: '',
       phoneNumber: '',
-      type: '',
-      federationName: '',
-      federationCountry: '',
+      type: undefined,
+      country: '',
+      countryCode: '',
     },
   });
 
@@ -75,13 +77,30 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
             <h2 className="text-md font-semibold mt-5">Personal details</h2>
             <FormField
               control={form.control}
-              name="fullName"
+              name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-input-grey">Full name</FormLabel>
+                  <FormLabel className="text-input-grey">First name</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Full name"
+                      placeholder="First name"
+                      className="w-[350px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-input-grey">Last name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Last name"
                       className="w-[350px]"
                       {...field}
                     />
@@ -127,8 +146,8 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               )}
             />
 
-            {/* Organization Details */}
-            <h2 className="text-lg font-semibold pt-5">Organization details</h2>
+            {/* Federation Details */}
+            <h2 className="text-lg font-semibold pt-5">Federation details</h2>
             <FormField
               control={form.control}
               name="type"
@@ -155,7 +174,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
             />
             <FormField
               control={form.control}
-              name="federationName"
+              name="name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-input-grey">
@@ -174,7 +193,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
             />
             <FormField
               control={form.control}
-              name="federationCountry"
+              name="country"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-input-grey">

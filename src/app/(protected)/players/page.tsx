@@ -6,32 +6,24 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import PlayerCard from '@/components/player-components/PlayerCard';
-import { Player, initialPlayers } from '@/dummydata/initialPlayers';
+import { User } from '@prisma/client';
 
 export default function Page() {
   const router = useRouter();
-  const [players, setPlayers] = useState<Player[]>(initialPlayers);
+  const [players, setPlayers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-
-  // Filter players based on the search term need to handle through api
-  const filteredPlayers = players.filter(
-    (player) =>
-      player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      player.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      player.phone.includes(searchTerm)
-  );
 
   // Delete player need to handle through api
   const handleDelete = (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
     if (window.confirm('Are you sure you want to delete this player?')) {
-      setPlayers(players.filter((player) => player.id !== id));
+      setPlayers(players.filter((player) => player.id !== id.toString()));
     }
   };
 
   // Edit player: navigate to the edit page for the given player id
-  const handleEdit = (player: Player, e: React.MouseEvent) => {
+  const handleEdit = (player: User, e: React.MouseEvent) => {
     e.stopPropagation();
     router.push(`/players/${player.id}`);
   };
@@ -108,7 +100,7 @@ export default function Page() {
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {filteredPlayers.map((player) => (
+          {players.map((player) => (
             <PlayerCard
               key={player.id}
               player={player}

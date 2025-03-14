@@ -14,13 +14,14 @@ import AddressSection from '@/components/player-components/AddressInfo';
 import PlayerDetailsSection from '@/components/player-components/PlayerDetails';
 import StudentDetailsSection from '@/components/player-components/StudentDetails';
 import ClubInfoSection from '@/components/player-components/ClubInfo';
-
-import { playerSchema, PlayerFormData } from '@/schemas/player.schema';
-import { playerData, Player } from '@/dummydata/Player';
+import {
+  EditPlayerFormValues,
+  editPlayerSchema,
+} from '@/schemas/Player.schema';
 
 export default function PlayerDetails() {
   const router = useRouter();
-  const [player, setPlayer] = useState<Player>(playerData);
+  const [player, setPlayer] = useState<EditPlayerFormValues | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -30,17 +31,16 @@ export default function PlayerDetails() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<PlayerFormData>({
-    resolver: zodResolver(playerSchema),
-    defaultValues: playerData,
+  } = useForm<EditPlayerFormValues>({
+    resolver: zodResolver(editPlayerSchema),
   });
 
-  const onSubmit = async (data: PlayerFormData) => {
+  const onSubmit = async (data: EditPlayerFormValues) => {
     setIsSubmitting(true);
     try {
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      setPlayer(data as Player);
+      setPlayer(data);
       setIsEditing(false);
       console.log('Form submitted successfully:', data);
     } catch (error) {
@@ -55,14 +55,14 @@ export default function PlayerDetails() {
       // Submit form
       handleSubmit(onSubmit)();
     } else {
-      reset(player);
+      reset({});
       setIsEditing(true);
     }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    reset(player);
+    reset({});
   };
   //delete player
   const handleDelete = async () => {
@@ -93,7 +93,7 @@ export default function PlayerDetails() {
           <div className="text-center">
             <Avatar className="h-40 w-40 rounded-none">
               <AvatarImage
-                src={player.profileImage}
+                src={player?.avatarUrl}
                 alt="Profile"
                 className="object-cover"
                 onError={(e) => (e.currentTarget.src = '/default-avatar.png')}
@@ -188,8 +188,8 @@ export default function PlayerDetails() {
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <h3 className="text-xl font-semibold mb-4">Confirm Deletion</h3>
             <p className="mb-6">
-              Are you sure you want to delete {player.firstName}{' '}
-              {player.lastName}? This action cannot be undone.
+              Are you sure you want to delete {player?.firstName}{' '}
+              {player?.lastName}? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-4">
               <Button

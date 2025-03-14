@@ -8,19 +8,19 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// Organization Schema
-model Organization {
+// Federation Schema
+model Federation {
   id      String  @id @default(uuid())
   name    String
-  type    OrgType
+  type    FedType
   country String
   domain  String  @unique // White-labeling domain
   logo    String?
   isApproved Boolean @default(false) @map("is_approved")
 
-  // Relation Fix: Differentiate members and admins
-  members User[] @relation(name: "OrgMembers")
-  admins  User[] @relation(name: "OrgAdmins")
+  // Relation Fix: Differentiate players and admins
+  players User[] @relation(name: "FedPlayers")
+  admins  User[] @relation(name: "FedAdmins")
 
   clubs         Club[]
   events        Event[]
@@ -29,7 +29,7 @@ model Organization {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("organization")
+  @@map("federation")
 }
 
 // Club Schema
@@ -37,18 +37,18 @@ model Club {
   id   String @id @default(uuid())
   name String
 
-  // Relation Fix: Differentiate manager and members
+  // Relation Fix: Differentiate manager and players
   manager   User   @relation(name: "ClubManager", fields: [managerId], references: [id])
   managerId String @unique @map("manager_id")
 
-  members User[] @relation(name: "ClubMembers")
+  players User[] @relation(name: "ClubPlayers")
 
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String       @map("organization_id")
+  federation   Federation @relation(fields: [federationId], references: [id])
+  federationId String       @map("federation_id")
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@unique([name, organizationId])
+  @@unique([name, federationId])
   @@map("club")
 }
 
@@ -57,17 +57,17 @@ model User {
   id          String           @id @default(uuid())
   email       String
   password    String
-  role        Role             @default(MEMBER)
+  role        Role             @default(PLAYER)
   permissions UserPermission[]
 
   // Relation Fix: Reference named relations
-  organization   Organization? @relation(name: "OrgMembers", fields: [organizationId], references: [id])
-  organizationId String?       @map("organization_id")
+  federation   Federation? @relation(name: "FedPlayers", fields: [federationId], references: [id])
+  federationId String?       @map("federation_id")
 
-  adminOf             Organization? @relation(name: "OrgAdmins", fields: [adminOrganizationId], references: [id])
-  adminOrganizationId String?       @map("admin_organization_id")
+  adminOf             Federation? @relation(name: "FedAdmins", fields: [adminFederationId], references: [id])
+  adminFederationId String?       @map("admin_federation_id")
 
-  club   Club?   @relation(name: "ClubMembers", fields: [clubId], references: [id])
+  club   Club?   @relation(name: "ClubPlayers", fields: [clubId], references: [id])
   clubId String? @map("club_id")
 
   managedClub Club? @relation(name: "ClubManager")
@@ -80,7 +80,7 @@ model User {
   birthDate  DateTime @map("birth_date")
   gender     Gender
   avatarUrl  String?   @map("avatar_url")
-  ageProof   String   @map("age_proof") // URL of uploaded age proof document
+  ageProof   String?   @map("age_proof") // URL of uploaded age proof document
 
   // Mailing Details
   streetAddress  String @map("street_address")
@@ -104,15 +104,15 @@ model User {
   subscriptions Subscription[]
   createdAt     DateTime       @default(now()) @map("created_at")
 
-  @@unique([email, organizationId])
+  @@unique([email, federationId])
   @@map("user")
 }
 
 // Subscription Schema
 model Subscription {
   id             String       @id @default(uuid())
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String       @map("organization_id")
+  federation   Federation @relation(fields: [federationId], references: [id])
+  federationId String       @map("federation_id")
 
   subscriber   User   @relation(fields: [subscriberId], references: [id])
   subscriberId String @map("subscriber_id")
@@ -140,8 +140,8 @@ model Event {
   endDate        DateTime     @map("end_date")
   endTime        String       @map("end_time")
   contactInfo    ContactInfo  @relation(fields: [contactInfoId], references: [id])
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String       @map("organization_id")
+  federation   Federation @relation(fields: [federationId], references: [id])
+  federationId String       @map("federation_id")
   format         EventFormat
   numberOfRounds Int          @map("number_of_rounds")
   isRated        Boolean      @map("is_rated")
@@ -182,16 +182,16 @@ model ContactInfo {
 }
 
 // Enums
-enum OrgType {
+enum FedType {
   NATIONAL
   REGIONAL
 }
 
 enum Role {
   SUPER_ADMIN // Platform-wide admin
-  ORG_ADMIN // Organization-level admin
+  FED_ADMIN // Federation-level admin
   CLUB_MANAGER // Manages a club
-  MEMBER // Regular user
+  PLAYER // Regular user
 }
 
 enum Gender {

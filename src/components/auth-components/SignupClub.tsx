@@ -15,16 +15,13 @@ import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  signupClubSchema,
-  SignupClubFormValues,
-} from '@/schemas/form-schemas/signupClubSchema'; // Zod Validation logic for this component.
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { SignupClubFormValues, signupClubSchema } from '@/schemas/Club.schema';
 
 // All the imports
 // This component is being used for 1 route as of now - /sign-up-club

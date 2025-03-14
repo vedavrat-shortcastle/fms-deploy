@@ -14,7 +14,7 @@ export const authConfig: AuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const org = await db.organization.findFirst({
+        const org = await db.federation.findFirst({
           where: { domain: credentials.domain },
           select: { id: true },
         });
@@ -23,9 +23,9 @@ export const authConfig: AuthOptions = {
 
         const user = await db.user.findUnique({
           where: {
-            email_organizationId: {
+            email_federationId: {
               email: credentials.email,
-              organizationId: org.id,
+              federationId: org.id,
             },
           },
           include: {
@@ -47,7 +47,7 @@ export const authConfig: AuthOptions = {
 
         return {
           id: user.id,
-          orgId: user.organizationId || '',
+          orgId: user.federationId || '',
           email: user.email,
           role: user.role,
           firstName: user.firstName,
