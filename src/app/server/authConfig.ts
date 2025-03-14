@@ -9,12 +9,25 @@ export const authConfig: AuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        domain: { label: 'Domain', type: 'text' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
+        const org = await db.organization.findFirst({
+          where: { domain: credentials.domain },
+          select: { id: true },
+        });
+
+        if (!org) return null;
+
         const user = await db.user.findUnique({
-          where: { email: credentials.email },
+          where: {
+            email_organizationId: {
+              email: credentials.email,
+              organizationId: org.id,
+            },
+          },
           include: {
             permissions: {
               include: {

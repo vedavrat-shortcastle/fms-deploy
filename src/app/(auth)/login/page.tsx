@@ -22,6 +22,7 @@ const LoginForm = () => {
       const result = await signIn('credentials', {
         email,
         password,
+        domain: 'localhost', // Replace with domain later on
         redirect: false,
       });
 
