@@ -8,19 +8,113 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model BaseUser {
+  id           String     @id @default(uuid())
+  email        String     @db.VarChar(255)
+  password     String     @db.VarChar(255)
+  role         Role
+  firstName    String     @map("first_name") @db.VarChar(100)
+  lastName     String     @map("last_name") @db.VarChar(100)
+  middleName   String?    @map("middle_name") @db.VarChar(100)
+  nameSuffix   String?    @map("name_suffix") @db.VarChar(50)
+  gender       Gender
+  federation   Federation @relation(fields: [federationId], references: [id], name: "FederationBaseUsers")
+  federationId String     @map("federation_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  // Single relation to UserProfile
+  profile UserProfile?
+
+  @@unique([email, federationId])
+  @@map("base_user")
+}
+
+model UserProfile {
+  id         String   @id @default(uuid())
+  baseUser   BaseUser @relation(fields: [baseUserId], references: [id])
+  baseUserId String   @unique @map("base_user_id")
+
+  // Polymorphic fields with enum
+  profileType ProfileType
+  profileId   String // ID of the specific profile record
+
+  isActive    Boolean          @default(true) @map("is_active")
+  deletedAt   DateTime?        @map("deleted_at")
+  permissions UserPermission[] @relation(name: "UserPermissions")
+
+  @@unique([profileType, profileId])
+  @@map("user_profile")
+}
+
+// Club Manager Schema
+model ClubManager {
+  id        String   @id @default(uuid())
+  club      Club     @relation(fields: [clubId], references: [id], name: "ClubManager")
+  clubId    String   @unique @map("club_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("club_manager")
+}
+
+// Player Schema
+model Player {
+  id        String   @id @default(uuid())
+  birthDate DateTime @map("birth_date")
+  avatarUrl String?  @map("avatar_url")
+  ageProof  String?  @map("age_proof") // URL of uploaded age proof document
+
+  // Mailing Details
+  streetAddress  String  @map("street_address")
+  streetAddress2 String? @map("street_address2")
+  country        String
+  state          String
+  city           String
+  postalCode     String  @map("postal_code")
+  phoneNumber    String? @map("phone_number")
+  countryCode    String? @map("country_code")
+
+  // Other Info
+  fideId         String?   @unique @map("fide_id")
+  schoolName     String?   @map("school_name")
+  graduationYear Int?      @map("graduation_year")
+  gradeInSchool  String?   @map("grade_in_school")
+  gradeDate      DateTime? @map("grade_date")
+  clubName       String?   @map("club_name")
+
+  subscriptions Subscription[]
+  club          Club?          @relation(name: "ClubPlayers", fields: [clubId], references: [id])
+  clubId        String?
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  @@map("player")
+}
+
+// Federation Admin Schema
+model FederationAdmin {
+  id           String     @id @default(uuid())
+  federation   Federation @relation(name: "FedAdmins", fields: [federationId], references: [id])
+  federationId String     @unique @map("federation_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  @@map("federation_admin")
+}
+
 // Federation Schema
 model Federation {
-  id      String  @id @default(uuid())
-  name    String
-  type    FedType
-  country String
-  domain  String  @unique // White-labeling domain
-  logo    String?
+  id         String  @id @default(uuid())
+  name       String
+  type       FedType
+  country    String
+  domain     String  @unique // White-labeling domain
+  logo       String?
   isApproved Boolean @default(false) @map("is_approved")
 
-  // Relation Fix: Differentiate players and admins
-  players User[] @relation(name: "FedPlayers")
-  admins  User[] @relation(name: "FedAdmins")
+  // Relation Fix: Differentiate players and admins\
+  admins    FederationAdmin[] @relation(name: "FedAdmins")
+  baseUsers BaseUser[]        @relation(name: "FederationBaseUsers")
 
   clubs         Club[]
   events        Event[]
@@ -38,13 +132,13 @@ model Club {
   name String
 
   // Relation Fix: Differentiate manager and players
-  manager   User   @relation(name: "ClubManager", fields: [managerId], references: [id])
-  managerId String @unique @map("manager_id")
+  managerId    String        @unique @map("manager_id")
+  clubManagers ClubManager[] @relation(name: "ClubManager")
 
-  players User[] @relation(name: "ClubPlayers")
+  players Player[] @relation(name: "ClubPlayers")
 
   federation   Federation @relation(fields: [federationId], references: [id])
-  federationId String       @map("federation_id")
+  federationId String     @map("federation_id")
 
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -52,69 +146,13 @@ model Club {
   @@map("club")
 }
 
-// User Schema
-model User {
-  id          String           @id @default(uuid())
-  email       String
-  password    String
-  role        Role             @default(PLAYER)
-  permissions UserPermission[]
-
-  // Relation Fix: Reference named relations
-  federation   Federation? @relation(name: "FedPlayers", fields: [federationId], references: [id])
-  federationId String?       @map("federation_id")
-
-  adminOf             Federation? @relation(name: "FedAdmins", fields: [adminFederationId], references: [id])
-  adminFederationId String?       @map("admin_federation_id")
-
-  club   Club?   @relation(name: "ClubPlayers", fields: [clubId], references: [id])
-  clubId String? @map("club_id")
-
-  managedClub Club? @relation(name: "ClubManager")
-
-  // Personal Info
-  firstName  String    @map("first_name")
-  lastName   String    @map("last_name")
-  middleName String?   @map("middle_name")
-  nameSuffix String?   @map("name_suffix")
-  birthDate  DateTime @map("birth_date")
-  gender     Gender
-  avatarUrl  String?   @map("avatar_url")
-  ageProof   String?   @map("age_proof") // URL of uploaded age proof document
-
-  // Mailing Details
-  streetAddress  String @map("street_address")
-  streetAddress2 String? @map("street_address2")
-  country        String
-  state          String
-  city           String
-  postalCode     String @map("postal_code")
-  phoneNumber    String?  @map("phone_number")
-  countryCode    String?  @map("country_code")
-
-  // Other Info
-  fideId         String?   @unique @map("fide_id")
-  schoolName     String?   @map("school_name")
-  graduationYear Int?      @map("graduation_year")
-  gradeInSchool  String?   @map("grade_in_school")
-  gradeDate      DateTime? @map("grade_date")
-  clubName       String?   @map("club_name")
-  isDisabled     Boolean   @default(false) @map("is_disabled")
-
-  subscriptions Subscription[]
-  createdAt     DateTime       @default(now()) @map("created_at")
-
-  @@unique([email, federationId])
-  @@map("user")
-}
-
 // Subscription Schema
 model Subscription {
-  id             String       @id @default(uuid())
+  id           String     @id @default(uuid())
   federation   Federation @relation(fields: [federationId], references: [id])
-  federationId String       @map("federation_id")
+  federationId String     @map("federation_id")
 
-  subscriber   User   @relation(fields: [subscriberId], references: [id])
+  subscriber   Player @relation(fields: [subscriberId], references: [id])
   subscriberId String @map("subscriber_id")
 
   type      SubscriptionType
@@ -128,31 +166,31 @@ model Subscription {
 
 // Event Schema
 model Event {
-  id             String       @id @default(uuid())
+  id             String      @id @default(uuid())
   name           String
   description    String?
   image          String?
   video          String?
   mode           EventMode
   venue          String?
-  startDate      DateTime     @map("start_date")
-  startTime      String       @map("start_time")
-  endDate        DateTime     @map("end_date")
-  endTime        String       @map("end_time")
-  contactInfo    ContactInfo  @relation(fields: [contactInfoId], references: [id])
-  federation   Federation @relation(fields: [federationId], references: [id])
-  federationId String       @map("federation_id")
+  startDate      DateTime    @map("start_date")
+  startTime      String      @map("start_time")
+  endDate        DateTime    @map("end_date")
+  endTime        String      @map("end_time")
+  contactInfo    ContactInfo @relation(fields: [contactInfoId], references: [id])
+  federation     Federation  @relation(fields: [federationId], references: [id])
+  federationId   String      @map("federation_id")
   format         EventFormat
-  numberOfRounds Int          @map("number_of_rounds")
-  isRated        Boolean      @map("is_rated")
-  timeControl    String?      @map("time_control")
+  numberOfRounds Int         @map("number_of_rounds")
+  isRated        Boolean     @map("is_rated")
+  timeControl    String?     @map("time_control")
   entryFees      EntryFee[]
   brochure       String? // URL to brochure (PDF/Image)
-  aboutEvent     String?      @map("about_event") // Quill formatted content
-  prizesAwards   String?      @map("prizes_awards") // Quill formatted content
+  aboutEvent     String?     @map("about_event") // Quill formatted content
+  prizesAwards   String?     @map("prizes_awards") // Quill formatted content
   faq            String? // Quill formatted content
-  createdAt      DateTime     @default(now()) @map("created_at")
-  contactInfoId  String       @map("contact_info_id")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  contactInfoId  String      @map("contact_info_id")
 
   @@map("event")
 }
@@ -181,17 +219,33 @@ model ContactInfo {
   @@map("contact_info")
 }
 
+// --------------------------------------------------- ENUMS --------------------------------------------------- //
+
 // Enums
 enum FedType {
   NATIONAL
   REGIONAL
 }
 
+enum ProfileType {
+  PLAYER
+  FED_ADMIN
+  CLUB_MANAGER
+  COACH
+  ARBITER
+  TOURNAMENT_DIRECTOR
+  PARENT
+  STUDENT
+  VOLUNTEER
+}
+
 enum Role {
-  SUPER_ADMIN // Platform-wide admin
-  FED_ADMIN // Federation-level admin
-  CLUB_MANAGER // Manages a club
-  PLAYER // Regular user
+  FED_ADMIN
+  CLUB_MANAGER
+  PLAYER
+  COACH
+  ARBITER
+  VOLUNTEER
 }
 
 enum Gender {
@@ -222,9 +276,7 @@ enum EventFormat {
   TEAM
 }
 
-//
-//***************************************************    RBAC SETUP    ***************************************************
-//
+// --------------------------------------------------- RBAC SETUP --------------------------------------------------- //
 
 model Permission {
   id          String           @id @default(uuid())
@@ -239,12 +291,11 @@ model Permission {
 }
 
 model UserPermission {
-  userId       String     @map("admin_user_id")
-  permissionId String     @map("permission_id")
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @default(now()) @map("updated_at")
-  user         User       @relation(fields: [userId], references: [id])
-  permission   Permission @relation(fields: [permissionId], references: [id])
+  userId       String      @map("admin_user_id")
+  permissionId String      @map("permission_id")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  user         UserProfile @relation(fields: [userId], references: [id], name: "UserPermissions")
+  permission   Permission  @relation(fields: [permissionId], references: [id])
 
   @@id([userId, permissionId])
   @@map("user_permission")

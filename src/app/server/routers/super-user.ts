@@ -1,9 +1,6 @@
-import { hashPassword } from '@/utils/encoder';
 import { TRPCError } from '@trpc/server';
 import { publicProcedure, router, validateApiKey } from '@/app/server/trpc';
 import { createPermissionSchema } from '@/schemas/Permission.schema';
-import { handleError } from '@/utils/errorHandler';
-import { createUserSchema } from '@/schemas/Player.schema';
 import { createFederationSchema } from '@/schemas/Federation.schema';
 
 export const superUserRouter = router({
@@ -47,87 +44,87 @@ export const superUserRouter = router({
       }
     }),
 
-  createUser: publicProcedure
-    .use(validateApiKey())
-    .input(createUserSchema)
-    .mutation(async ({ ctx, input }) => {
-      try {
-        const { domain, ...userData } = input;
-        const hashedPassword = await hashPassword(input.password);
-        const currentOrg = await ctx.db.federation.findFirst({
-          where: { domain: domain },
-          select: { id: true },
-        });
-        if (!currentOrg) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Federation not found',
-          });
-        }
-        const existingUser = await ctx.db.user.findUnique({
-          where: {
-            email_federationId: {
-              email: input.email,
-              federationId: currentOrg.id,
-            },
-          },
-        });
+  // createFederationAdmin: publicProcedure
+  //   .use(validateApiKey())
+  //   .input(createUserSchema)
+  //   .mutation(async ({ ctx, input }) => {
+  //     try {
+  //       const { domain, ...userData } = input;
+  //       const hashedPassword = await hashPassword(input.password);
+  //       const currentOrg = await ctx.db.federation.findFirst({
+  //         where: { domain: domain },
+  //         select: { id: true },
+  //       });
+  //       if (!currentOrg) {
+  //         throw new TRPCError({
+  //           code: 'NOT_FOUND',
+  //           message: 'Federation not found',
+  //         });
+  //       }
+  //       const existingUser = await ctx.db.user.findUnique({
+  //         where: {
+  //           email_federationId: {
+  //             email: input.email,
+  //             federationId: currentOrg.id,
+  //           },
+  //         },
+  //       });
 
-        if (existingUser) {
-          throw new TRPCError({
-            code: 'CONFLICT',
-            message: 'User already exists',
-          });
-        }
+  //       if (existingUser) {
+  //         throw new TRPCError({
+  //           code: 'CONFLICT',
+  //           message: 'User already exists',
+  //         });
+  //       }
 
-        // Verify all permission IDs exist
-        const permissions = await ctx.db.permission.findMany({
-          where: {
-            code: {
-              in: input.permissions,
-            },
-          },
-          select: {
-            id: true,
-          },
-        });
+  //       // Verify all permission IDs exist
+  //       const permissions = await ctx.db.permission.findMany({
+  //         where: {
+  //           code: {
+  //             in: input.permissions,
+  //           },
+  //         },
+  //         select: {
+  //           id: true,
+  //         },
+  //       });
 
-        if (permissions.length !== input.permissions.length) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'One or more permission IDs are invalid',
-          });
-        }
+  //       if (permissions.length !== input.permissions.length) {
+  //         throw new TRPCError({
+  //           code: 'BAD_REQUEST',
+  //           message: 'One or more permission IDs are invalid',
+  //         });
+  //       }
 
-        // Create user with permissions
-        const user = await ctx.db.user.create({
-          data: {
-            ...userData,
-            password: hashedPassword,
-            federationId: currentOrg.id,
-            permissions: {
-              create: permissions.map((permission) => ({
-                permissionId: permission.id,
-              })),
-            },
-          },
-          include: {
-            permissions: {
-              include: {
-                permission: true,
-              },
-            },
-          },
-        });
+  //       // Create user with permissions
+  //       const user = await ctx.db.user.create({
+  //         data: {
+  //           ...userData,
+  //           password: hashedPassword,
+  //           federationId: currentOrg.id,
+  //           permissions: {
+  //             create: permissions.map((permission) => ({
+  //               permissionId: permission.id,
+  //             })),
+  //           },
+  //         },
+  //         include: {
+  //           permissions: {
+  //             include: {
+  //               permission: true,
+  //             },
+  //           },
+  //         },
+  //       });
 
-        return { ...user, password: undefined };
-      } catch (error: any) {
-        handleError(error, {
-          message: 'Failed to create user',
-          cause: error.message,
-        });
-      }
-    }),
+  //       return { ...user, password: undefined };
+  //     } catch (error: any) {
+  //       handleError(error, {
+  //         message: 'Failed to create user',
+  //         cause: error.message,
+  //       });
+  //     }
+  //   }),
 
   createFederation: publicProcedure
     .use(validateApiKey())
