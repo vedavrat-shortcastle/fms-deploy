@@ -6,7 +6,7 @@ import {
 } from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
 import { hashPassword } from '@/utils/encoder';
-import { Role } from '@prisma/client';
+import { ProfileType, Role } from '@prisma/client';
 import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
@@ -23,6 +23,7 @@ export const playerRouter = router({
     .input(createPlayerSchema)
     .mutation(async ({ ctx, input }) => {
       try {
+        const { baseUser, playerDetails } = input;
         if (!ctx.session.user.orgId) {
           throw new TRPCError({
             code: 'FORBIDDEN',
@@ -30,11 +31,10 @@ export const playerRouter = router({
           });
         }
 
-        const hashedPassword = await hashPassword(input.password);
-        const existingUser = await ctx.db.user.findUnique({
+        const existingUser = await ctx.db.baseUser.findUnique({
           where: {
             email_federationId: {
-              email: input.email,
+              email: baseUser.email,
               federationId: ctx.session.user.orgId,
             },
           },
@@ -47,23 +47,38 @@ export const playerRouter = router({
           });
         }
 
-        const user = await ctx.db.user.create({
+        const hashedPassword = await hashPassword(baseUser.password);
+        const newBaseUser = await ctx.db.baseUser.create({
           data: {
-            ...input,
-            role: Role.PLAYER,
+            ...baseUser,
             password: hashedPassword,
+            role: Role.PLAYER,
             federationId: ctx.session.user.orgId,
-            countryCode: input.countryCode,
-            postalCode: '',
+          },
+        });
+
+        const newPlayer = await ctx.db.player.create({
+          data: {
+            ...playerDetails,
+          },
+        });
+
+        const newUserProfile = await ctx.db.userProfile.create({
+          data: {
+            profileType: ProfileType.PLAYER,
+            profileId: newPlayer.id,
+            baseUser: {
+              connect: { id: newBaseUser.id },
+            },
             permissions: {
-              create: input.permissions.map((permission: string) => ({
-                permission: { connect: { id: permission } },
+              create: roleMap[Role.PLAYER].map((permission) => ({
+                permission: { connect: { code: permission } },
               })),
             },
           },
         });
 
-        return { ...user, password: undefined };
+        return { ...newUserProfile, password: undefined };
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to create player',
@@ -72,7 +87,7 @@ export const playerRouter = router({
       }
     }),
   // Get all players
-  getMlayers: permissionProtectedProcedure(PERMISSIONS.PLAYER_VIEW)
+  getPlayers: permissionProtectedProcedure(PERMISSIONS.PLAYER_VIEW)
     .input(
       z.object({
         page: z.number().default(1),
@@ -83,13 +98,12 @@ export const playerRouter = router({
       try {
         const { page, limit } = input;
         const offset = (page - 1) * limit;
-        const where: Prisma.UserWhereInput = {
+        const where: Prisma.BaseUserWhereInput = {
           role: Role.PLAYER,
           federationId: ctx.session.user.orgId,
-          isDisabled: false,
         };
 
-        const players = await ctx.db.user.findMany({
+        const players = await ctx.db.baseUser.findMany({
           where,
           skip: offset,
           take: limit,
@@ -100,11 +114,10 @@ export const playerRouter = router({
             lastName: true,
             role: true,
             federation: true,
-            club: true,
           },
         });
 
-        const totalPlayers = await ctx.db.user.count({ where });
+        const totalPlayers = await ctx.db.baseUser.count({ where });
 
         return {
           players,
@@ -124,8 +137,12 @@ export const playerRouter = router({
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       try {
-        const player = await ctx.db.user.findUnique({
-          where: { id: input.id },
+        const baseUser = await ctx.db.baseUser.findUnique({
+          where: {
+            id: input.id,
+            role: Role.PLAYER,
+            federationId: ctx.session.user.orgId,
+          },
           select: {
             id: true,
             email: true,
@@ -133,18 +150,42 @@ export const playerRouter = router({
             lastName: true,
             role: true,
             federation: true,
-            club: true,
+            profile: {
+              select: {
+                profileId: true,
+                profileType: true,
+                isActive: true,
+              },
+            },
           },
         });
 
-        if (!player) {
+        if (!baseUser) {
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'Player not found',
           });
         }
 
-        return player;
+        if (!baseUser.profile?.isActive) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Player profile is disabled',
+          });
+        }
+
+        if (baseUser.profile.profileType !== ProfileType.PLAYER) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Player profile is not a player',
+          });
+        }
+
+        const player = await ctx.db.player.findUnique({
+          where: { id: baseUser.profile.profileId },
+        });
+
+        return { ...player, ...baseUser };
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to fetch player',
@@ -157,14 +198,87 @@ export const playerRouter = router({
     .input(editPlayerSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        const { id, ...data } = input;
+        const { baseUser, playerDetails } = input;
 
-        const player = await ctx.db.user.update({
-          where: { id },
-          data: data,
+        const existingUser = await ctx.db.baseUser.findUnique({
+          where: {
+            id: baseUser.id,
+            federationId: ctx.session.user.orgId,
+            role: Role.PLAYER,
+          },
+          include: {
+            profile: {
+              select: {
+                profileId: true,
+                isActive: true,
+                profileType: true,
+              },
+            },
+          },
         });
 
-        return { ...player, password: undefined };
+        if (!existingUser) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player not found',
+          });
+        }
+
+        if (!existingUser.profile?.isActive) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Player profile is inactive',
+          });
+        }
+
+        if (existingUser.profile.profileType !== ProfileType.PLAYER) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Profile is not a player',
+          });
+        }
+
+        // Check email uniqueness if email is being updated
+        if (baseUser.email && baseUser.email !== existingUser.email) {
+          const emailExists = await ctx.db.baseUser.findUnique({
+            where: {
+              email_federationId: {
+                email: baseUser.email,
+                federationId: ctx.session.user.orgId,
+              },
+            },
+          });
+
+          if (emailExists) {
+            throw new TRPCError({
+              code: 'CONFLICT',
+              message: 'Email already exists',
+            });
+          }
+        }
+
+        const [updatedBaseUser, updatedPlayer] = await ctx.db.$transaction([
+          // Update BaseUser
+          ctx.db.baseUser.update({
+            where: { id: baseUser.id },
+            data: {
+              ...baseUser,
+            },
+          }),
+
+          // Update Player
+          ctx.db.player.update({
+            where: { id: existingUser.profile.profileId },
+            data: {
+              ...playerDetails,
+            },
+          }),
+        ]);
+
+        return {
+          ...updatedBaseUser,
+          playerDetails: updatedPlayer,
+        };
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to edit player',
@@ -177,11 +291,31 @@ export const playerRouter = router({
     .input(deletePlayerSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        await ctx.db.user.update({
-          where: { id: input.id },
-          data: { isDisabled: true },
+        const userProfileId = await ctx.db.baseUser.findUnique({
+          where: {
+            id: input.id,
+            role: Role.PLAYER,
+            federationId: ctx.session.user.orgId,
+          },
+          select: { profile: true },
         });
 
+        if (!userProfileId) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player not found',
+          });
+        }
+
+        await ctx.db.userProfile.update({
+          where: {
+            id: userProfileId.profile?.id,
+            profileType: ProfileType.PLAYER,
+          },
+          data: {
+            isActive: false,
+          },
+        });
         return { success: true };
       } catch (error: any) {
         handleError(error, {
@@ -195,8 +329,9 @@ export const playerRouter = router({
     .input(signupPlayerSchema)
     .mutation(async ({ ctx, input }) => {
       try {
+        const { federation, ...data } = input;
         const currentOrg = await ctx.db.federation.findFirst({
-          where: { domain: input.domain },
+          where: { domain: federation.domain },
           select: { id: true },
         });
         if (!currentOrg) {
@@ -206,7 +341,7 @@ export const playerRouter = router({
           });
         }
         const hashedPassword = await hashPassword(input.password);
-        const existingUser = await ctx.db.user.findUnique({
+        const existingUser = await ctx.db.baseUser.findUnique({
           where: {
             email_federationId: {
               email: input.email,
@@ -222,22 +357,22 @@ export const playerRouter = router({
           });
         }
 
-        const user = await ctx.db.user.create({
+        const newBaseUser = await ctx.db.baseUser.create({
           data: {
-            email: input.email,
+            ...data,
             password: hashedPassword,
-            firstName: input.firstName,
-            lastName: input.lastName,
-            gender: input.gender,
-            phoneNumber: input.phoneNumber,
-            countryCode: input.countryCode,
             role: Role.PLAYER,
-            birthDate: '',
-            streetAddress: '',
-            country: '',
-            state: '',
-            city: '',
-            postalCode: '',
+            federationId: currentOrg.id,
+          },
+        });
+
+        await ctx.db.userProfile.create({
+          data: {
+            profileType: ProfileType.PLAYER,
+            profileId: 'PENDING',
+            baseUser: {
+              connect: { id: newBaseUser.id },
+            },
             permissions: {
               create: roleMap[Role.PLAYER].map((permission) => ({
                 permission: { connect: { code: permission } },
@@ -246,7 +381,7 @@ export const playerRouter = router({
           },
         });
 
-        return { ...user, password: undefined };
+        return { ...newBaseUser, password: undefined };
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to sign up player',

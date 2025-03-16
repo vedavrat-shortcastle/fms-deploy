@@ -28,25 +28,15 @@ export const createFederationFormSchema = createFederationSchema
   });
 
 export const federationOnboardingSchema = createFederationSchema.extend({
-  admin: z.object({
+  baseUser: z.object({
     email: z.string().email(),
     password: z.string().min(8),
+    role: z.literal(Role.FED_ADMIN),
     firstName: z.string().min(1, 'First name is required'),
     lastName: z.string().min(1, 'Last name is required'),
     middleName: z.string().optional(),
     nameSuffix: z.string().optional(),
-    birthDate: z.string().transform((str) => new Date(str)),
     gender: z.nativeEnum(Gender),
-    ageProof: z.string(),
-    streetAddress: z.string(),
-    streetAddress2: z.string().optional(),
-    country: z.string(),
-    state: z.string(),
-    city: z.string(),
-    postalCode: z.string(),
-    countryCode: z.string(),
-    phoneNumber: z.string(),
-    role: z.literal(Role.FED_ADMIN),
   }),
 });
 
