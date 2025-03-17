@@ -69,7 +69,7 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
         setError('Invalid credentials');
         return;
       }
-      console.log('result', result);
+
       if (result?.ok) {
         router.push('/players');
       }

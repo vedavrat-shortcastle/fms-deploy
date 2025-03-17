@@ -48,7 +48,6 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
   if (queryData) {
     try {
       onboardingData = JSON.parse(decodeURIComponent(queryData));
-      console.log(queryData);
     } catch (e) {
       console.error('Error parsing query data', e);
     }
@@ -74,7 +73,6 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
     },
   });
 
-  console.log('error', form.formState.errors, form.getValues());
   //Function to handle submit
   const onSubmit = async (values: FederationOnboardingFormValues) => {
     // Destructure subdomain and collect the rest of the form values
@@ -82,8 +80,7 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
     const finalData = { ...onboardingData, ...values };
 
     try {
-      const response = await mutation.mutateAsync(finalData);
-      console.log('Federation created with domain:', response);
+      await mutation.mutateAsync(finalData);
       router.push('/onboarding-welcome');
     } catch (error: unknown) {
       const errorMessage =

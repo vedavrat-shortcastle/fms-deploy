@@ -42,7 +42,6 @@ export default function PlayerDetails() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setPlayer(data);
       setIsEditing(false);
-      console.log('Form submitted successfully:', data);
     } catch (error) {
       console.error('Error submitting form:', error);
     } finally {

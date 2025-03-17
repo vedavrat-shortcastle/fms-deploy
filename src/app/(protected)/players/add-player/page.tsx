@@ -38,7 +38,7 @@ export default function AddPlayerPage() {
         gender: 'MALE',
       },
       playerDetails: {
-        birthDate: undefined, // Now using null instead of an empty string
+        birthDate: new Date(), // Now using null instead of an empty string
         avatarUrl: '',
         ageProof: '',
         streetAddress: '',
@@ -53,9 +53,9 @@ export default function AddPlayerPage() {
         schoolName: '',
         graduationYear: undefined,
         gradeInSchool: '',
-        gradeDate: undefined, // Now using null instead of an empty string
+        gradeDate: null,
         clubName: '',
-        clubId: '',
+        clubId: null,
       },
     },
   });
@@ -63,16 +63,13 @@ export default function AddPlayerPage() {
   const { handleSubmit, reset, trigger } = form;
 
   const createPlayerMutation = trpc.player.createPlayer.useMutation({
-    onSuccess: (data) => {
-      console.log('Player created successfully:', data);
+    onSuccess: () => {
       reset();
       setActiveTab('personal');
       setIsSubmitting(false);
-      alert('Player created successfully!');
     },
     onError: (error) => {
       console.error('Error creating player:', error);
-      alert(`Error creating player: ${error.message || 'Unknown error'}`);
       setIsSubmitting(false);
     },
   });
@@ -129,26 +126,12 @@ export default function AddPlayerPage() {
     else if (activeTab === 'mailing') setActiveTab('personal');
   };
   const onSubmit = async (data: CreatePlayerFormValues) => {
-    console.log('Submitting data:', data);
     setIsSubmitting(true);
     try {
-      data.playerDetails.birthDate = data.playerDetails.birthDate
-        ? new Date(data.playerDetails.birthDate)
-        : data.playerDetails.birthDate;
-
-      data.playerDetails.gradeDate = data.playerDetails.gradeDate
-        ? new Date(data.playerDetails.gradeDate)
-        : undefined;
-
       await createPlayerMutation.mutateAsync(data);
     } catch (error) {
       console.error('Submission error:', error);
       setIsSubmitting(false);
-      alert(
-        `Submission failed: ${
-          error instanceof Error ? error.message : 'Unknown error'
-        }`
-      );
     }
   };
 

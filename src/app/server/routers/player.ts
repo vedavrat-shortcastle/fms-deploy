@@ -49,7 +49,6 @@ export const playerRouter = router({
           });
         }
 
-        console.log('flag 1', baseUser, playerDetails);
         const hashedPassword = await hashPassword(baseUser.password);
         const result = await ctx.db.$transaction(async (tx) => {
           const newBaseUser = await tx.baseUser.create({
@@ -61,12 +60,9 @@ export const playerRouter = router({
             },
           });
 
-          console.log('flag 2', newBaseUser);
-
           const newPlayer = await tx.player.create({
             data: {
-              // birthDate: playerDetails.birthDate,
-              birthDate: new Date(),
+              birthDate: playerDetails.birthDate,
               avatarUrl: playerDetails.avatarUrl,
               ageProof: playerDetails.ageProof,
               streetAddress: playerDetails.streetAddress,
@@ -80,13 +76,12 @@ export const playerRouter = router({
               fideId: playerDetails.fideId,
               schoolName: playerDetails.schoolName,
               graduationYear: playerDetails.graduationYear,
-              gradeDate: new Date(),
               gradeInSchool: playerDetails.gradeInSchool,
+              gradeDate: playerDetails.gradeDate,
               clubName: playerDetails.clubName,
+              clubId: playerDetails.clubId ?? null,
             },
           });
-
-          console.log('flag 3', newPlayer);
 
           const newUserProfile = await tx.userProfile.create({
             data: {
@@ -98,8 +93,6 @@ export const playerRouter = router({
             },
           });
 
-          console.log('flag 4', newUserProfile);
-
           const fedPlayerPermissions = await tx.permission.findMany({
             where: {
               code: {
@@ -110,8 +103,6 @@ export const playerRouter = router({
               id: true,
             },
           });
-
-          console.log('flag 5', fedPlayerPermissions);
 
           await tx.userPermission.createMany({
             data: fedPlayerPermissions.map((permission) => ({

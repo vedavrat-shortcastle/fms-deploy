@@ -38,7 +38,6 @@ const hasPermission = (permission: string) => {
     if (!ctx.session) {
       throw new TRPCError({ code: 'UNAUTHORIZED' });
     }
-    console.log('permissions', ctx.session.user.permissions);
     const hasRequired = checkPermission(
       ctx.session.user.permissions.map((p) => p.code),
       permission

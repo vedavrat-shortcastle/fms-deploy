@@ -196,7 +196,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               )}
             />
             {/* Country Code Field */}
-            <div className="flex gap-x-5">
+            <div className="flex gap-x-5 w-full">
               <FormField
                 control={form.control}
                 name="countryCode"
@@ -237,7 +237,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                       <Input
                         placeholder="55555-55555"
                         {...field}
-                        className="w-[250px] h-[42px]"
+                        className="w-full h-[42px]"
                       />
                     </FormControl>
 
