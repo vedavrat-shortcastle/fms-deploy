@@ -135,7 +135,7 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
                   <FormControl>
                     <Input
                       placeholder="Federation name"
-                      className="w-[350px]"
+                      className="w-[450px]"
                       {...field}
                     />
                   </FormControl>
