@@ -129,7 +129,6 @@ export function OtherInfoForm() {
           </FormItem>
         )}
       />
-
       {/* Grade Date (as of) using DatePicker */}
       <FormField
         control={control}
@@ -139,17 +138,12 @@ export function OtherInfoForm() {
             <FormLabel>{renderLabel('Grade Date (as of)', true)}</FormLabel>
             <FormControl>
               <DatePicker
-                value={field.value ? new Date(field.value) : undefined} // Use undefined instead of null
+                value={field.value ? new Date(field.value) : undefined} // Ensure value is a Date
                 onChange={(date) => {
-                  setValue(
-                    'playerDetails.gradeDate',
-                    date ? date.toISOString() : undefined
-                  ); // Convert Date to string
+                  setValue('playerDetails.gradeDate', date ?? undefined); // Store as Date
                   trigger('playerDetails.gradeDate');
                 }}
-                onBlur={() => {
-                  trigger('playerDetails.gradeDate');
-                }}
+                onBlur={() => trigger('playerDetails.gradeDate')}
                 placeholder="Select date"
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
                 error={!!errors.playerDetails?.gradeDate}

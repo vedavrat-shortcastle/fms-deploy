@@ -23,7 +23,7 @@ export default function AddPlayerPage() {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Use nested default values matching the updated schema
+  // Use nested default values with proper Date objects
   const form = useForm<CreatePlayerFormValues>({
     resolver: zodResolver(createPlayerSchema),
     mode: 'onChange',
@@ -38,7 +38,7 @@ export default function AddPlayerPage() {
         gender: 'MALE',
       },
       playerDetails: {
-        birthDate: '',
+        birthDate: undefined, // Now using null instead of an empty string
         avatarUrl: '',
         ageProof: '',
         streetAddress: '',
@@ -53,7 +53,7 @@ export default function AddPlayerPage() {
         schoolName: '',
         graduationYear: undefined,
         gradeInSchool: '',
-        gradeDate: '', // using an empty string initially
+        gradeDate: undefined, // Now using null instead of an empty string
         clubName: '',
         clubId: '',
       },
@@ -128,17 +128,18 @@ export default function AddPlayerPage() {
     if (activeTab === 'other') setActiveTab('mailing');
     else if (activeTab === 'mailing') setActiveTab('personal');
   };
-
   const onSubmit = async (data: CreatePlayerFormValues) => {
     console.log('Submitting data:', data);
     setIsSubmitting(true);
     try {
-      // Optionally, if you need to convert gradeDate to a proper ISO date:
-      if (data.playerDetails.gradeDate) {
-        data.playerDetails.gradeDate = new Date(
-          data.playerDetails.gradeDate
-        ).toISOString();
-      }
+      data.playerDetails.birthDate = data.playerDetails.birthDate
+        ? new Date(data.playerDetails.birthDate)
+        : data.playerDetails.birthDate;
+
+      data.playerDetails.gradeDate = data.playerDetails.gradeDate
+        ? new Date(data.playerDetails.gradeDate)
+        : undefined;
+
       await createPlayerMutation.mutateAsync(data);
     } catch (error) {
       console.error('Submission error:', error);
