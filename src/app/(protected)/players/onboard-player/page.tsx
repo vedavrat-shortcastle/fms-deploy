@@ -26,7 +26,7 @@ export default function PlayerOnboarding() {
     resolver: zodResolver(playerOnboardingSchema),
     mode: 'onChange', // Validate on every change for instant feedback
     defaultValues: {
-      birthDate: new Date(), // Initialize with current date string
+      birthDate: '',
       avatarUrl: '',
       ageProof: '',
       streetAddress: '',
@@ -41,13 +41,13 @@ export default function PlayerOnboarding() {
       schoolName: '',
       graduationYear: undefined,
       gradeInSchool: '',
-      gradeDate: new Date(), // Initialize with current date string
+      gradeDate: '',
       clubName: '',
-      clubId: '',
+      clubId: null,
     },
   });
 
-  const { handleSubmit, reset } = form;
+  const { handleSubmit } = form;
 
   const { mutate } = trpc.player.onboardPlayer.useMutation();
 
@@ -77,33 +77,35 @@ export default function PlayerOnboarding() {
 
   // Final submission of the form.
   const onSubmit = (data: playerOnboardingInput) => {
-    console.log(data);
+    console.log('data: ', data);
     // Here you can call your API or process the data.
     mutate(data);
-    reset();
+    // reset();
   };
 
   return (
     <FormProvider {...form}>
-      <div className="flex h-screen bg-gray-50">
-        <Sidebar />
-        <main className="flex-1 overflow-auto p-6">
-          <PageHeader icon={<User size={16} color="white" />} title="Players" />
-          <OnboardingFormContainer
-            title="Tell Us More About Yourself"
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            onBack={handleBack}
-            onNext={
-              activeTab === 'stepTwo' ? handleSubmit(onSubmit) : handleNext
-            }
-            submitLabel={activeTab === 'stepTwo' ? 'Save' : 'Next'}
-          >
-            {activeTab === 'stepOne' && <PlayerDetailsStepOne />}
-            {activeTab === 'stepTwo' && <PlayerDetailsStepTwo />}
-          </OnboardingFormContainer>
-        </main>
-      </div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="flex h-screen bg-gray-50">
+          <Sidebar />
+          <main className="flex-1 overflow-auto p-6">
+            <PageHeader
+              icon={<User size={16} color="white" />}
+              title="Players"
+            />
+            <OnboardingFormContainer
+              title="Tell Us More About Yourself"
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              onBack={handleBack}
+              onNext={handleNext}
+            >
+              {activeTab === 'stepOne' && <PlayerDetailsStepOne />}
+              {activeTab === 'stepTwo' && <PlayerDetailsStepTwo />}
+            </OnboardingFormContainer>
+          </main>
+        </div>
+      </form>
     </FormProvider>
   );
 }

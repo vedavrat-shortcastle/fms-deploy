@@ -10,20 +10,11 @@ interface OnboardingFormContainerProps {
   onTabChange: (tab: 'stepOne' | 'stepTwo') => void;
   onBack: () => void;
   onNext: () => void;
-  submitLabel: string;
 }
 
 export const OnboardingFormContainer: React.FC<
   OnboardingFormContainerProps
-> = ({
-  title,
-  children,
-  activeTab,
-  onTabChange,
-  onBack,
-  onNext,
-  submitLabel,
-}) => (
+> = ({ title, children, activeTab, onTabChange, onBack, onNext }) => (
   <div className="max-w-4xl mx-auto p-6">
     <h2 className="mb-4 text-2xl font-bold text-gray-800">{title}</h2>
     <div className="bg-white border rounded-md shadow-lg">
@@ -57,9 +48,15 @@ export const OnboardingFormContainer: React.FC<
         >
           Back
         </Button>
-        <Button variant="destructive" onClick={onNext}>
-          {submitLabel}
-        </Button>
+        {activeTab === 'stepOne' ? (
+          <Button variant="destructive" onClick={onNext} type="button">
+            Next
+          </Button>
+        ) : (
+          <Button variant="destructive" type="submit">
+            Submit
+          </Button>
+        )}
       </div>
     </div>
   </div>
