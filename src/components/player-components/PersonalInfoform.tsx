@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DatePicker } from '@/components/player-components/DatePicker';
-import { CreatePlayerFormValues } from '@/schemas/Player.schema';
+import { CreatePlayerFormValues } from '@/schemas/player.schema';
 
 export function PersonalInformationForm() {
   const {
@@ -35,7 +35,6 @@ export function PersonalInformationForm() {
     setIsClient(true);
   }, []);
 
-  // Get current date for maximum date validation
   const today = new Date();
 
   if (!isClient) return null;
@@ -49,7 +48,7 @@ export function PersonalInformationForm() {
       {/* First Name */}
       <FormField
         control={control}
-        name="firstName"
+        name="baseUser.firstName"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
@@ -59,6 +58,7 @@ export function PersonalInformationForm() {
               <Input
                 placeholder="Enter First Name"
                 {...field}
+                value={field.value || ''} // Ensure value is never undefined
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -70,7 +70,7 @@ export function PersonalInformationForm() {
       {/* Last Name */}
       <FormField
         control={control}
-        name="lastName"
+        name="baseUser.lastName"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
@@ -80,6 +80,7 @@ export function PersonalInformationForm() {
               <Input
                 placeholder="Enter Last Name"
                 {...field}
+                value={field.value || ''} // Ensure value is never undefined
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -88,10 +89,10 @@ export function PersonalInformationForm() {
         )}
       />
 
-      {/* Birth Date with custom DatePicker */}
+      {/* Birth Date */}
       <FormField
         control={control}
-        name="birthDate"
+        name="playerDetails.birthDate"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
@@ -99,25 +100,24 @@ export function PersonalInformationForm() {
             </FormLabel>
             <FormControl>
               <DatePicker
-                value={field.value ? new Date(field.value) : undefined}
+                value={field.value ? new Date(field.value) : undefined} // Use undefined instead of null
                 onChange={(date) => {
                   if (date) {
-                    setValue('birthDate', format(date, 'yyyy-MM-dd'));
-                    // Trigger validation immediately after date change
-                    trigger('birthDate');
+                    setValue(
+                      'playerDetails.birthDate',
+                      format(date, 'yyyy-MM-dd')
+                    );
+                    trigger('playerDetails.birthDate');
                   } else {
-                    setValue('birthDate', '');
-                    trigger('birthDate');
+                    setValue('playerDetails.birthDate', '');
+                    trigger('playerDetails.birthDate');
                   }
                 }}
-                onBlur={() => {
-                  // Trigger validation on blur
-                  trigger('birthDate');
-                }}
+                onBlur={() => trigger('playerDetails.birthDate')}
                 disabled={(date) => date > today}
                 placeholder="Select birth date"
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-                error={!!errors?.birthDate}
+                error={!!errors?.playerDetails?.birthDate}
               />
             </FormControl>
             <FormMessage />
@@ -128,21 +128,24 @@ export function PersonalInformationForm() {
       {/* Gender */}
       <FormField
         control={control}
-        name="gender"
+        name="baseUser.gender"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
               Gender <span className="text-red-500">*</span>
             </FormLabel>
             <FormControl>
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select
+                value={field.value || 'MALE'} // Provide default to ensure it's not undefined
+                onValueChange={field.onChange}
+              >
                 <SelectTrigger className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500">
                   <SelectValue placeholder="Select Gender" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Male">Male</SelectItem>
-                  <SelectItem value="Female">Female</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+                  <SelectItem value="MALE">Male</SelectItem>
+                  <SelectItem value="FEMALE">Female</SelectItem>
+                  <SelectItem value="OTHER">Other</SelectItem>
                 </SelectContent>
               </Select>
             </FormControl>
@@ -154,7 +157,7 @@ export function PersonalInformationForm() {
       {/* Email */}
       <FormField
         control={control}
-        name="email"
+        name="baseUser.email"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
@@ -165,6 +168,7 @@ export function PersonalInformationForm() {
                 placeholder="Enter Email"
                 type="email"
                 {...field}
+                value={field.value || ''} // Ensure value is never undefined
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -184,7 +188,7 @@ export function PersonalInformationForm() {
             <Input
               type="file"
               accept=".jpg,.jpeg,.png"
-              {...register('avatarUrl')}
+              {...register('playerDetails.avatarUrl')}
               className="hidden"
             />
           </label>
@@ -204,7 +208,7 @@ export function PersonalInformationForm() {
             <Input
               type="file"
               accept=".pdf,.jpg,.jpeg,.png"
-              {...register('ageProof')}
+              {...register('playerDetails.ageProof')}
               className="hidden"
             />
           </label>

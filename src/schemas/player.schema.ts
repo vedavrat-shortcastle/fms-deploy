@@ -1,64 +1,64 @@
 import { Gender, Role } from '@prisma/client';
 import { z } from 'zod';
 
-export const createPlayerSchema = z
-  .object({
-    email: z.string().email(),
-    password: z.string().min(8),
-    firstName: z.string(),
-    lastName: z.string(),
-    middleName: z.string().optional(),
-    nameSuffix: z.string().optional(),
-    gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]),
-    birthDate: z.string(),
-    avatarUrl: z.string().optional(),
-    ageProof: z.string(),
-    streetAddress: z.string(),
-    streetAddress2: z.string().optional(),
-    country: z.string(),
-    state: z.string(),
-    city: z.string(),
-    postalCode: z.string(),
-    phoneNumber: z.string(),
-    countryCode: z.string(),
-    fideId: z.string().optional(),
-    schoolName: z.string().optional(),
-    graduationYear: z.number().optional(),
-    gradeInSchool: z.string().optional(),
-    gradeDate: z
-      .string()
-      .transform((str) => new Date(str))
-      .optional(),
-    clubName: z.string().optional(),
-    clubId: z.string().optional(),
-  })
-  .transform((data) => {
-    const {
-      email,
-      password,
-      firstName,
-      lastName,
-      middleName,
-      nameSuffix,
-      gender,
-      ...rest
-    } = data;
+// export const createPlayerSchema = z
+//   .object({
+//     email: z.string().email(),
+//     password: z.string().min(8),
+//     firstName: z.string(),
+//     lastName: z.string(),
+//     middleName: z.string().optional(),
+//     nameSuffix: z.string().optional(),
+//     gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]),
+//     birthDate: z.string(),
+//     avatarUrl: z.string().optional(),
+//     ageProof: z.string(),
+//     streetAddress: z.string(),
+//     streetAddress2: z.string().optional(),
+//     country: z.string(),
+//     state: z.string(),
+//     city: z.string(),
+//     postalCode: z.string(),
+//     phoneNumber: z.string(),
+//     countryCode: z.string(),
+//     fideId: z.string().optional(),
+//     schoolName: z.string().optional(),
+//     graduationYear: z.number().optional(),
+//     gradeInSchool: z.string().optional(),
+//     gradeDate: z
+//       .string()
+//       .transform((str) => new Date(str))
+//       .optional(),
+//     clubName: z.string().optional(),
+//     clubId: z.string().optional(),
+//   })
+//   .transform((data) => {
+//     const {
+//       email,
+//       password,
+//       firstName,
+//       lastName,
+//       middleName,
+//       nameSuffix,
+//       gender,
+//       ...rest
+//     } = data;
 
-    return {
-      baseUser: {
-        email,
-        password,
-        firstName,
-        lastName,
-        middleName,
-        nameSuffix,
-        gender,
-      },
-      playerDetails: {
-        ...rest,
-      },
-    };
-  });
+//     return {
+//       baseUser: {
+//         email,
+//         password,
+//         firstName,
+//         lastName,
+//         middleName,
+//         nameSuffix,
+//         gender,
+//       },
+//       playerDetails: {
+//         ...rest,
+//       },
+//     };
+//   });
 
 // You might want to add these types for better type safety
 export type CreatePlayerInput = z.input<typeof createPlayerSchema>;
@@ -132,6 +132,42 @@ export const deletePlayerSchema = z.object({
 });
 
 export type EditPlayerFormValues = z.infer<typeof editPlayerSchema>;
+//export type CreatePlayerFormValues = z.infer<typeof createPlayerSchema>;
+
+export const createPlayerSchema = z.object({
+  baseUser: z.object({
+    email: z.string().email({ message: 'Invalid email' }),
+    password: z
+      .string()
+      .min(8, { message: 'Password must be at least 8 characters' }),
+    firstName: z.string({ required_error: 'First name is required' }),
+    lastName: z.string({ required_error: 'Last name is required' }),
+    middleName: z.string().optional(),
+    nameSuffix: z.string().optional(),
+    gender: z.nativeEnum(Gender, { required_error: 'Gender is required' }),
+  }),
+  playerDetails: z.object({
+    birthDate: z.string({ required_error: 'Birth date is required' }),
+    avatarUrl: z.string().optional(),
+    ageProof: z.string({ required_error: 'Age proof is required' }),
+    streetAddress: z.string({ required_error: 'Street address is required' }),
+    streetAddress2: z.string().optional(),
+    country: z.string({ required_error: 'Country is required' }),
+    state: z.string({ required_error: 'State is required' }),
+    city: z.string({ required_error: 'City is required' }),
+    postalCode: z.string({ required_error: 'Postal code is required' }),
+    phoneNumber: z.string({ required_error: 'Phone number is required' }),
+    countryCode: z.string({ required_error: 'Country code is required' }),
+    fideId: z.string().optional(),
+    schoolName: z.string().optional(),
+    graduationYear: z.number().optional(),
+    gradeInSchool: z.string().optional(),
+    gradeDate: z.string().optional(), // You can transform this later if needed
+    clubName: z.string().optional(),
+    clubId: z.string().optional(),
+  }),
+});
+
 export type CreatePlayerFormValues = z.infer<typeof createPlayerSchema>;
 
 export type PlayerCardTypes = {

@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,82 +14,146 @@ import { OtherInfoForm } from '@/components/player-components/OtherInfoform';
 import {
   CreatePlayerFormValues,
   createPlayerSchema,
-} from '@/schemas/Player.schema';
-
-// Define the tab order for navigation
-const tabOrder: Array<'personal' | 'mailing' | 'other'> = [
-  'personal',
-  'mailing',
-  'other',
-];
+} from '@/schemas/player.schema';
+import { trpc } from '@/utils/trpc';
 
 export default function AddPlayerPage() {
   const [activeTab, setActiveTab] = useState<'personal' | 'mailing' | 'other'>(
     'personal'
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Use nested default values matching the updated schema
   const form = useForm<CreatePlayerFormValues>({
     resolver: zodResolver(createPlayerSchema),
-    mode: 'onChange', // Validate on every change for instant feedback
+    mode: 'onChange',
     defaultValues: {
-      firstName: '',
-      middleName: '',
-      lastName: '',
-      nameSuffix: '',
-      birthDate: '',
-      gender: 'MALE',
-      email: '',
-      ageProof: undefined,
-      streetAddress: '',
-      streetAddress2: '',
-      country: '',
-      state: '',
-      city: '',
-      postalCode: '',
-      phoneNumber: '',
-      fideId: '',
-      schoolName: '',
-      graduationYear: NaN,
-      gradeInSchool: '',
-      gradeDate: new Date(),
-      clubName: '',
+      baseUser: {
+        email: '',
+        password: 'defaultPassw0rd', // default password added here
+        firstName: '',
+        lastName: '',
+        middleName: '',
+        nameSuffix: '',
+        gender: 'MALE',
+      },
+      playerDetails: {
+        birthDate: '',
+        avatarUrl: '',
+        ageProof: '',
+        streetAddress: '',
+        streetAddress2: '',
+        country: '',
+        state: '',
+        city: '',
+        postalCode: '',
+        phoneNumber: '',
+        countryCode: '',
+        fideId: '',
+        schoolName: '',
+        graduationYear: undefined,
+        gradeInSchool: '',
+        gradeDate: '', // using an empty string initially
+        clubName: '',
+        clubId: '',
+      },
     },
   });
 
-  const { handleSubmit, reset } = form;
+  const {
+    handleSubmit,
+    reset,
+    trigger,
+    formState: { errors },
+  } = form;
 
-  // When manually switching tabs, validate the current tab if moving forward.
+  const createPlayerMutation = trpc.player.createPlayer.useMutation({
+    onSuccess: (data) => {
+      console.log('Player created successfully:', data);
+      reset();
+      setActiveTab('personal');
+      setIsSubmitting(false);
+      alert('Player created successfully!');
+    },
+    onError: (error) => {
+      console.error('Error creating player:', error);
+      alert(`Error creating player: ${error.message || 'Unknown error'}`);
+      setIsSubmitting(false);
+    },
+  });
+
+  // Validate fields for each tab using nested paths
+  const validateTab = async (tab: 'personal' | 'mailing' | 'other') => {
+    let isValid = true;
+    if (tab === 'personal') {
+      isValid = await trigger([
+        'baseUser.firstName',
+        'baseUser.lastName',
+        'baseUser.email',
+        'baseUser.gender',
+        'playerDetails.birthDate',
+        'playerDetails.ageProof',
+      ]);
+    } else if (tab === 'mailing') {
+      isValid = await trigger([
+        'playerDetails.streetAddress',
+        'playerDetails.country',
+        'playerDetails.state',
+        'playerDetails.city',
+        'playerDetails.postalCode',
+        'playerDetails.phoneNumber',
+        'playerDetails.countryCode',
+      ]);
+    }
+    return isValid;
+  };
+
   const handleTabChange = async (newTab: 'personal' | 'mailing' | 'other') => {
-    const currentTabIndex = tabOrder.indexOf(activeTab);
-    const newTabIndex = tabOrder.indexOf(newTab);
-    // Only validate if moving forward
-    if (newTabIndex > currentTabIndex) {
-      // const valid = await trigger(activeTab); //TODO: Update this setup to match new structure
-      // if (!valid) return; // Block navigation if current tab is invalid.
+    const tabOrder = ['personal', 'mailing', 'other'];
+    const currentIndex = tabOrder.indexOf(activeTab);
+    const newIndex = tabOrder.indexOf(newTab);
+    if (newIndex > currentIndex) {
+      const isValid = await validateTab(activeTab);
+      if (!isValid) return;
     }
     setActiveTab(newTab);
   };
 
-  // Next button: validate current tab and move forward if valid.
   const handleNext = async () => {
-    // const valid = await trigger(activeTab); //TODO: Update this setup to match new structure
-    // if (!valid) return;
-    if (activeTab === 'personal') setActiveTab('mailing');
-    else if (activeTab === 'mailing') setActiveTab('other');
+    if (activeTab === 'personal') {
+      const isValid = await validateTab('personal');
+      if (isValid) setActiveTab('mailing');
+    } else if (activeTab === 'mailing') {
+      const isValid = await validateTab('mailing');
+      if (isValid) setActiveTab('other');
+    }
   };
 
-  // Allow moving back freely.
   const handleBack = () => {
     if (activeTab === 'other') setActiveTab('mailing');
     else if (activeTab === 'mailing') setActiveTab('personal');
   };
 
-  // Final submission of the form.
-  const onSubmit = (data: CreatePlayerFormValues) => {
-    console.log('Final form submission:', data);
-    // Here you can call your API or process the data.
-    reset();
-    setActiveTab('personal');
+  const onSubmit = async (data: CreatePlayerFormValues) => {
+    console.log('Submitting data:', data);
+    setIsSubmitting(true);
+    try {
+      // Optionally, if you need to convert gradeDate to a proper ISO date:
+      if (data.playerDetails.gradeDate) {
+        data.playerDetails.gradeDate = new Date(
+          data.playerDetails.gradeDate
+        ).toISOString();
+      }
+      await createPlayerMutation.mutateAsync(data);
+    } catch (error) {
+      console.error('Submission error:', error);
+      setIsSubmitting(false);
+      alert(
+        `Submission failed: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`
+      );
+    }
   };
 
   return (
@@ -109,6 +174,24 @@ export default function AddPlayerPage() {
             {activeTab === 'mailing' && <MailingAddressForm />}
             {activeTab === 'other' && <OtherInfoForm />}
           </FormContainer>
+
+          {/* Debug Panel for form errors (remove in production) */}
+          {Object.keys(errors).length > 0 && (
+            <div className="mt-8 p-4 bg-red-50 rounded-md">
+              <h3 className="text-red-800 font-semibold">Form Errors:</h3>
+              <pre className="mt-2 text-sm text-red-700 whitespace-pre-wrap overflow-auto max-h-64">
+                {JSON.stringify(errors, null, 2)}
+              </pre>
+            </div>
+          )}
+
+          {isSubmitting && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <p className="text-xl">Creating player...</p>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </FormProvider>
