@@ -64,24 +64,17 @@ export const createPlayerSchema = z
 export type CreatePlayerInput = z.input<typeof createPlayerSchema>;
 export type CreatePlayerOutput = z.output<typeof createPlayerSchema>;
 
-export const signupPlayerSchema = z
-  .object({
-    domain: z.string(),
-    email: z.string().email(),
-    password: z.string().min(6),
-    firstName: z.string(),
-    lastName: z.string(),
-    gender: z.nativeEnum(Gender),
-  })
-  .transform((data) => {
-    const { domain, ...rest } = data;
-    return {
-      federation: {
-        domain,
-      },
-      ...rest,
-    };
-  });
+export const signupMemberSchema = z.object({
+  domain: z.string(),
+  email: z.string().email(),
+  password: z.string().min(6),
+  firstName: z.string(),
+  lastName: z.string(),
+  role: z.enum([Role.PLAYER, Role.CLUB_MANAGER]),
+  gender: z.nativeEnum(Gender),
+});
+
+export type SignupMemberFormValues = z.infer<typeof signupMemberSchema>;
 
 //Permissions are omitted from the editPlayerSchema
 export const editPlayerSchema = z
