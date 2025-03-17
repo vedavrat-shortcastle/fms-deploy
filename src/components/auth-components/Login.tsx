@@ -60,18 +60,17 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
       const result = await signIn('credentials', {
         email: values.email,
         password: values.password,
-        domain: 'localhost', // Update as needed
-        redirect: true,
-        callbackUrl: '/players',
+        domain: 'localhost:3000', // Update as needed
+        // redirect: true,
+        // callbackUrl: '/players',
       });
 
       if (result?.error) {
         setError('Invalid credentials');
         return;
       }
-
+      console.log('result', result);
       router.push('/players');
-      router.refresh();
     } catch (error) {
       console.error(error);
       setError('An error occurred. Please try again.');
