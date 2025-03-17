@@ -96,8 +96,11 @@ model FederationAdmin {
   id           String     @id @default(uuid())
   federation   Federation @relation(name: "FedAdmins", fields: [federationId], references: [id])
   federationId String     @unique @map("federation_id")
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
+  phoneNumber  String?    @map("phone_number")
+  countryCode  String?    @map("country_code")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("federation_admin")
 }
