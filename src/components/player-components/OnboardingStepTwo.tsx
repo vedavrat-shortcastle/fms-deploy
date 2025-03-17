@@ -27,6 +27,7 @@ export const PlayerDetailsStepTwo = () => {
               <Input
                 placeholder="Enter FIDE ID"
                 {...field}
+                value={field.value ? field.value : ''}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -66,6 +67,7 @@ export const PlayerDetailsStepTwo = () => {
                 type="number"
                 placeholder="Enter Graduation Year"
                 {...field}
+                value={field.value ? Number(field.value) : ''}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -104,6 +106,7 @@ export const PlayerDetailsStepTwo = () => {
               <Input
                 type="date"
                 {...field}
+                value={field.value ? field.value : undefined}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -111,6 +114,7 @@ export const PlayerDetailsStepTwo = () => {
           </FormItem>
         )}
       />
+
       <FormField
         control={control}
         name="clubName"
