@@ -46,7 +46,7 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
     }
   } else {
     // If no query data is found, redirect to the previous route
-    router.push('/onboarding-federation');
+    // router.push('/onboarding-federation');
   }
 
   //React hook form Logic
