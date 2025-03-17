@@ -1,4 +1,4 @@
-import { Gender } from '@prisma/client';
+import { Gender, Role } from '@prisma/client';
 import { z } from 'zod';
 
 export const createPlayerSchema = z
@@ -140,3 +140,16 @@ export const deletePlayerSchema = z.object({
 
 export type EditPlayerFormValues = z.infer<typeof editPlayerSchema>;
 export type CreatePlayerFormValues = z.infer<typeof createPlayerSchema>;
+
+export type PlayerCardTypes = {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  gender: Gender;
+  role: Role;
+  avatarUrl: string | null;
+  profile: {
+    isActive: boolean | null;
+  } | null;
+};
