@@ -76,8 +76,8 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
       {/* Global Logo component */}
 
       <div
-        className="mx-10 mt-10 overflow-y-auto"
-        style={{ maxHeight: 'calc(100vh - 80px)', marginLeft: '40px' }}
+        className="mx-10 mt-10 overflow-y-auto  pr-10"
+        style={{ maxHeight: 'calc(100vh - 80px)' }}
       >
         {/* Container Div */}
         <h1 className="text-xl font-bold mt-10">
@@ -186,7 +186,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               )}
             />
             {/* Country Code Field */}
-            <div className="flex gap-x-2">
+            <div className="flex gap-x-5">
               <FormField
                 control={form.control}
                 name="countryCode"
@@ -200,7 +200,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
-                        <SelectTrigger className="w-[125px]">
+                        <SelectTrigger className="w-[125px] h-[42px]">
                           <SelectValue placeholder="Code" />
                         </SelectTrigger>
                         <SelectContent>
@@ -227,7 +227,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                       <Input
                         placeholder="55555-55555"
                         {...field}
-                        className="w-[250px]"
+                        className="w-[250px] h-[42px]"
                       />
                     </FormControl>
                     <FormMessage />
