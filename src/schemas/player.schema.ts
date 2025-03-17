@@ -1,4 +1,4 @@
-import { Gender } from '@prisma/client';
+import { Gender, Role } from '@prisma/client';
 import { z } from 'zod';
 
 export const createPlayerSchema = z
@@ -64,24 +64,17 @@ export const createPlayerSchema = z
 export type CreatePlayerInput = z.input<typeof createPlayerSchema>;
 export type CreatePlayerOutput = z.output<typeof createPlayerSchema>;
 
-export const signupPlayerSchema = z
-  .object({
-    domain: z.string(),
-    email: z.string().email(),
-    password: z.string().min(6),
-    firstName: z.string(),
-    lastName: z.string(),
-    gender: z.nativeEnum(Gender),
-  })
-  .transform((data) => {
-    const { domain, ...rest } = data;
-    return {
-      federation: {
-        domain,
-      },
-      ...rest,
-    };
-  });
+export const signupMemberSchema = z.object({
+  domain: z.string(),
+  email: z.string().email(),
+  password: z.string().min(6),
+  firstName: z.string(),
+  lastName: z.string(),
+  role: z.enum([Role.PLAYER, Role.CLUB_MANAGER]),
+  gender: z.nativeEnum(Gender),
+});
+
+export type SignupMemberFormValues = z.infer<typeof signupMemberSchema>;
 
 //Permissions are omitted from the editPlayerSchema
 export const editPlayerSchema = z
@@ -140,3 +133,16 @@ export const deletePlayerSchema = z.object({
 
 export type EditPlayerFormValues = z.infer<typeof editPlayerSchema>;
 export type CreatePlayerFormValues = z.infer<typeof createPlayerSchema>;
+
+export type PlayerCardTypes = {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  gender: Gender;
+  role: Role;
+  avatarUrl: string | null;
+  profile: {
+    isActive: boolean | null;
+  } | null;
+};
