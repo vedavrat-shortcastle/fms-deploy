@@ -15,7 +15,7 @@ import {
   deletePlayerSchema,
   editPlayerSchema,
   signupPlayerSchema,
-} from '@/schemas/Player.schema';
+} from '@/schemas/player.schema';
 
 export const playerRouter = router({
   // Create a new player
@@ -112,8 +112,14 @@ export const playerRouter = router({
             email: true,
             firstName: true,
             lastName: true,
+            gender: true,
             role: true,
             federation: true,
+            profile: {
+              select: {
+                isActive: true,
+              },
+            },
           },
         });
 

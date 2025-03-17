@@ -1,15 +1,18 @@
 'use client';
-import React from 'react';
+
+import type React from 'react';
 import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Player } from '@/dummydata/initialPlayers';
-import { Trash, Edit } from 'lucide-react';
+import { Trash2, Edit, Mail, User, ActivitySquare } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { PlayerCardTypes } from '@/schemas/player.schema';
+import { Badge } from '@/components/ui/badge';
 
 interface PlayerCardProps {
-  player: Player;
-  onDelete: (id: number, e: React.MouseEvent) => void;
-  onEdit: (player: Player, e: React.MouseEvent) => void;
-  onView: (playerId: number) => void;
+  player: PlayerCardTypes;
+  onDelete: (id: string, e: React.MouseEvent) => void;
+  onEdit: (player: PlayerCardTypes, e: React.MouseEvent) => void;
+  onView: (playerId: string) => void;
 }
 
 const PlayerCard: React.FC<PlayerCardProps> = ({
@@ -18,47 +21,111 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   onEdit,
   onView,
 }) => {
+  const fullName = `${player.firstName} ${player.lastName}`;
+
+  // Generate a gradient based on the first letter of the name
+  const getGradient = (name: string) => {
+    const gradients = ['from-red-400 to-red-300', 'from-gray-400 to-gray-300'];
+
+    const index = name.charCodeAt(0) % gradients.length;
+    return gradients[index];
+  };
+
+  const gradient = getGradient(player.firstName);
+
   return (
     <div
-      className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden cursor-pointer"
+      className="group relative bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700"
       onClick={() => onView(player.id)}
     >
-      <div className="p-4 flex flex-col items-center">
+      {/* Card Header with Gradient */}
+      <div className={cn('h-24 w-full bg-gradient-to-r', gradient)} />
+
+      {/* Avatar */}
+      <div className="absolute top-12 left-1/2 transform -translate-x-1/2">
         {player.image ? (
-          <Image
-            src={player.image}
-            alt={player.name}
-            width={80}
-            height={80}
-            className="rounded-lg object-cover mb-3"
-          />
+          <div className="rounded-full border-4 border-white dark:border-gray-900 overflow-hidden">
+            <Image
+              src={player.image || '/placeholder.svg'}
+              alt={fullName}
+              width={80}
+              height={80}
+              className="object-cover w-20 h-20"
+            />
+          </div>
         ) : (
-          <Avatar className="w-20 h-20 mb-3">
-            <AvatarImage src="/default-avatar.png" alt={player.name} />
-            <AvatarFallback>{player.name.charAt(0)}</AvatarFallback>
+          <Avatar className="w-20 h-20 border-4 border-white dark:border-gray-900">
+            <AvatarImage src="/default-avatar.png" alt={fullName} />
+            <AvatarFallback
+              className={cn(
+                'text-xl font-semibold text-white bg-gradient-to-r',
+                gradient
+              )}
+            >
+              {player.firstName.charAt(0)}
+              {player.lastName.charAt(0)}
+            </AvatarFallback>
           </Avatar>
         )}
-        <h3 className="font-medium text-center">{player.name}</h3>
-        <p className="text-sm text-gray-500 text-center">{player.email}</p>
-        <p className="text-sm text-gray-500 text-center">{player.phone}</p>
-        <p className="text-sm text-gray-500 text-center mb-3">
-          {player.gender}
-        </p>
-        <div className="flex justify-center gap-2">
+      </div>
+
+      {/* Card Content */}
+      <div className="pt-14 p-5">
+        <h3 className="text-center font-semibold text-lg text-gray-900 dark:text-gray-100 mb-1">
+          {fullName}
+        </h3>
+
+        <div className="flex flex-col gap-2 mt-4">
+          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+            <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
+            <span className="truncate">{player.email}</span>
+          </div>
+
+          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+            <User className="w-4 h-4 mr-2 flex-shrink-0" />
+            <span className="capitalize">
+              {player.gender || 'Not specified'}
+            </span>
+          </div>
+          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+            <ActivitySquare className="w-4 h-4 mr-2 flex-shrink-0" />
+            <span className="capitalize">
+              {player.profile?.isActive ? (
+                <Badge variant="green">Active</Badge>
+              ) : (
+                <Badge variant="destructive">Active</Badge>
+              )}
+            </span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-gray-100 dark:border-gray-800">
           <button
-            className="p-1 rounded-full bg-red-100 text-red-500"
-            onClick={(e) => onDelete(player.id, e)}
+            className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(player, e);
+            }}
+            aria-label="Edit player"
           >
-            <Trash width={16} height={16} />
+            <Edit className="w-4 h-4" />
           </button>
           <button
-            className="p-1 rounded-full bg-gray-100 text-gray-500"
-            onClick={(e) => onEdit(player, e)}
+            className="p-2 rounded-full bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(player.id, e);
+            }}
+            aria-label="Delete player"
           >
-            <Edit width={16} height={16} />
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
+
+      {/* Hover Overlay */}
+      <div className="absolute inset-0 bg-black/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
     </div>
   );
 };
