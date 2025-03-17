@@ -330,16 +330,19 @@ export const playerRouter = router({
     .mutation(async ({ ctx, input }) => {
       try {
         const { federation, ...data } = input;
+
         const currentFederation = await ctx.db.federation.findFirst({
           where: { domain: federation.domain },
           select: { id: true },
         });
+
         if (!currentFederation) {
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'Federation not found',
           });
         }
+
         const existingUser = await ctx.db.baseUser.findUnique({
           where: {
             email_federationId: {
@@ -358,31 +361,51 @@ export const playerRouter = router({
 
         const hashedPassword = await hashPassword(input.password);
 
-        const newBaseUser = await ctx.db.baseUser.create({
-          data: {
-            ...data,
-            password: hashedPassword,
-            role: Role.PLAYER,
-            federationId: currentFederation.id,
-          },
+        // Wrap creation operations in a transaction
+        const result = await ctx.db.$transaction(async (tx) => {
+          const newBaseUser = await tx.baseUser.create({
+            data: {
+              ...data,
+              password: hashedPassword,
+              role: Role.PLAYER,
+              federation: {
+                connect: { id: currentFederation.id },
+              },
+            },
+          });
+
+          const newUserProfile = await tx.userProfile.create({
+            data: {
+              profileType: ProfileType.PLAYER,
+              profileId: 'PENDING',
+              baseUser: {
+                connect: { id: newBaseUser.id },
+              },
+            },
+          });
+
+          const playerPermissions = await tx.permission.findMany({
+            where: {
+              code: {
+                in: roleMap[Role.PLAYER],
+              },
+            },
+            select: {
+              id: true,
+            },
+          });
+
+          await tx.userPermission.createMany({
+            data: playerPermissions.map((permission) => ({
+              permissionId: permission.id,
+              userId: newUserProfile.id,
+            })),
+          });
+
+          return { ...newBaseUser, newUserProfile };
         });
 
-        await ctx.db.userProfile.create({
-          data: {
-            profileType: ProfileType.PLAYER,
-            profileId: 'PENDING',
-            baseUser: {
-              connect: { id: newBaseUser.id },
-            },
-            permissions: {
-              create: roleMap[Role.PLAYER].map((permission) => ({
-                permission: { connect: { code: permission } },
-              })),
-            },
-          },
-        });
-
-        return { ...newBaseUser, password: undefined };
+        return { ...result, password: undefined };
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to sign up player',
