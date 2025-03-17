@@ -4,6 +4,13 @@ import { useRouter, useSearchParams } from 'next/navigation'; // Import useRoute
 import { AuthLayout } from '@/components/layouts/AuthLayout';
 import { Button } from '@/components/ui/button';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Form,
   FormControl,
   FormField,
@@ -45,21 +52,26 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
       console.error('Error parsing query data', e);
     }
   } else {
-    // If no query data is found, redirect to the previous route
-    // router.push('/onboarding-federation');
+    router.push('/onboarding-federation');
   }
 
   //React hook form Logic
   const form = useForm<SubdomainFormValues>({
     resolver: zodResolver(subdomainSchema),
     defaultValues: {
+      type: '',
+      name: '',
+      country: '',
       subdomain: '',
     },
   });
 
   //Function to handle submit
-  const onSubmit = async (values: { subdomain: string }) => {
-    const finalData = { ...onboardingData, domain: values.subdomain };
+  const onSubmit = async (values: SubdomainFormValues) => {
+    // Destructure subdomain and collect the rest of the form values
+    const { subdomain, ...otherValues } = values;
+    // Combine all values with onboardingData and rename subdomain to domain
+    const finalData = { ...onboardingData, ...otherValues, domain: subdomain };
 
     try {
       const response = await mutation.mutateAsync(finalData);
@@ -72,7 +84,6 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
       alert(errorMessage);
     }
   };
-  // Parse the stored data and merge with subdomain value
 
   return (
     // Pass the image you accepted as prop to AuthLayout.
@@ -82,12 +93,82 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
 
       <div className="mx-auto mt-16 p-10 w">
         {/* Container Div */}
-        <h1 className="text-2xl font-bold mb-10">Custom Subdomain Creation</h1>
 
         {/* The below is the form-logic for the custom-subdomain */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             {/* Subdomain Input */}
+            <h2 className="text-2xl font-semibold pt-2">Federation details</h2>
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-input-grey">Type</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="NATIONAL">National</SelectItem>
+
+                        <SelectItem value="REGIONAL">Regional</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-input-grey">
+                    Federation Name
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Federation name"
+                      className="w-[350px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-input-grey">
+                    Federation Country
+                  </FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="india">India</SelectItem>
+                        <SelectItem value="usa">USA</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="subdomain"
@@ -105,8 +186,6 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
                 </FormItem>
               )}
             />
-
-            {/* Generated URL Display */}
             <div>
               <FormLabel className="text-lg">URL</FormLabel>
               <div className="flex items-center border rounded px-3 py-2 bg-gray-100">
@@ -118,7 +197,6 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
                 />
               </div>
             </div>
-
             {/* Submit Button */}
             <Button type="submit" className="w-full bg-primary text-black">
               Next →

@@ -42,11 +42,17 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
 
   //React hook form Logic
   const form = useForm<FederationOnboardingFormValues>({
-    resolver: zodResolver(federationOnboardingSchema.omit({ domain: true })),
+    // Omit domain (if you want to remove federation details in the schema as well)
+    resolver: zodResolver(
+      federationOnboardingSchema.omit({
+        domain: true,
+        type: true,
+        name: true,
+        country: true,
+      })
+    ),
     defaultValues: {
-      name: '',
-      type: undefined,
-      country: '',
+      // Removed type, name, and country from defaultValues
       email: 'test2@shortcastle.com',
       password: 'test1234',
       firstName: '',
@@ -230,83 +236,12 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                         className="w-[250px] h-[42px]"
                       />
                     </FormControl>
+
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-
-            {/* Federation Details */}
-            <h2 className="text-lg font-semibold pt-2">Federation details</h2>
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-input-grey">Type</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="NATIONAL">National</SelectItem>
-                        <SelectItem value="REGIONAL">Regional</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-input-grey">
-                    Federation Name
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Federation name"
-                      className="w-[350px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="country"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-input-grey">
-                    Federation Country
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="india">India</SelectItem>
-                        <SelectItem value="usa">USA</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <Button type="submit" className="w-full bg-primary text-black">
               Next →
