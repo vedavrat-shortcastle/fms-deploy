@@ -61,27 +61,24 @@ import { z } from 'zod';
 //   });
 
 export const playerOnboardingSchema = z.object({
-  birthDate: z.string().transform((str) => new Date(str)),
-  avatarUrl: z.string().optional(),
+  birthDate: z.string(),
+  avatarUrl: z.string().nullable().optional(),
   ageProof: z.string(),
   streetAddress: z.string(),
-  streetAddress2: z.string().optional(),
+  streetAddress2: z.string().nullable().optional(),
   country: z.string(),
   state: z.string(),
   city: z.string(),
   postalCode: z.string(),
   phoneNumber: z.string(),
   countryCode: z.string(),
-  fideId: z.string().optional(),
-  schoolName: z.string().optional(),
-  graduationYear: z.number().optional(),
-  gradeInSchool: z.string().optional(),
-  gradeDate: z
-    .string()
-    .transform((str) => new Date(str))
-    .optional(),
-  clubName: z.string().optional(),
-  clubId: z.string().optional(),
+  fideId: z.string().nullable().optional(),
+  schoolName: z.string().nullable().optional(),
+  graduationYear: z.number().nullable().optional(),
+  gradeInSchool: z.string().nullable().optional(),
+  gradeDate: z.string().nullable().optional(),
+  clubName: z.string().nullable().optional(),
+  clubId: z.string().nullable().optional(),
 });
 
 export type playerOnboardingInput = z.input<typeof playerOnboardingSchema>;
@@ -90,24 +87,17 @@ export type playerOnboardingInput = z.input<typeof playerOnboardingSchema>;
 export type CreatePlayerInput = z.input<typeof createPlayerSchema>;
 export type CreatePlayerOutput = z.output<typeof createPlayerSchema>;
 
-export const signupPlayerSchema = z
-  .object({
-    domain: z.string(),
-    email: z.string().email(),
-    password: z.string().min(6),
-    firstName: z.string(),
-    lastName: z.string(),
-    gender: z.nativeEnum(Gender),
-  })
-  .transform((data) => {
-    const { domain, ...rest } = data;
-    return {
-      federation: {
-        domain,
-      },
-      ...rest,
-    };
-  });
+export const signupMemberSchema = z.object({
+  domain: z.string(),
+  email: z.string().email(),
+  password: z.string().min(6),
+  firstName: z.string(),
+  lastName: z.string(),
+  role: z.enum([Role.PLAYER, Role.CLUB_MANAGER]),
+  gender: z.nativeEnum(Gender),
+});
+
+export type SignupMemberFormValues = z.infer<typeof signupMemberSchema>;
 
 //Permissions are omitted from the editPlayerSchema
 export const editPlayerSchema = z.object({
