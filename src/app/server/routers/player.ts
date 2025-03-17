@@ -480,6 +480,7 @@ export const playerRouter = router({
         const newPlayer = await ctx.db.player.create({
           data: {
             ...input,
+            clubId: input.clubId ?? null,
           },
         });
 

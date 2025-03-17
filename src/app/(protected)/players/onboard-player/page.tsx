@@ -26,7 +26,7 @@ export default function PlayerOnboarding() {
     resolver: zodResolver(playerOnboardingSchema),
     mode: 'onChange', // Validate on every change for instant feedback
     defaultValues: {
-      birthDate: '',
+      birthDate: new Date(), // Initialize with current date string
       avatarUrl: '',
       ageProof: '',
       streetAddress: '',
@@ -41,7 +41,7 @@ export default function PlayerOnboarding() {
       schoolName: '',
       graduationYear: undefined,
       gradeInSchool: '',
-      gradeDate: new Date().toISOString(), // Initialize with current date string
+      gradeDate: new Date(), // Initialize with current date string
       clubName: '',
       clubId: '',
     },
@@ -77,6 +77,7 @@ export default function PlayerOnboarding() {
 
   // Final submission of the form.
   const onSubmit = (data: playerOnboardingInput) => {
+    console.log(data);
     // Here you can call your API or process the data.
     mutate(data);
     reset();

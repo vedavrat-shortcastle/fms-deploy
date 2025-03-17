@@ -25,6 +25,7 @@ export const PlayerDetailsStepOne = () => {
               <Input
                 type="date"
                 {...field}
+                value={field.value ? field.value : undefined}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -32,6 +33,7 @@ export const PlayerDetailsStepOne = () => {
           </FormItem>
         )}
       />
+
       <FormField
         control={control}
         name="avatarUrl"
