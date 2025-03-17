@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState } from 'react';
 import { Search, PlusCircle, Upload, Download } from 'lucide-react';
 import Sidebar from '@/components/SideBar';
@@ -8,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { trpc } from '@/utils/trpc';
 import { Pagination } from '@/components/ui/pagination';
 import PlayerCard from '@/components/player-components/PlayerCard';
-import { PlayerCardTypes } from '@/schemas/player.schema';
+import { PlayerCardTypes } from '@/schemas/Player.schema';
 
 export default function Page() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function Page() {
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (window.confirm('Are you sure you want to delete this player?')) {
-      console.log('player is deleted');
+      console.log('player is deleted'); //TODO: add delete flow here
     }
   };
 
