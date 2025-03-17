@@ -1,13 +1,14 @@
+'use client';
+
 import { Input } from '@/components/ui/input';
-import { Player } from '@/types/player';
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
-import { PlayerFormData } from '@/schemas/Player.schema';
+import { EditPlayerFormValues } from '@/schemas/player.schema';
 
 interface StudentDetailsSectionProps {
-  register: UseFormRegister<PlayerFormData>;
-  errors: FieldErrors<PlayerFormData>;
+  register: UseFormRegister<EditPlayerFormValues>;
+  errors: FieldErrors<EditPlayerFormValues>;
   isEditing: boolean;
-  player: Player;
+  player: EditPlayerFormValues | null;
 }
 
 export default function StudentDetailsSection({
@@ -26,32 +27,32 @@ export default function StudentDetailsSection({
             <div>
               <label className="block text-sm font-medium">School Name</label>
               <Input
-                {...register('studentDetails.schoolName')}
+                {...register('playerDetails.schoolName')}
                 className={`w-full p-1 border rounded ${
-                  errors.studentDetails?.schoolName ? 'border-red-500' : ''
+                  errors?.playerDetails?.schoolName ? 'border-red-500' : ''
                 }`}
               />
-              {errors.studentDetails?.schoolName && (
+              {errors?.playerDetails?.schoolName && (
                 <p className="text-red-500 text-sm">
-                  {errors.studentDetails.schoolName.message}
+                  {errors.playerDetails.schoolName.message as string}
                 </p>
               )}
             </div>
 
-            {/* Grade */}
+            {/* Grade in School */}
             <div>
               <label className="block text-sm font-medium">
                 Grade in School
               </label>
               <Input
-                {...register('studentDetails.grade')}
+                {...register('playerDetails.gradeInSchool')}
                 className={`w-full p-1 border rounded ${
-                  errors.studentDetails?.grade ? 'border-red-500' : ''
+                  errors?.playerDetails?.gradeInSchool ? 'border-red-500' : ''
                 }`}
               />
-              {errors.studentDetails?.grade && (
+              {errors?.playerDetails?.gradeInSchool && (
                 <p className="text-red-500 text-sm">
-                  {errors.studentDetails.grade.message}
+                  {errors.playerDetails.gradeInSchool.message as string}
                 </p>
               )}
             </div>
@@ -62,32 +63,32 @@ export default function StudentDetailsSection({
                 Graduation Year
               </label>
               <Input
-                {...register('studentDetails.graduationYear')}
+                {...register('playerDetails.graduationYear')}
                 className={`w-full p-1 border rounded ${
-                  errors.studentDetails?.graduationYear ? 'border-red-500' : ''
+                  errors?.playerDetails?.graduationYear ? 'border-red-500' : ''
                 }`}
               />
-              {errors.studentDetails?.graduationYear && (
+              {errors?.playerDetails?.graduationYear && (
                 <p className="text-red-500 text-sm">
-                  {errors.studentDetails.graduationYear.message}
+                  {errors.playerDetails.graduationYear.message as string}
                 </p>
               )}
             </div>
 
-            {/* Grade as of */}
+            {/* Grade as of (Date) */}
             <div>
               <label className="block text-sm font-medium">
                 Grade as of (Date)
               </label>
               <Input
-                {...register('studentDetails.gradeAsOf')}
+                {...register('playerDetails.gradeDate')}
                 className={`w-full p-1 border rounded ${
-                  errors.studentDetails?.gradeAsOf ? 'border-red-500' : ''
+                  errors?.playerDetails?.gradeDate ? 'border-red-500' : ''
                 }`}
               />
-              {errors.studentDetails?.gradeAsOf && (
+              {errors?.playerDetails?.gradeDate && (
                 <p className="text-red-500 text-sm">
-                  {errors.studentDetails.gradeAsOf.message}
+                  {errors.playerDetails.gradeDate.message as string}
                 </p>
               )}
             </div>
@@ -97,15 +98,15 @@ export default function StudentDetailsSection({
             {/* School Name */}
             <div>
               <label className="block text-sm font-medium">School Name</label>
-              <p>{player.studentDetails.schoolName}</p>
+              <p>{player?.playerDetails.schoolName}</p>
             </div>
 
-            {/* Grade */}
+            {/* Grade in School */}
             <div>
               <label className="block text-sm font-medium">
                 Grade in School
               </label>
-              <p>{player.studentDetails.grade}</p>
+              <p>{player?.playerDetails.gradeInSchool}</p>
             </div>
 
             {/* Graduation Year */}
@@ -113,15 +114,15 @@ export default function StudentDetailsSection({
               <label className="block text-sm font-medium">
                 Graduation Year
               </label>
-              <p>{player.studentDetails.graduationYear}</p>
+              <p>{player?.playerDetails.graduationYear}</p>
             </div>
 
-            {/* Grade as of */}
+            {/* Grade as of (Date) */}
             <div>
               <label className="block text-sm font-medium">
                 Grade as of (Date)
               </label>
-              <p>{player.studentDetails.gradeAsOf}</p>
+              <p>{player?.playerDetails.gradeDate?.toString()}</p>
             </div>
           </>
         )}

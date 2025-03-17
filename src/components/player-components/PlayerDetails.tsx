@@ -1,13 +1,14 @@
+'use client';
+
 import { Input } from '@/components/ui/input';
-import { Player } from '@/types/player';
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
-import { PlayerFormData } from '@/schemas/Player.schema';
+import { EditPlayerFormValues } from '@/schemas/player.schema';
 
 interface PlayerDetailsSectionProps {
-  register: UseFormRegister<PlayerFormData>;
-  errors: FieldErrors<PlayerFormData>;
+  register: UseFormRegister<EditPlayerFormValues>;
+  errors: FieldErrors<EditPlayerFormValues>;
   isEditing: boolean;
-  player: Player;
+  player: EditPlayerFormValues | null;
 }
 
 export default function PlayerDetailsSection({
@@ -26,19 +27,19 @@ export default function PlayerDetailsSection({
             <Input
               {...register('playerDetails.fideId')}
               className={`w-full p-1 border rounded ${
-                errors.playerDetails?.fideId ? 'border-red-500' : ''
+                errors?.playerDetails?.fideId ? 'border-red-500' : ''
               }`}
             />
-            {errors.playerDetails?.fideId && (
+            {errors?.playerDetails?.fideId && (
               <p className="text-red-500 text-sm">
-                {errors.playerDetails.fideId.message}
+                {errors.playerDetails.fideId.message as string}
               </p>
             )}
           </>
         ) : (
           <>
             <label className="block text-sm font-medium">FIDE ID</label>
-            <p>{player.playerDetails.fideId}</p>
+            <p>{player?.playerDetails.fideId}</p>
           </>
         )}
       </div>
