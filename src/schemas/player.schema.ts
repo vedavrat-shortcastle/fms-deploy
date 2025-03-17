@@ -60,6 +60,29 @@ import { z } from 'zod';
 //     };
 //   });
 
+export const playerOnboardingSchema = z.object({
+  birthDate: z.string(),
+  avatarUrl: z.string().nullable().optional(),
+  ageProof: z.string(),
+  streetAddress: z.string(),
+  streetAddress2: z.string().nullable().optional(),
+  country: z.string(),
+  state: z.string(),
+  city: z.string(),
+  postalCode: z.string(),
+  phoneNumber: z.string(),
+  countryCode: z.string(),
+  fideId: z.string().nullable().optional(),
+  schoolName: z.string().nullable().optional(),
+  graduationYear: z.number().nullable().optional(),
+  gradeInSchool: z.string().nullable().optional(),
+  gradeDate: z.string().nullable().optional(),
+  clubName: z.string().nullable().optional(),
+  clubId: z.string().nullable().optional(),
+});
+
+export type playerOnboardingInput = z.input<typeof playerOnboardingSchema>;
+
 // You might want to add these types for better type safety
 export type CreatePlayerInput = z.input<typeof createPlayerSchema>;
 export type CreatePlayerOutput = z.output<typeof createPlayerSchema>;

@@ -16,6 +16,7 @@ import {
   createPlayerSchema,
   deletePlayerSchema,
   editPlayerSchema,
+  playerOnboardingSchema,
   signupMemberSchema,
 } from '@/schemas/Player.schema';
 
@@ -467,6 +468,42 @@ export const playerRouter = router({
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to sign up player',
+          cause: error.message,
+        });
+      }
+    }),
+
+  onboardPlayer: permissionProtectedProcedure(PERMISSIONS.PLAYER_CREATE)
+    .input(playerOnboardingSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const result = await ctx.db.$transaction(async (tx) => {
+          const newPlayer = await tx.player.create({
+            data: {
+              ...input,
+              birthDate: new Date(input.birthDate),
+              gradeDate: input.gradeDate ? new Date(input.gradeDate) : null,
+            },
+          });
+
+          const baseUserId = ctx.session.user.id;
+
+          await tx.userProfile.update({
+            where: {
+              baseUserId,
+            },
+            data: {
+              profileId: newPlayer.id,
+            },
+          });
+
+          return newPlayer;
+        });
+
+        return result;
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to onboard player',
           cause: error.message,
         });
       }
