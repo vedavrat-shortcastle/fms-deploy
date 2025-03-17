@@ -26,6 +26,7 @@ import {
   FederationOnboardingFormValues,
   federationOnboardingSchema,
 } from '@/schemas/Federation.schema';
+import { useEffect } from 'react';
 
 /// import { trpc } from '@/utils/trpc'; // trpc import
 
@@ -65,7 +66,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
 
   /// const mutation = trpc.federation.federationOnboarding.useMutation();  // initialisation. Removed as the api call will happen in the next route
 
-  console.log('errors', form.formState.errors);
   // Function to handle submit
   const onSubmit = (values: any) => {
     // const response = await mutation.mutateAsync(values); // integration logic Removed as the api call will happen in the next route
@@ -74,6 +74,13 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
 
     router.push(`/onboarding-federation-subdomain?data=${queryData}`);
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Access the current URL using the window object
+      form.setValue('domain', window.location.origin);
+    }
+  }, []);
 
   return (
     // Pass the image you accepted as prop to AuthLayout.
