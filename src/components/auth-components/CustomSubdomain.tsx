@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter, useSearchParams } from 'next/navigation'; // Import useRouter
 import { AuthLayout } from '@/components/layouts/AuthLayout';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,6 +19,7 @@ import {
   SubdomainFormValues,
   subdomainSchema,
 } from '@/schemas/Federation.schema';
+import { trpc } from '@/utils/trpc'; /// import trpc
 
 // This component is currently being used by 1 route - /onboarding-federation-subdomain
 
@@ -30,6 +31,23 @@ interface CustomSubdomainProps {
 // The component will accept an image as a prop and will pass that image to AuthLayout.
 export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
   const router = useRouter(); // Initialize the router
+  const searchParams = useSearchParams(); // Get query parameters
+  const mutation = trpc.federation.federationOnboarding.useMutation(); // initialisation
+
+  // Read the "data" query parameter from the URL and decode it
+  const queryData = searchParams.get('data');
+  let onboardingData: any = {};
+  if (queryData) {
+    try {
+      onboardingData = JSON.parse(decodeURIComponent(queryData));
+      console.log(queryData);
+    } catch (e) {
+      console.error('Error parsing query data', e);
+    }
+  } else {
+    // If no query data is found, redirect to the previous route
+    router.push('/onboarding-federation');
+  }
 
   //React hook form Logic
   const form = useForm<SubdomainFormValues>({
@@ -40,12 +58,21 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
   });
 
   //Function to handle submit
-  const onSubmit = (values: { subdomain: string }) => {
-    console.log('Subdomain:', values.subdomain);
-    // Replace with actual API request
-    router.push('/onboarding-welcome');
-    // On Successful Validation, Push to the welcome page.
+  const onSubmit = async (values: { subdomain: string }) => {
+    const finalData = { ...onboardingData, domain: values.subdomain };
+
+    try {
+      const response = await mutation.mutateAsync(finalData);
+      console.log('Federation created with domain:', response);
+      router.push('/onboarding-welcome');
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error(errorMessage);
+      alert(errorMessage);
+    }
   };
+  // Parse the stored data and merge with subdomain value
 
   return (
     // Pass the image you accepted as prop to AuthLayout.
