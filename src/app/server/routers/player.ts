@@ -17,7 +17,7 @@ import {
   deletePlayerSchema,
   editPlayerSchema,
   signupMemberSchema,
-} from '@/schemas/player.schema';
+} from '@/schemas/Player.schema';
 
 export const playerRouter = router({
   // Create a new player

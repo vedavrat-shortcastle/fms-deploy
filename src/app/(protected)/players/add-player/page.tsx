@@ -14,7 +14,7 @@ import { OtherInfoForm } from '@/components/player-components/OtherInfoform';
 import {
   CreatePlayerFormValues,
   createPlayerSchema,
-} from '@/schemas/player.schema';
+} from '@/schemas/Player.schema';
 import { trpc } from '@/utils/trpc';
 
 export default function AddPlayerPage() {

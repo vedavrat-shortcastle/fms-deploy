@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { CreatePlayerFormValues } from '@/schemas/player.schema';
+import { CreatePlayerFormValues } from '@/schemas/Player.schema';
 import { DatePicker } from '@/components/player-components/DatePicker';
 
 export function OtherInfoForm() {
