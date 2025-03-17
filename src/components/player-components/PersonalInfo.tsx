@@ -1,13 +1,14 @@
+'use client';
+
 import { Input } from '@/components/ui/input';
-import { Player } from '@/types/player';
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
-import { PlayerFormData } from '@/schemas/Player.schema';
+import { EditPlayerFormValues } from '@/schemas/player.schema';
 
 interface PersonalInfoSectionProps {
-  register: UseFormRegister<PlayerFormData>;
-  errors: FieldErrors<PlayerFormData>;
+  register: UseFormRegister<EditPlayerFormValues>;
+  errors: FieldErrors<EditPlayerFormValues>;
   isEditing: boolean;
-  player: Player;
+  player: EditPlayerFormValues | null;
 }
 
 export default function PersonalInfoSection({
@@ -19,7 +20,7 @@ export default function PersonalInfoSection({
   return (
     <section className="mb-8">
       <h2 className="text-xl font-semibold mb-4">
-        Personal & Contact Information
+        Personal &amp; Contact Information
       </h2>
       <div className="rounded-lg border border-gray-200 bg-white p-4 grid grid-cols-2 gap-4">
         {isEditing ? (
@@ -28,14 +29,14 @@ export default function PersonalInfoSection({
             <div>
               <label className="block text-sm font-medium">First Name</label>
               <Input
-                {...register('firstName')}
+                {...register('baseUser.firstName')}
                 className={`w-full p-1 border rounded ${
-                  errors.firstName ? 'border-red-500' : ''
+                  errors?.baseUser?.firstName ? 'border-red-500' : ''
                 }`}
               />
-              {errors.firstName && (
+              {errors?.baseUser?.firstName && (
                 <p className="text-red-500 text-sm">
-                  {errors.firstName.message}
+                  {errors.baseUser.firstName.message as string}
                 </p>
               )}
             </div>
@@ -44,14 +45,14 @@ export default function PersonalInfoSection({
             <div>
               <label className="block text-sm font-medium">Birth Date</label>
               <Input
-                {...register('birthDate')}
+                {...register('playerDetails.birthDate')}
                 className={`w-full p-1 border rounded ${
-                  errors.birthDate ? 'border-red-500' : ''
+                  errors?.playerDetails?.birthDate ? 'border-red-500' : ''
                 }`}
               />
-              {errors.birthDate && (
+              {errors?.playerDetails?.birthDate && (
                 <p className="text-red-500 text-sm">
-                  {errors.birthDate.message}
+                  {errors.playerDetails.birthDate.message as string}
                 </p>
               )}
             </div>
@@ -60,7 +61,7 @@ export default function PersonalInfoSection({
             <div>
               <label className="block text-sm font-medium">Middle Name</label>
               <Input
-                {...register('middleName')}
+                {...register('baseUser.middleName')}
                 className="w-full p-1 border rounded"
               />
             </div>
@@ -69,13 +70,15 @@ export default function PersonalInfoSection({
             <div>
               <label className="block text-sm font-medium">Gender</label>
               <Input
-                {...register('gender')}
+                {...register('playerDetails.gender')}
                 className={`w-full p-1 border rounded ${
-                  errors.gender ? 'border-red-500' : ''
+                  errors?.playerDetails?.gender ? 'border-red-500' : ''
                 }`}
               />
-              {errors.gender && (
-                <p className="text-red-500 text-sm">{errors.gender.message}</p>
+              {errors?.playerDetails?.gender && (
+                <p className="text-red-500 text-sm">
+                  {errors.playerDetails.gender.message as string}
+                </p>
               )}
             </div>
 
@@ -83,14 +86,14 @@ export default function PersonalInfoSection({
             <div>
               <label className="block text-sm font-medium">Last Name</label>
               <Input
-                {...register('lastName')}
+                {...register('baseUser.lastName')}
                 className={`w-full p-1 border rounded ${
-                  errors.lastName ? 'border-red-500' : ''
+                  errors?.baseUser?.lastName ? 'border-red-500' : ''
                 }`}
               />
-              {errors.lastName && (
+              {errors?.baseUser?.lastName && (
                 <p className="text-red-500 text-sm">
-                  {errors.lastName.message}
+                  {errors.baseUser.lastName.message as string}
                 </p>
               )}
             </div>
@@ -100,13 +103,15 @@ export default function PersonalInfoSection({
               <label className="block text-sm font-medium">Email</label>
               <Input
                 type="email"
-                {...register('email')}
+                {...register('baseUser.email')}
                 className={`w-full p-1 border rounded ${
-                  errors.email ? 'border-red-500' : ''
+                  errors?.baseUser?.email ? 'border-red-500' : ''
                 }`}
               />
-              {errors.email && (
-                <p className="text-red-500 text-sm">{errors.email.message}</p>
+              {errors?.baseUser?.email && (
+                <p className="text-red-500 text-sm">
+                  {errors.baseUser.email.message as string}
+                </p>
               )}
             </div>
 
@@ -114,7 +119,7 @@ export default function PersonalInfoSection({
             <div>
               <label className="block text-sm font-medium">Name Suffix</label>
               <Input
-                {...register('nameSuffix')}
+                {...register('baseUser.nameSuffix')}
                 className="w-full p-1 border rounded"
               />
             </div>
@@ -122,7 +127,7 @@ export default function PersonalInfoSection({
             {/* Age Proof */}
             <div>
               <label className="block text-sm font-medium">Age Proof</label>
-              <p>{player.ageProof}</p>
+              <p>{player?.playerDetails.ageProof}</p>
             </div>
           </>
         ) : (
@@ -130,49 +135,49 @@ export default function PersonalInfoSection({
             {/* First Name */}
             <div>
               <label className="block text-sm font-medium">First Name</label>
-              <p>{player.firstName}</p>
+              <p>{player?.baseUser.firstName}</p>
             </div>
 
             {/* Birth Date */}
             <div>
               <label className="block text-sm font-medium">Birth Date</label>
-              <p>{player.birthDate}</p>
+              <p>{player?.playerDetails.birthDate}</p>
             </div>
 
             {/* Middle Name */}
             <div>
               <label className="block text-sm font-medium">Middle Name</label>
-              <p>{player.middleName}</p>
+              <p>{player?.baseUser.middleName}</p>
             </div>
 
             {/* Gender */}
             <div>
               <label className="block text-sm font-medium">Gender</label>
-              <p>{player.gender}</p>
+              <p>{player?.playerDetails.gender}</p>
             </div>
 
             {/* Last Name */}
             <div>
               <label className="block text-sm font-medium">Last Name</label>
-              <p>{player.lastName}</p>
+              <p>{player?.baseUser.lastName}</p>
             </div>
 
             {/* Email */}
             <div>
               <label className="block text-sm font-medium">Email</label>
-              <p>{player.email}</p>
+              <p>{player?.baseUser.email}</p>
             </div>
 
             {/* Name Suffix */}
             <div>
               <label className="block text-sm font-medium">Name Suffix</label>
-              <p>{player.nameSuffix}</p>
+              <p>{player?.baseUser.nameSuffix}</p>
             </div>
 
             {/* Age Proof */}
             <div>
               <label className="block text-sm font-medium">Age Proof</label>
-              <p>{player.ageProof}</p>
+              <p>{player?.playerDetails.ageProof}</p>
             </div>
           </>
         )}

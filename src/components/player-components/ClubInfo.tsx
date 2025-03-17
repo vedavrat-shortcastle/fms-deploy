@@ -1,13 +1,14 @@
+'use client';
+
 import { Input } from '@/components/ui/input';
-import { Player } from '@/types/player';
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
-import { PlayerFormData } from '@/schemas/Player.schema';
+import { EditPlayerFormValues } from '@/schemas/player.schema';
 
 interface ClubInfoSectionProps {
-  register: UseFormRegister<PlayerFormData>;
-  errors: FieldErrors<PlayerFormData>;
+  register: UseFormRegister<EditPlayerFormValues>;
+  errors: FieldErrors<EditPlayerFormValues>;
   isEditing: boolean;
-  player: Player;
+  player: EditPlayerFormValues | null;
 }
 
 export default function ClubInfoSection({
@@ -23,11 +24,11 @@ export default function ClubInfoSection({
         <label className="block text-sm font-medium">Club Name</label>
         {isEditing ? (
           <Input
-            {...register('clubInfo.clubName')}
+            {...register('playerDetails.clubName')}
             className="w-full p-1 border rounded"
           />
         ) : (
-          <p>{player.clubInfo.clubName}</p>
+          <p>{player?.playerDetails.clubName}</p>
         )}
       </div>
     </section>
