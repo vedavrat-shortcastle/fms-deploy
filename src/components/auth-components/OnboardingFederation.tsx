@@ -26,7 +26,6 @@ import {
   FederationOnboardingFormValues,
   federationOnboardingSchema,
 } from '@/schemas/Federation.schema';
-import { useEffect } from 'react';
 
 /// import { trpc } from '@/utils/trpc'; // trpc import
 
@@ -45,17 +44,20 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
   const form = useForm<FederationOnboardingFormValues>({
     // Omit domain (if you want to remove federation details in the schema as well)
     resolver: zodResolver(
-      federationOnboardingSchema.omit({
-        domain: true,
-        type: true,
-        name: true,
-        country: true,
+      federationOnboardingSchema.pick({
+        email: true,
+        password: true,
+        firstName: true,
+        lastName: true,
+        gender: true,
+        phoneNumber: true,
+        countryCode: true,
       })
     ),
     defaultValues: {
       // Removed type, name, and country from defaultValues
-      email: 'test2@shortcastle.com',
-      password: 'test1234',
+      email: '',
+      password: '',
       firstName: '',
       lastName: '',
       gender: 'MALE',
@@ -63,6 +65,8 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
       countryCode: '',
     },
   });
+
+  console.log('error', form.formState.errors, form.getValues());
 
   /// const mutation = trpc.federation.federationOnboarding.useMutation();  // initialisation. Removed as the api call will happen in the next route
 
@@ -74,13 +78,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
 
     router.push(`/onboarding-federation-subdomain?data=${queryData}`);
   };
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Access the current URL using the window object
-      form.setValue('domain', window.location.origin);
-    }
-  }, []);
 
   return (
     // Pass the image you accepted as prop to AuthLayout.
@@ -111,7 +108,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                   <FormControl>
                     <Input
                       placeholder="First name"
-                      className="w-[350px]"
+                      className="w-full"
                       {...field}
                     />
                   </FormControl>
@@ -128,7 +125,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                   <FormControl>
                     <Input
                       placeholder="Last name"
-                      className="w-[350px]"
+                      className="w-full"
                       {...field}
                     />
                   </FormControl>
@@ -147,7 +144,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                     <Input
                       type="email"
                       placeholder="Enter your email"
-                      className="w-[350px]"
+                      className="w-full"
                       {...field}
                     />
                   </FormControl>
@@ -165,7 +162,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                     <Input
                       type="password"
                       placeholder="Enter your password"
-                      className="w-[350px]"
+                      className="w-full"
                       {...field}
                     />
                   </FormControl>
@@ -184,7 +181,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
-                      <SelectTrigger className="w-[350px]">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>

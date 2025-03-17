@@ -22,11 +22,12 @@ import { Input } from '@/components/ui/input';
 import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  SubdomainFormValues,
-  subdomainSchema,
-} from '@/schemas/Federation.schema';
+
 import { trpc } from '@/utils/trpc'; /// import trpc
+import {
+  FederationOnboardingFormValues,
+  federationOnboardingSchema,
+} from '@/schemas/Federation.schema';
 
 // This component is currently being used by 1 route - /onboarding-federation-subdomain
 
@@ -56,22 +57,29 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
   }
 
   //React hook form Logic
-  const form = useForm<SubdomainFormValues>({
-    resolver: zodResolver(subdomainSchema),
+  const form = useForm<FederationOnboardingFormValues>({
+    resolver: zodResolver(
+      federationOnboardingSchema.pick({
+        type: true,
+        name: true,
+        country: true,
+        domain: true,
+      })
+    ),
     defaultValues: {
       type: 'NATIONAL',
       name: '',
-      country: 'india',
-      subdomain: '',
+      country: '',
+      domain: '',
     },
   });
 
+  console.log('error', form.formState.errors, form.getValues());
   //Function to handle submit
-  const onSubmit = async (values: SubdomainFormValues) => {
+  const onSubmit = async (values: FederationOnboardingFormValues) => {
     // Destructure subdomain and collect the rest of the form values
-    const { subdomain, ...otherValues } = values;
     // Combine all values with onboardingData and rename subdomain to domain
-    const finalData = { ...onboardingData, ...otherValues, domain: subdomain };
+    const finalData = { ...onboardingData, ...values };
 
     try {
       const response = await mutation.mutateAsync(finalData);
@@ -171,7 +179,7 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
             />
             <FormField
               control={form.control}
-              name="subdomain"
+              name="domain"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-lg">Subdomain</FormLabel>
@@ -193,7 +201,7 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
                 <Input
                   className="border-0 bg-transparent focus:ring-0 w-[350px] pl-4 bg-white"
                   disabled
-                  value={`${form.watch('subdomain')}.fedchess.com`}
+                  value={`${form.watch('domain')}.fedchess.com`}
                 />
               </div>
             </div>
