@@ -94,7 +94,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
               {player.profile?.isActive ? (
                 <Badge variant="green">Active</Badge>
               ) : (
-                <Badge variant="destructive">Active</Badge>
+                <Badge variant="destructive">Inactive</Badge>
               )}
             </span>
           </div>
