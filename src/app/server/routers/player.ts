@@ -49,38 +49,79 @@ export const playerRouter = router({
           });
         }
 
+        console.log('flag 1', baseUser, playerDetails);
         const hashedPassword = await hashPassword(baseUser.password);
-        const newBaseUser = await ctx.db.baseUser.create({
-          data: {
-            ...baseUser,
-            password: hashedPassword,
-            role: Role.PLAYER,
-            federationId: ctx.session.user.federationId,
-          },
-        });
-
-        const newPlayer = await ctx.db.player.create({
-          data: {
-            ...playerDetails,
-          },
-        });
-
-        const newUserProfile = await ctx.db.userProfile.create({
-          data: {
-            profileType: ProfileType.PLAYER,
-            profileId: newPlayer.id,
-            baseUser: {
-              connect: { id: newBaseUser.id },
+        const result = await ctx.db.$transaction(async (tx) => {
+          const newBaseUser = await tx.baseUser.create({
+            data: {
+              ...baseUser,
+              password: hashedPassword,
+              role: Role.PLAYER,
+              federationId: ctx.session.user.federationId,
             },
-            permissions: {
-              create: roleMap[Role.PLAYER].map((permission) => ({
-                permission: { connect: { code: permission } },
-              })),
+          });
+
+          console.log('flag 2', newBaseUser);
+
+          const newPlayer = await tx.player.create({
+            data: {
+              // birthDate: playerDetails.birthDate,
+              birthDate: new Date(),
+              avatarUrl: playerDetails.avatarUrl,
+              ageProof: playerDetails.ageProof,
+              streetAddress: playerDetails.streetAddress,
+              streetAddress2: playerDetails.streetAddress2,
+              country: playerDetails.country,
+              state: playerDetails.state,
+              city: playerDetails.city,
+              postalCode: playerDetails.postalCode,
+              countryCode: playerDetails.countryCode,
+              fideId: playerDetails.fideId,
+              schoolName: playerDetails.schoolName,
+              graduationYear: playerDetails.graduationYear,
+              gradeInSchool: playerDetails.gradeInSchool,
+              clubName: playerDetails.clubName,
             },
-          },
+          });
+
+          console.log('flag 3', newPlayer);
+
+          const newUserProfile = await tx.userProfile.create({
+            data: {
+              profileType: ProfileType.PLAYER,
+              profileId: newPlayer.id,
+              baseUser: {
+                connect: { id: newBaseUser.id },
+              },
+            },
+          });
+
+          console.log('flag 4', newUserProfile);
+
+          const fedPlayerPermissions = await tx.permission.findMany({
+            where: {
+              code: {
+                in: roleMap[Role.PLAYER],
+              },
+            },
+            select: {
+              id: true,
+            },
+          });
+
+          console.log('flag 5', fedPlayerPermissions);
+
+          await tx.userPermission.createMany({
+            data: fedPlayerPermissions.map((permission) => ({
+              permissionId: permission.id,
+              userId: newUserProfile.id,
+            })),
+          });
+
+          return { ...newUserProfile, password: undefined };
         });
 
-        return { ...newUserProfile, password: undefined };
+        return result;
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to create player',

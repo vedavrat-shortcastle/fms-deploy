@@ -60,12 +60,7 @@ export default function AddPlayerPage() {
     },
   });
 
-  const {
-    handleSubmit,
-    reset,
-    trigger,
-    formState: { errors },
-  } = form;
+  const { handleSubmit, reset, trigger } = form;
 
   const createPlayerMutation = trpc.player.createPlayer.useMutation({
     onSuccess: (data) => {
@@ -174,16 +169,6 @@ export default function AddPlayerPage() {
             {activeTab === 'mailing' && <MailingAddressForm />}
             {activeTab === 'other' && <OtherInfoForm />}
           </FormContainer>
-
-          {/* Debug Panel for form errors (remove in production) */}
-          {Object.keys(errors).length > 0 && (
-            <div className="mt-8 p-4 bg-red-50 rounded-md">
-              <h3 className="text-red-800 font-semibold">Form Errors:</h3>
-              <pre className="mt-2 text-sm text-red-700 whitespace-pre-wrap overflow-auto max-h-64">
-                {JSON.stringify(errors, null, 2)}
-              </pre>
-            </div>
-          )}
 
           {isSubmitting && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
