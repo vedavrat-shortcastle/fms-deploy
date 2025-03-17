@@ -17,7 +17,7 @@ import ClubInfoSection from '@/components/player-components/ClubInfo';
 import {
   EditPlayerFormValues,
   editPlayerSchema,
-} from '@/schemas/Player.schema';
+} from '@/schemas/player.schema';
 
 export default function PlayerDetails() {
   const router = useRouter();
