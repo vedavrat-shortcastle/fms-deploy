@@ -13,11 +13,12 @@ export const federationRouter = router({
       const { baseUser, ...federation } = input;
 
       try {
-        const existingOrg = await ctx.db.federation.findUnique({
+        // Check for existing federation outside transaction
+        const existingFederation = await ctx.db.federation.findUnique({
           where: { domain: federation.domain },
         });
 
-        if (existingOrg) {
+        if (existingFederation) {
           throw new TRPCError({
             code: 'CONFLICT',
             message: 'Federation with this domain already exists',
@@ -26,43 +27,64 @@ export const federationRouter = router({
 
         const hashedPassword = await hashPassword(baseUser.password);
 
-        const createdFederation = await ctx.db.federation.create({
-          data: federation,
-        });
+        // Wrap all database operations in a transaction
+        const result = await ctx.db.$transaction(async (tx) => {
+          const createdFederation = await tx.federation.create({
+            data: federation,
+          });
 
-        const newBaseUser = await ctx.db.baseUser.create({
-          data: {
-            ...baseUser,
-            password: hashedPassword,
-            role: Role.FED_ADMIN,
-            federation: {
-              connect: { id: createdFederation.id },
+          const newBaseUser = await tx.baseUser.create({
+            data: {
+              ...baseUser,
+              password: hashedPassword,
+              role: Role.FED_ADMIN,
+              federation: {
+                connect: { id: createdFederation.id },
+              },
             },
-          },
-        });
+          });
 
-        const newFederationAdmin = await ctx.db.federationAdmin.create({
-          data: {
-            federationId: createdFederation.id,
-          },
-        });
-
-        const newUserProfile = await ctx.db.userProfile.create({
-          data: {
-            baseUser: {
-              connect: { id: newBaseUser.id },
+          const newFederationAdmin = await tx.federationAdmin.create({
+            data: {
+              federationId: createdFederation.id,
             },
-            profileType: ProfileType.FED_ADMIN,
-            profileId: newFederationAdmin.id,
-            permissions: {
-              create: roleMap[Role.FED_ADMIN].map((permission) => ({
-                permission: { connect: { code: permission } },
-              })),
+          });
+
+          const fedAdminPermissions = await tx.permission.findMany({
+            where: {
+              code: {
+                in: roleMap[Role.FED_ADMIN],
+              },
             },
-          },
+            select: {
+              id: true,
+            },
+          });
+
+          const newUserProfile = await tx.userProfile.create({
+            data: {
+              baseUser: {
+                connect: { id: newBaseUser.id },
+              },
+              profileType: ProfileType.FEDERATION_ADMIN,
+              profileId: newFederationAdmin.id,
+            },
+          });
+
+          await tx.userPermission.createMany({
+            data: fedAdminPermissions.map((permission) => ({
+              permissionId: permission.id,
+              userId: newUserProfile.id,
+            })),
+          });
+
+          return {
+            federation: createdFederation,
+            userProfile: newUserProfile,
+          };
         });
 
-        return { federation: createdFederation, userProfile: newUserProfile };
+        return result;
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to create federation with admin',

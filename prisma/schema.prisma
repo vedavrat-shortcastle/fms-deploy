@@ -13,10 +13,10 @@ model BaseUser {
   email        String     @db.VarChar(255)
   password     String     @db.VarChar(255)
   role         Role
-  firstName     String     @map("first_name") @db.VarChar(100)
+  firstName    String     @map("first_name") @db.VarChar(100)
   lastName     String     @map("last_name") @db.VarChar(100)
   middleName   String?    @map("middle_name") @db.VarChar(100)
-  nameSuffix    String?    @map("name_suffix") @db.VarChar(50)
+  nameSuffix   String?    @map("name_suffix") @db.VarChar(50)
   gender       Gender
   federation   Federation @relation(fields: [federationId], references: [id], name: "FederationBaseUsers")
   federationId String     @map("federation_id")
@@ -41,7 +41,7 @@ model UserProfile {
 
   isActive    Boolean          @default(true) @map("is_active")
   deletedAt   DateTime?        @map("deleted_at")
-  permissions UserPermission[] @relation(name: "UserPermissions")
+  permissions UserPermission[]
 
   @@unique([profileType, profileId])
   @@map("user_profile")
@@ -229,7 +229,7 @@ enum FedType {
 
 enum ProfileType {
   PLAYER
-  FED_ADMIN
+  FEDERATION_ADMIN
   CLUB_MANAGER
   COACH
   ARBITER
@@ -290,10 +290,10 @@ model Permission {
 }
 
 model UserPermission {
-  userId       String      @map("admin_user_id")
+  userId       String      @map("user_profile_id")
   permissionId String      @map("permission_id")
   createdAt    DateTime    @default(now()) @map("created_at")
-  user         UserProfile @relation(fields: [userId], references: [id], name: "UserPermissions")
+  user         UserProfile @relation(fields: [userId], references: [id])
   permission   Permission  @relation(fields: [permissionId], references: [id])
 
   @@id([userId, permissionId])

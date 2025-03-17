@@ -1,9 +1,9 @@
 export const PERMISSIONS = {
   // Federation permissions
-  ORG_VIEW: 'org.view',
-  ORG_CREATE: 'org.create',
-  ORG_UPDATE: 'org.update',
-  ORG_DELETE: 'org.delete',
+  FED_VIEW: 'fed.view',
+  FED_CREATE: 'fed.create',
+  FED_UPDATE: 'fed.update',
+  FED_DELETE: 'fed.delete',
 
   // Club permissions
   CLUB_VIEW: 'club.view',
@@ -26,10 +26,10 @@ export const PERMISSIONS = {
 
 export const roleMap = {
   SUPER_ADMIN: [
-    PERMISSIONS.ORG_VIEW,
-    PERMISSIONS.ORG_CREATE,
-    PERMISSIONS.ORG_UPDATE,
-    PERMISSIONS.ORG_DELETE,
+    PERMISSIONS.FED_VIEW,
+    PERMISSIONS.FED_CREATE,
+    PERMISSIONS.FED_UPDATE,
+    PERMISSIONS.FED_DELETE,
     PERMISSIONS.CLUB_VIEW,
     PERMISSIONS.CLUB_CREATE,
     PERMISSIONS.CLUB_UPDATE,

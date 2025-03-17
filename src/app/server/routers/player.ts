@@ -24,7 +24,7 @@ export const playerRouter = router({
     .mutation(async ({ ctx, input }) => {
       try {
         const { baseUser, playerDetails } = input;
-        if (!ctx.session.user.orgId) {
+        if (!ctx.session.user.federationId) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'No federation context found',
@@ -35,7 +35,7 @@ export const playerRouter = router({
           where: {
             email_federationId: {
               email: baseUser.email,
-              federationId: ctx.session.user.orgId,
+              federationId: ctx.session.user.federationId,
             },
           },
         });
@@ -53,7 +53,7 @@ export const playerRouter = router({
             ...baseUser,
             password: hashedPassword,
             role: Role.PLAYER,
-            federationId: ctx.session.user.orgId,
+            federationId: ctx.session.user.federationId,
           },
         });
 
@@ -100,7 +100,7 @@ export const playerRouter = router({
         const offset = (page - 1) * limit;
         const where: Prisma.BaseUserWhereInput = {
           role: Role.PLAYER,
-          federationId: ctx.session.user.orgId,
+          federationId: ctx.session.user.federationId,
         };
 
         const players = await ctx.db.baseUser.findMany({
@@ -141,7 +141,7 @@ export const playerRouter = router({
           where: {
             id: input.id,
             role: Role.PLAYER,
-            federationId: ctx.session.user.orgId,
+            federationId: ctx.session.user.federationId,
           },
           select: {
             id: true,
@@ -203,7 +203,7 @@ export const playerRouter = router({
         const existingUser = await ctx.db.baseUser.findUnique({
           where: {
             id: baseUser.id,
-            federationId: ctx.session.user.orgId,
+            federationId: ctx.session.user.federationId,
             role: Role.PLAYER,
           },
           include: {
@@ -244,7 +244,7 @@ export const playerRouter = router({
             where: {
               email_federationId: {
                 email: baseUser.email,
-                federationId: ctx.session.user.orgId,
+                federationId: ctx.session.user.federationId,
               },
             },
           });
@@ -295,7 +295,7 @@ export const playerRouter = router({
           where: {
             id: input.id,
             role: Role.PLAYER,
-            federationId: ctx.session.user.orgId,
+            federationId: ctx.session.user.federationId,
           },
           select: { profile: true },
         });
@@ -330,22 +330,21 @@ export const playerRouter = router({
     .mutation(async ({ ctx, input }) => {
       try {
         const { federation, ...data } = input;
-        const currentOrg = await ctx.db.federation.findFirst({
+        const currentFederation = await ctx.db.federation.findFirst({
           where: { domain: federation.domain },
           select: { id: true },
         });
-        if (!currentOrg) {
+        if (!currentFederation) {
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'Federation not found',
           });
         }
-        const hashedPassword = await hashPassword(input.password);
         const existingUser = await ctx.db.baseUser.findUnique({
           where: {
             email_federationId: {
               email: input.email,
-              federationId: currentOrg.id,
+              federationId: currentFederation.id,
             },
           },
         });
@@ -357,12 +356,14 @@ export const playerRouter = router({
           });
         }
 
+        const hashedPassword = await hashPassword(input.password);
+
         const newBaseUser = await ctx.db.baseUser.create({
           data: {
             ...data,
             password: hashedPassword,
             role: Role.PLAYER,
-            federationId: currentOrg.id,
+            federationId: currentFederation.id,
           },
         });
 

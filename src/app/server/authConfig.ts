@@ -14,18 +14,18 @@ export const authConfig: AuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const org = await db.federation.findFirst({
+        const federation = await db.federation.findFirst({
           where: { domain: credentials.domain },
           select: { id: true },
         });
 
-        if (!org) return null;
+        if (!federation) return null;
 
         const baseUser = await db.baseUser.findUnique({
           where: {
             email_federationId: {
               email: credentials.email,
-              federationId: org.id,
+              federationId: federation.id,
             },
           },
           include: {
@@ -52,7 +52,7 @@ export const authConfig: AuthOptions = {
 
         return {
           id: baseUser.id,
-          orgId: baseUser.federationId || '',
+          federationId: baseUser.federationId || '',
           email: baseUser.email,
           role: baseUser.role,
           firstName: baseUser.firstName,
@@ -75,14 +75,14 @@ export const authConfig: AuthOptions = {
         token.firstName = user.firstName;
         token.lastName = user.lastName;
         token.permissions = user.permissions;
-        token.orgId = user.orgId;
+        token.federationId = user.federationId;
       }
       return token;
     },
     session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id;
-        session.user.orgId = token.orgId;
+        session.user.federationId = token.federationId;
         session.user.role = token.role;
         session.user.firstName = token.firstName;
         session.user.lastName = token.lastName;
