@@ -72,8 +72,6 @@ export const signupPlayerSchema = z
     firstName: z.string(),
     lastName: z.string(),
     gender: z.nativeEnum(Gender),
-    phoneNumber: z.string(),
-    countryCode: z.string(),
   })
   .transform((data) => {
     const { domain, ...rest } = data;

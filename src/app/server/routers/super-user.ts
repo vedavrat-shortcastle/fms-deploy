@@ -131,7 +131,6 @@ export const superUserRouter = router({
     .input(createFederationSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        console.log('input', input);
         const existingOrg = await ctx.db.federation.findUnique({
           where: { domain: input.domain },
         });
