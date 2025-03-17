@@ -84,8 +84,7 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // Access the current URL using the window object
-      // form.setValue('domain', window.location.host);
-      form.setValue('domain', 'localhost');
+      form.setValue('domain', window.location.host);
     }
   }, []);
 
