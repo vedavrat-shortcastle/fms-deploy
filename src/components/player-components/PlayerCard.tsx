@@ -5,8 +5,9 @@ import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trash2, Edit, Mail, User, ActivitySquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { PlayerCardTypes } from '@/schemas/Player.schema';
+
 import { Badge } from '@/components/ui/badge';
+import { PlayerCardTypes } from '@/schemas/player.schema';
 
 interface PlayerCardProps {
   player: PlayerCardTypes;
@@ -93,7 +94,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
               {player.profile?.isActive ? (
                 <Badge variant="green">Active</Badge>
               ) : (
-                <Badge variant="destructive">Active</Badge>
+                <Badge variant="destructive">Inactive</Badge>
               )}
             </span>
           </div>

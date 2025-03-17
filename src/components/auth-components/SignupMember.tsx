@@ -230,7 +230,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
         </fieldset>
         <div className="mt-5 flex justify-center">
           Already have an account?{' '}
-          <Link href="/login-member" className="text-primary ml-2 underline">
+          <Link href="/login" className="text-primary ml-2 underline">
             Login here
           </Link>
         </div>
