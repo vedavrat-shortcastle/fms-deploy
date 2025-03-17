@@ -15,7 +15,7 @@ import {
   deletePlayerSchema,
   editPlayerSchema,
   signupPlayerSchema,
-} from '@/schemas/player.schema';
+} from '@/schemas/Player.schema';
 
 export const playerRouter = router({
   // Create a new player
@@ -103,7 +103,7 @@ export const playerRouter = router({
           federationId: ctx.session.user.federationId,
         };
 
-        const players = await ctx.db.baseUser.findMany({
+        const baseUsers = await ctx.db.baseUser.findMany({
           where,
           skip: offset,
           take: limit,
@@ -118,15 +118,31 @@ export const playerRouter = router({
             profile: {
               select: {
                 isActive: true,
+                profileId: true,
               },
             },
           },
         });
 
+        const players = await ctx.db.player.findMany({
+          where: {
+            id: {
+              in: baseUsers.map((user) => user.profile!.profileId),
+            },
+          },
+        });
+
+        const result = players.map((player) => {
+          const user = baseUsers.find(
+            (u) => u.profile!.profileId === player.id
+          )!;
+          return { ...user, ...player };
+        });
+
         const totalPlayers = await ctx.db.baseUser.count({ where });
 
         return {
-          players,
+          players: result,
           total: totalPlayers,
           page,
           limit,

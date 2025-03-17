@@ -148,6 +148,7 @@ export type PlayerCardTypes = {
   lastName: string;
   gender: Gender;
   role: Role;
+  avatarUrl: string | null;
   profile: {
     isActive: boolean | null;
   } | null;

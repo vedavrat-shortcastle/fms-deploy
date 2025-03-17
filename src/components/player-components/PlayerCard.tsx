@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trash2, Edit, Mail, User, ActivitySquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { PlayerCardTypes } from '@/schemas/player.schema';
+import { PlayerCardTypes } from '@/schemas/Player.schema';
 import { Badge } from '@/components/ui/badge';
 
 interface PlayerCardProps {
@@ -36,17 +36,17 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   return (
     <div
       className="group relative bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700"
-      onClick={() => onView(player.id)}
+      onClick={() => onView(player.id)} //TODO: Change it to a button component if we are going to keep the onClick event
     >
       {/* Card Header with Gradient */}
       <div className={cn('h-24 w-full bg-gradient-to-r', gradient)} />
 
       {/* Avatar */}
       <div className="absolute top-12 left-1/2 transform -translate-x-1/2">
-        {player.image ? (
+        {player.avatarUrl ? (
           <div className="rounded-full border-4 border-white dark:border-gray-900 overflow-hidden">
             <Image
-              src={player.image || '/placeholder.svg'}
+              src={player.avatarUrl || '/placeholder.svg'}
               alt={fullName}
               width={80}
               height={80}
