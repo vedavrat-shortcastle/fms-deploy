@@ -62,7 +62,7 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
         password: values.password,
         domain: 'localhost', // Update as needed
         redirect: true,
-        callbackUrl: '/dashboard',
+        callbackUrl: '/players',
       });
 
       if (result?.error) {
