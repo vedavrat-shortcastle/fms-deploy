@@ -1,29 +1,38 @@
 'use client';
+
 import React, { useState } from 'react';
 import { Search, PlusCircle, Upload, Download } from 'lucide-react';
 import Sidebar from '@/components/SideBar';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+// import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
+import { trpc } from '@/utils/trpc';
+import { Pagination } from '@/components/ui/pagination';
 import PlayerCard from '@/components/player-components/PlayerCard';
-import { User } from '@prisma/client';
+import { PlayerCardTypes } from '@/schemas/Player.schema';
 
 export default function Page() {
   const router = useRouter();
-  const [players, setPlayers] = useState<User[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [limit, setLimit] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const { data, isLoading } = trpc.player.getPlayers.useQuery({
+    limit: limit,
+    page: currentPage,
+  });
+
+  const players = data?.players || [];
+
   // Delete player need to handle through api
-  const handleDelete = (id: number, e: React.MouseEvent) => {
+  const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (window.confirm('Are you sure you want to delete this player?')) {
-      setPlayers(players.filter((player) => player.id !== id.toString()));
+      console.log('player is deleted'); //TODO: add delete flow here
     }
   };
 
   // Edit player: navigate to the edit page for the given player id
-  const handleEdit = (player: User, e: React.MouseEvent) => {
+  const handleEdit = (player: PlayerCardTypes, e: React.MouseEvent) => {
     e.stopPropagation();
     router.push(`/players/${player.id}`);
   };
@@ -34,7 +43,7 @@ export default function Page() {
   };
 
   // View player details
-  const handleViewPlayerDetails = (playerId: number) => {
+  const handleViewPlayerDetails = (playerId: string) => {
     router.push(`/players/${playerId}`);
   };
 
@@ -73,13 +82,13 @@ export default function Page() {
         <div className="mb-6 flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <Input
+            {/* <Input
               className="pl-10 rounded-md border-gray-200"
               placeholder="Search"
               type="search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            /> */}
           </div>
           <Button
             variant="outline"
@@ -99,62 +108,32 @@ export default function Page() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {players.map((player) => (
-            <PlayerCard
-              key={player.id}
-              player={player}
-              onDelete={handleDelete}
-              onEdit={handleEdit}
-              onView={handleViewPlayerDetails}
-            />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full">
+            <span>Loading...</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {players &&
+              players.map((player) => (
+                <PlayerCard
+                  key={player.id}
+                  player={player}
+                  onDelete={handleDelete}
+                  onEdit={handleEdit}
+                  onView={handleViewPlayerDetails}
+                />
+              ))}
+          </div>
+        )}
 
-        <div className="mt-6 flex items-center justify-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded border-gray-200 text-gray-600 h-8 w-8 p-0"
-            onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            &lt;
-          </Button>
-          {[1, 2, 3, 4, 5].map((page) => (
-            <Button
-              key={page}
-              variant="outline"
-              size="sm"
-              className={`rounded h-8 w-8 p-0 ${
-                currentPage === page
-                  ? 'bg-red-50 border-red-100 text-red-500'
-                  : 'border-gray-200 text-gray-600'
-              }`}
-              onClick={() => handlePageChange(page)}
-            >
-              {page}
-            </Button>
-          ))}
-          <span className="text-gray-400">...</span>
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded border-gray-200 text-gray-600 h-8 w-8 p-0"
-            onClick={() => handlePageChange(10)}
-          >
-            10
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded border-gray-200 text-gray-600 h-8 w-8 p-0"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === 10}
-          >
-            &gt;
-          </Button>
-        </div>
+        <Pagination
+          totalPages={data?.total || 0}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          itemsPerPage={limit}
+          onItemsPerPageChange={setLimit}
+        />
       </main>
     </div>
   );
