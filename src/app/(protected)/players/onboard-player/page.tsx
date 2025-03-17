@@ -16,10 +16,19 @@ import {
   playerOnboardingSchema,
 } from '@/schemas/player.schema';
 
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+
 // Define the tab order for navigation
 const tabOrder: Array<'stepOne' | 'stepTwo'> = ['stepOne', 'stepTwo'];
 
 export default function PlayerOnboarding() {
+  const router = useRouter();
+  const { data: session } = useSession();
+
+  if (session?.user?.profileId !== 'PENDING') {
+    router.push('/players');
+  }
   const [activeTab, setActiveTab] = useState<'stepOne' | 'stepTwo'>('stepOne');
 
   const form = useForm<playerOnboardingInput>({

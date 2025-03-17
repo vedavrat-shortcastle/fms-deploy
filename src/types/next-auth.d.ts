@@ -10,6 +10,7 @@ declare module 'next-auth' {
       firstName: string;
       lastName: string;
       permissions: Permission[];
+      profileId: string;
     };
   }
 
@@ -21,6 +22,7 @@ declare module 'next-auth' {
     lastName: string;
     role: Role;
     permissions: Permission[];
+    profileId: string;
   }
 }
 
@@ -32,5 +34,6 @@ declare module 'next-auth/jwt' {
     firstName: string;
     lastName: string;
     permissions: Permission[];
+    profileId: string;
   }
 }
