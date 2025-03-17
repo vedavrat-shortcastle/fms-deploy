@@ -10,12 +10,14 @@ import { ProfileType, Role } from '@prisma/client';
 import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
+
+import { getProfileByRole } from '@/config/roleTable';
 import {
   createPlayerSchema,
   deletePlayerSchema,
   editPlayerSchema,
-  signupPlayerSchema,
-} from '@/schemas/Player.schema';
+  signupMemberSchema,
+} from '@/schemas/player.schema';
 
 export const playerRouter = router({
   // Create a new player
@@ -348,13 +350,12 @@ export const playerRouter = router({
     }),
   // Signup a new player
   signup: publicProcedure
-    .input(signupPlayerSchema)
+    .input(signupMemberSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        const { federation, ...data } = input;
-
+        const { domain, ...data } = input;
         const currentFederation = await ctx.db.federation.findFirst({
-          where: { domain: federation.domain },
+          where: { domain },
           select: { id: true },
         });
 
@@ -389,16 +390,17 @@ export const playerRouter = router({
             data: {
               ...data,
               password: hashedPassword,
-              role: Role.PLAYER,
               federation: {
                 connect: { id: currentFederation.id },
               },
             },
           });
 
+          const profileType = getProfileByRole(data.role);
+
           const newUserProfile = await tx.userProfile.create({
             data: {
-              profileType: ProfileType.PLAYER,
+              profileType,
               profileId: 'PENDING',
               baseUser: {
                 connect: { id: newBaseUser.id },
@@ -409,7 +411,7 @@ export const playerRouter = router({
           const playerPermissions = await tx.permission.findMany({
             where: {
               code: {
-                in: roleMap[Role.PLAYER],
+                in: roleMap[data.role],
               },
             },
             select: {
@@ -423,7 +425,7 @@ export const playerRouter = router({
               userId: newUserProfile.id,
             })),
           });
-
+          console.log('newUserProfile', newUserProfile);
           return { ...newBaseUser, newUserProfile };
         });
 
