@@ -23,8 +23,8 @@ import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  createFederationFormSchema,
-  createFederationFormSchemaValues,
+  FederationOnboardingFormValues,
+  federationOnboardingSchema,
 } from '@/schemas/Federation.schema';
 
 /// import { trpc } from '@/utils/trpc'; // trpc import
@@ -41,15 +41,18 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
   const router = useRouter(); // Initialize the router
 
   //React hook form Logic
-  const form = useForm<createFederationFormSchemaValues>({
-    resolver: zodResolver(createFederationFormSchema),
+  const form = useForm<FederationOnboardingFormValues>({
+    resolver: zodResolver(federationOnboardingSchema.omit({ domain: true })),
     defaultValues: {
-      firstName: '',
-      lastName: '',
       name: '',
-      phoneNumber: '',
       type: undefined,
       country: '',
+      email: 'test2@shortcastle.com',
+      password: 'test1234',
+      firstName: '',
+      lastName: '',
+      gender: 'MALE',
+      phoneNumber: '',
       countryCode: '',
     },
   });
