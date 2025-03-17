@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation'; // Import useRouter
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { AuthLayout } from '@/components/layouts/AuthLayout';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,9 @@ import { Input } from '@/components/ui/input';
 import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, LoginFormValues } from '../../schemas/LoginSchema'; // Zod Validation logic for the component.
+
+import { useState } from 'react';
+import { LoginFormValues, loginSchema } from '@/schemas/LoginSchema';
 
 // All the imports
 
@@ -37,6 +40,8 @@ interface LoginProps {
 
 export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
   const router = useRouter(); // Initialize the router
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // React hook form Logic
   const form = useForm<LoginFormValues>({
@@ -48,11 +53,31 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
   });
 
   // Function to handle submit
-  const onSubmit = (values: LoginFormValues) => {
-    console.log('Submitting values:', values);
-    // Replace with actual API request
-    router.push('/dashboard');
-    // On Successful Validation, Push to the dashboard page.
+  const onSubmit = async (values: LoginFormValues) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const result = await signIn('credentials', {
+        email: values.email,
+        password: values.password,
+        domain: 'localhost', // Update as needed
+        redirect: true,
+        callbackUrl: '/players',
+      });
+
+      if (result?.error) {
+        setError('Invalid credentials');
+        return;
+      }
+
+      router.push('/players');
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      setError('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,6 +88,9 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
 
       <div className="m-20">
         {/* Container Div */}
+        {error && (
+          <div className="text-primary text-md text-center mt-2">{error}</div>
+        )}
 
         <h1 className="flex justify-center text-2xl m-5 ">{heading} Login</h1>
         {/* Pass the heading string you accepted as a prop above */}
@@ -124,9 +152,10 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
             </div>
             <Button
               type="submit"
+              disabled={loading}
               className="w-full font-extrabold bg-primary hover:bg-red-400"
             >
-              Login
+              {loading ? 'Logging in...' : 'Login'}
             </Button>
           </form>
         </Form>
