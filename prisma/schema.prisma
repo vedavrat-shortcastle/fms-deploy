@@ -13,10 +13,10 @@ model BaseUser {
   email        String     @db.VarChar(255)
   password     String     @db.VarChar(255)
   role         Role
-  firstName    String     @map("first_name") @db.VarChar(100)
+  firstName     String     @map("first_name") @db.VarChar(100)
   lastName     String     @map("last_name") @db.VarChar(100)
   middleName   String?    @map("middle_name") @db.VarChar(100)
-  nameSuffix   String?    @map("name_suffix") @db.VarChar(50)
+  nameSuffix    String?    @map("name_suffix") @db.VarChar(50)
   gender       Gender
   federation   Federation @relation(fields: [federationId], references: [id], name: "FederationBaseUsers")
   federationId String     @map("federation_id")
@@ -234,7 +234,6 @@ enum ProfileType {
   COACH
   ARBITER
   TOURNAMENT_DIRECTOR
-  PARENT
   STUDENT
   VOLUNTEER
 }
