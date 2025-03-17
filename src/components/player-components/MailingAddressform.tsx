@@ -17,13 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { AddPlayerFormData } from '@/schemas/addplayer.schema';
+import { CreatePlayerFormValues } from '@/schemas/player.schema';
 
 export default function MailingAddressForm() {
   const {
     control,
     formState: { errors },
-  } = useFormContext<AddPlayerFormData>();
+  } = useFormContext<CreatePlayerFormValues>();
 
   const countryOptions = [
     { value: 'United States', label: 'United States' },
@@ -55,7 +55,7 @@ export default function MailingAddressForm() {
       {/* Street Address */}
       <FormField
         control={control}
-        name="mailing.streetAddress"
+        name="playerDetails.streetAddress"
         render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('Street Address', true)}</FormLabel>
@@ -63,10 +63,13 @@ export default function MailingAddressForm() {
               <Input
                 placeholder="Enter Street Address"
                 {...field}
+                value={field.value || ''} // Ensure value is never undefined
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>{errors.mailing?.streetAddress?.message}</FormMessage>
+            <FormMessage>
+              {errors.playerDetails?.streetAddress?.message}
+            </FormMessage>
           </FormItem>
         )}
       />
@@ -74,7 +77,7 @@ export default function MailingAddressForm() {
       {/* Street Address Line 2 */}
       <FormField
         control={control}
-        name="mailing.streetAddressLine2"
+        name="playerDetails.streetAddress2"
         render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('Street Address Line 2')}</FormLabel>
@@ -82,11 +85,12 @@ export default function MailingAddressForm() {
               <Input
                 placeholder="Enter Address Line 2"
                 {...field}
+                value={field.value || ''} // Ensure value is never undefined
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
             <FormMessage>
-              {errors.mailing?.streetAddressLine2?.message}
+              {errors.playerDetails?.streetAddress2?.message}
             </FormMessage>
           </FormItem>
         )}
@@ -95,12 +99,15 @@ export default function MailingAddressForm() {
       {/* Country */}
       <FormField
         control={control}
-        name="mailing.country"
+        name="playerDetails.country"
         render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('Country', true)}</FormLabel>
             <FormControl>
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select
+                value={field.value || ''} // Ensure value is never undefined
+                onValueChange={field.onChange}
+              >
                 <SelectTrigger className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500">
                   <SelectValue placeholder="Select Country" />
                 </SelectTrigger>
@@ -113,7 +120,7 @@ export default function MailingAddressForm() {
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormMessage>{errors.mailing?.country?.message}</FormMessage>
+            <FormMessage>{errors.playerDetails?.country?.message}</FormMessage>
           </FormItem>
         )}
       />
@@ -121,12 +128,15 @@ export default function MailingAddressForm() {
       {/* State/Province */}
       <FormField
         control={control}
-        name="mailing.state"
+        name="playerDetails.state"
         render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('State/Province', true)}</FormLabel>
             <FormControl>
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select
+                value={field.value || ''} // Ensure value is never undefined
+                onValueChange={field.onChange}
+              >
                 <SelectTrigger className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500">
                   <SelectValue placeholder="Select State/Province" />
                 </SelectTrigger>
@@ -139,7 +149,7 @@ export default function MailingAddressForm() {
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormMessage>{errors.mailing?.state?.message}</FormMessage>
+            <FormMessage>{errors.playerDetails?.state?.message}</FormMessage>
           </FormItem>
         )}
       />
@@ -147,7 +157,7 @@ export default function MailingAddressForm() {
       {/* City */}
       <FormField
         control={control}
-        name="mailing.city"
+        name="playerDetails.city"
         render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('City', true)}</FormLabel>
@@ -155,10 +165,11 @@ export default function MailingAddressForm() {
               <Input
                 placeholder="Enter City"
                 {...field}
+                value={field.value || ''} // Ensure value is never undefined
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>{errors.mailing?.city?.message}</FormMessage>
+            <FormMessage>{errors.playerDetails?.city?.message}</FormMessage>
           </FormItem>
         )}
       />
@@ -166,7 +177,7 @@ export default function MailingAddressForm() {
       {/* Postal Code */}
       <FormField
         control={control}
-        name="mailing.postalCode"
+        name="playerDetails.postalCode"
         render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('Postal Code', true)}</FormLabel>
@@ -174,10 +185,13 @@ export default function MailingAddressForm() {
               <Input
                 placeholder="Enter Postal Code"
                 {...field}
+                value={field.value || ''} // Ensure value is never undefined
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>{errors.mailing?.postalCode?.message}</FormMessage>
+            <FormMessage>
+              {errors.playerDetails?.postalCode?.message}
+            </FormMessage>
           </FormItem>
         )}
       />
@@ -185,7 +199,7 @@ export default function MailingAddressForm() {
       {/* Phone Number */}
       <FormField
         control={control}
-        name="mailing.phoneNumber"
+        name="playerDetails.phoneNumber"
         render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('Phone Number', true)}</FormLabel>
@@ -193,10 +207,13 @@ export default function MailingAddressForm() {
               <Input
                 placeholder="Enter Phone Number"
                 {...field}
+                value={field.value || ''} // Ensure value is never undefined
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>{errors.mailing?.phoneNumber?.message}</FormMessage>
+            <FormMessage>
+              {errors.playerDetails?.phoneNumber?.message}
+            </FormMessage>
           </FormItem>
         )}
       />
