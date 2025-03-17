@@ -77,14 +77,16 @@ export const signupMemberSchema = z.object({
 export type SignupMemberFormValues = z.infer<typeof signupMemberSchema>;
 
 //Permissions are omitted from the editPlayerSchema
-export const editPlayerSchema = z
-  .object({
+export const editPlayerSchema = z.object({
+  baseUser: z.object({
     id: z.string(),
     email: z.string().email().optional(),
     firstName: z.string().optional(),
     lastName: z.string().optional(),
     middleName: z.string().optional(),
     nameSuffix: z.string().optional(),
+  }),
+  playerDetails: z.object({
     birthDate: z.string().optional(),
     gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]).optional(),
     ageProof: z.string().optional(),
@@ -108,24 +110,8 @@ export const editPlayerSchema = z
       .transform((str) => new Date(str))
       .optional(),
     clubName: z.string().optional(),
-  })
-  .transform((data) => {
-    const { id, email, firstName, lastName, middleName, nameSuffix, ...rest } =
-      data;
-    return {
-      baseUser: {
-        id,
-        email,
-        firstName,
-        lastName,
-        middleName,
-        nameSuffix,
-      },
-      playerDetails: {
-        ...rest,
-      },
-    };
-  });
+  }),
+});
 
 export const deletePlayerSchema = z.object({
   id: z.string(),
