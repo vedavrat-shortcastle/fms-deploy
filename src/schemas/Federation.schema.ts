@@ -15,28 +15,16 @@ export const createFederationSchema = z.object({
   logo: z.string().optional(),
 });
 
-export const createFederationFormSchema = createFederationSchema
-  .omit({
-    domain: true,
-    logo: true,
-  })
-  .extend({
-    phoneNumber: z.string().min(10, 'Phone number is required'),
-    countryCode: z.string().min(1, 'Country code is required'),
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().min(1, 'Last name is required'),
-  });
-
 export const federationOnboardingSchema = createFederationSchema.extend({
-  baseUser: z.object({
-    email: z.string().email(),
-    password: z.string().min(8),
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().min(1, 'Last name is required'),
-    middleName: z.string().optional(),
-    nameSuffix: z.string().optional(),
-    gender: z.nativeEnum(Gender),
-  }),
+  email: z.string().email(),
+  password: z.string().min(8),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  middleName: z.string().optional(),
+  nameSuffix: z.string().optional(),
+  gender: z.nativeEnum(Gender),
+  phoneNumber: z.string().min(1, 'Phone number is required'),
+  countryCode: z.string().min(1, 'Country code is required'),
 });
 
 export const subdomainSchema = z.object({
@@ -49,7 +37,7 @@ export const subdomainSchema = z.object({
     }),
 });
 
-export type createFederationFormSchemaValues = z.infer<
-  typeof createFederationFormSchema
+export type FederationOnboardingFormValues = z.infer<
+  typeof federationOnboardingSchema
 >;
 export type SubdomainFormValues = z.infer<typeof subdomainSchema>;
