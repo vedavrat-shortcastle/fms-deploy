@@ -59,9 +59,9 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
   const form = useForm<SubdomainFormValues>({
     resolver: zodResolver(subdomainSchema),
     defaultValues: {
-      type: '',
+      type: 'NATIONAL',
       name: '',
-      country: '',
+      country: 'india',
       subdomain: '',
     },
   });
