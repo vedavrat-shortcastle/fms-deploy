@@ -14,7 +14,7 @@ import { trpc } from '@/utils/trpc';
 import {
   playerOnboardingInput,
   playerOnboardingSchema,
-} from '@/schemas/player.schema';
+} from '@/schemas/Player.schema';
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';

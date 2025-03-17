@@ -7,7 +7,7 @@ import { Trash2, Edit, Mail, User, ActivitySquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 import { Badge } from '@/components/ui/badge';
-import { PlayerCardTypes } from '@/schemas/player.schema';
+import { PlayerCardTypes } from '@/schemas/Player.schema';
 
 interface PlayerCardProps {
   player: PlayerCardTypes;
