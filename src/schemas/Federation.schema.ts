@@ -28,6 +28,15 @@ export const federationOnboardingSchema = createFederationSchema.extend({
 });
 
 export const subdomainSchema = z.object({
+  type: z.enum(['NATIONAL', 'REGIONAL'], {
+    required_error: 'Type is required',
+    invalid_type_error: 'Type must be either NATIONAL or REGIONAL',
+  }),
+  name: z.string().min(1, { message: 'Federation Name is required' }),
+  country: z.enum(['india', 'usa'], {
+    required_error: 'Country is required',
+    invalid_type_error: 'Country must be either india or usa',
+  }),
   subdomain: z
     .string()
     .min(3, { message: 'Subdomain must be at least 3 characters' })
@@ -37,7 +46,8 @@ export const subdomainSchema = z.object({
     }),
 });
 
+export type SubdomainFormValues = z.infer<typeof subdomainSchema>;
+
 export type FederationOnboardingFormValues = z.infer<
   typeof federationOnboardingSchema
 >;
-export type SubdomainFormValues = z.infer<typeof subdomainSchema>;
