@@ -21,7 +21,7 @@ export const authConfig: AuthOptions = {
 
         if (!org) return null;
 
-        const user = await db.user.findUnique({
+        const baseUser = await db.baseUser.findUnique({
           where: {
             email_federationId: {
               email: credentials.email,
@@ -29,30 +29,36 @@ export const authConfig: AuthOptions = {
             },
           },
           include: {
-            permissions: {
-              include: {
-                permission: true,
+            profile: {
+              select: {
+                isActive: true,
+                permissions: {
+                  include: { permission: true },
+                },
+                profileType: true,
+                profileId: true,
               },
             },
           },
         });
 
-        if (!user) return null;
+        if (!baseUser) return null;
 
         const isValid = await verifyPassword(
           credentials.password,
-          user.password
+          baseUser.password
         );
         if (!isValid) return null;
 
         return {
-          id: user.id,
-          orgId: user.federationId || '',
-          email: user.email,
-          role: user.role,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          permissions: user.permissions.map((p) => p.permission),
+          id: baseUser.id,
+          orgId: baseUser.federationId || '',
+          email: baseUser.email,
+          role: baseUser.role,
+          firstName: baseUser.firstName,
+          lastName: baseUser.lastName,
+          permissions:
+            baseUser.profile?.permissions.map((p) => p.permission) || [],
         };
       },
     }),
