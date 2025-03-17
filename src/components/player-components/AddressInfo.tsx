@@ -1,11 +1,14 @@
+'use client';
+
 import { Input } from '@/components/ui/input';
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
+import { EditPlayerFormValues } from '@/schemas/player.schema';
 
 interface AddressSectionProps {
-  register: UseFormRegister<PlayerFormData>;
-  errors: FieldErrors<PlayerFormData>;
+  register: UseFormRegister<EditPlayerFormValues>;
+  errors: FieldErrors<EditPlayerFormValues>;
   isEditing: boolean;
-  player: Player;
+  player: EditPlayerFormValues | null;
 }
 
 export default function AddressSection({
@@ -26,14 +29,14 @@ export default function AddressSection({
                 Street Address
               </label>
               <Input
-                {...register('address.street')}
+                {...register('playerDetails.streetAddress')}
                 className={`w-full p-1 border rounded ${
-                  errors.address?.street ? 'border-red-500' : ''
+                  errors?.playerDetails?.streetAddress ? 'border-red-500' : ''
                 }`}
               />
-              {errors.address?.street && (
+              {errors?.playerDetails?.streetAddress && (
                 <p className="text-red-500 text-sm">
-                  {errors.address.street.message}
+                  {errors.playerDetails.streetAddress.message as string}
                 </p>
               )}
             </div>
@@ -42,14 +45,14 @@ export default function AddressSection({
             <div>
               <label className="block text-sm font-medium">Postal Code</label>
               <Input
-                {...register('address.postalCode')}
+                {...register('playerDetails.postalCode')}
                 className={`w-full p-1 border rounded ${
-                  errors.address?.postalCode ? 'border-red-500' : ''
+                  errors?.playerDetails?.postalCode ? 'border-red-500' : ''
                 }`}
               />
-              {errors.address?.postalCode && (
+              {errors?.playerDetails?.postalCode && (
                 <p className="text-red-500 text-sm">
-                  {errors.address.postalCode.message}
+                  {errors.playerDetails.postalCode.message as string}
                 </p>
               )}
             </div>
@@ -60,7 +63,7 @@ export default function AddressSection({
                 Street Address Line 2
               </label>
               <Input
-                {...register('address.street2')}
+                {...register('playerDetails.streetAddress2')}
                 className="w-full p-1 border rounded"
               />
             </div>
@@ -69,14 +72,14 @@ export default function AddressSection({
             <div>
               <label className="block text-sm font-medium">Country</label>
               <Input
-                {...register('address.country')}
+                {...register('playerDetails.country')}
                 className={`w-full p-1 border rounded ${
-                  errors.address?.country ? 'border-red-500' : ''
+                  errors?.playerDetails?.country ? 'border-red-500' : ''
                 }`}
               />
-              {errors.address?.country && (
+              {errors?.playerDetails?.country && (
                 <p className="text-red-500 text-sm">
-                  {errors.address.country.message}
+                  {errors.playerDetails.country.message as string}
                 </p>
               )}
             </div>
@@ -85,14 +88,14 @@ export default function AddressSection({
             <div>
               <label className="block text-sm font-medium">City</label>
               <Input
-                {...register('address.city')}
+                {...register('playerDetails.city')}
                 className={`w-full p-1 border rounded ${
-                  errors.address?.city ? 'border-red-500' : ''
+                  errors?.playerDetails?.city ? 'border-red-500' : ''
                 }`}
               />
-              {errors.address?.city && (
+              {errors?.playerDetails?.city && (
                 <p className="text-red-500 text-sm">
-                  {errors.address.city.message}
+                  {errors.playerDetails.city.message as string}
                 </p>
               )}
             </div>
@@ -101,14 +104,14 @@ export default function AddressSection({
             <div>
               <label className="block text-sm font-medium">Phone Number</label>
               <Input
-                {...register('address.phone')}
+                {...register('playerDetails.phoneNumber')}
                 className={`w-full p-1 border rounded ${
-                  errors.address?.phone ? 'border-red-500' : ''
+                  errors?.playerDetails?.phoneNumber ? 'border-red-500' : ''
                 }`}
               />
-              {errors.address?.phone && (
+              {errors?.playerDetails?.phoneNumber && (
                 <p className="text-red-500 text-sm">
-                  {errors.address.phone.message}
+                  {errors.playerDetails.phoneNumber.message as string}
                 </p>
               )}
             </div>
@@ -119,14 +122,14 @@ export default function AddressSection({
                 State/Province
               </label>
               <Input
-                {...register('address.state')}
+                {...register('playerDetails.state')}
                 className={`w-full p-1 border rounded ${
-                  errors.address?.state ? 'border-red-500' : ''
+                  errors?.playerDetails?.state ? 'border-red-500' : ''
                 }`}
               />
-              {errors.address?.state && (
+              {errors?.playerDetails?.state && (
                 <p className="text-red-500 text-sm">
-                  {errors.address.state.message}
+                  {errors.playerDetails.state.message as string}
                 </p>
               )}
             </div>
@@ -138,13 +141,13 @@ export default function AddressSection({
               <label className="block text-sm font-medium">
                 Street Address
               </label>
-              <p>{player.address.street}</p>
+              <p>{player?.playerDetails.streetAddress}</p>
             </div>
 
             {/* Postal Code */}
             <div>
               <label className="block text-sm font-medium">Postal Code</label>
-              <p>{player.address.postalCode}</p>
+              <p>{player?.playerDetails.postalCode}</p>
             </div>
 
             {/* Street Address Line 2 */}
@@ -152,25 +155,25 @@ export default function AddressSection({
               <label className="block text-sm font-medium">
                 Street Address Line 2
               </label>
-              <p>{player.address.street2}</p>
+              <p>{player?.playerDetails.streetAddress2}</p>
             </div>
 
             {/* Country */}
             <div>
               <label className="block text-sm font-medium">Country</label>
-              <p>{player.address.country}</p>
+              <p>{player?.playerDetails.country}</p>
             </div>
 
             {/* City */}
             <div>
               <label className="block text-sm font-medium">City</label>
-              <p>{player.address.city}</p>
+              <p>{player?.playerDetails.city}</p>
             </div>
 
             {/* Phone Number */}
             <div>
               <label className="block text-sm font-medium">Phone Number</label>
-              <p>{player.address.phone}</p>
+              <p>{player?.playerDetails.phoneNumber}</p>
             </div>
 
             {/* State/Province */}
@@ -178,7 +181,7 @@ export default function AddressSection({
               <label className="block text-sm font-medium">
                 State/Province
               </label>
-              <p>{player.address.state}</p>
+              <p>{player?.playerDetails.state}</p>
             </div>
           </>
         )}

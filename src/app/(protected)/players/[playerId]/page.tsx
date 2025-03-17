@@ -17,7 +17,7 @@ import ClubInfoSection from '@/components/player-components/ClubInfo';
 import {
   EditPlayerFormValues,
   editPlayerSchema,
-} from '@/schemas/Player.schema';
+} from '@/schemas/player.schema';
 
 export default function PlayerDetails() {
   const router = useRouter();
@@ -92,7 +92,7 @@ export default function PlayerDetails() {
           <div className="text-center">
             <Avatar className="h-40 w-40 rounded-none">
               <AvatarImage
-                src={player?.avatarUrl}
+                src={player?.playerDetails.avatarUrl}
                 alt="Profile"
                 className="object-cover"
                 onError={(e) => (e.currentTarget.src = '/default-avatar.png')}
@@ -187,8 +187,8 @@ export default function PlayerDetails() {
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <h3 className="text-xl font-semibold mb-4">Confirm Deletion</h3>
             <p className="mb-6">
-              Are you sure you want to delete {player?.firstName}{' '}
-              {player?.lastName}? This action cannot be undone.
+              Are you sure you want to delete {player?.baseUser.firstName}{' '}
+              {player?.baseUser.lastName}? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-4">
               <Button
