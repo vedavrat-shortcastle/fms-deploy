@@ -27,6 +27,8 @@ import {
   createFederationFormSchemaValues,
 } from '@/schemas/Federation.schema';
 
+/// import { trpc } from '@/utils/trpc'; // trpc import
+
 // All the imports
 
 interface SignupProps {
@@ -52,12 +54,16 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
     },
   });
 
+  /// const mutation = trpc.federation.federationOnboarding.useMutation();  // initialisation. Removed as the api call will happen in the next route
+
+  console.log('errors', form.formState.errors);
   // Function to handle submit
   const onSubmit = (values: any) => {
-    console.log('Submitting values:', values);
-    //Replace with actual API request
-    router.push('/onboarding-federation-subdomain');
-    // On Successful Validation, Push to the custom-subdomain page.
+    // const response = await mutation.mutateAsync(values); // integration logic Removed as the api call will happen in the next route
+
+    const queryData = encodeURIComponent(JSON.stringify(values));
+
+    router.push(`/onboarding-federation-subdomain?data=${queryData}`);
   };
 
   return (
@@ -109,20 +115,20 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="phoneNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-input-grey">
-                    Phone number
-                  </FormLabel>
-                  <FormControl>
-                    <div className="flex items-center space-x-2">
-                      {/* Country Code Selector */}
+            {/* Country Code Field */}
+            <div className="flex gap-x-2">
+              <FormField
+                control={form.control}
+                name="countryCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-input-grey">
+                      Country Code
+                    </FormLabel>
+                    <FormControl>
                       <Select
-                        onValueChange={(value) => console.log(value)}
-                        defaultValue="+91"
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
                       >
                         <SelectTrigger className="w-[125px]">
                           <SelectValue placeholder="Code" />
@@ -132,22 +138,36 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                           <SelectItem value="+1">+1 (USA)</SelectItem>
                         </SelectContent>
                       </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                      {/* Phone Number Input */}
+              {/* Phone Number Field */}
+              <FormField
+                control={form.control}
+                name="phoneNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-input-grey">
+                      Phone Number
+                    </FormLabel>
+                    <FormControl>
                       <Input
                         placeholder="55555-55555"
                         {...field}
-                        className="w-[220px]"
+                        className="w-[350px]"
                       />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Federation Details */}
-            <h2 className="text-lg font-semibold pt-5">Federation details</h2>
+            <h2 className="text-lg font-semibold pt-2">Federation details</h2>
             <FormField
               control={form.control}
               name="type"
@@ -163,8 +183,8 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="club">Club</SelectItem>
-                        <SelectItem value="association">Association</SelectItem>
+                        <SelectItem value="NATIONAL">National</SelectItem>
+                        <SelectItem value="REGIONAL">Regional</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
