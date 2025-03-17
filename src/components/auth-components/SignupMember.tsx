@@ -60,10 +60,8 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
     },
   });
 
-  console.log('error', form.formState.errors, form.getValues());
   // Function to handle submit
   const onSubmit = (values: SignupMemberFormValues) => {
-    console.log('Submitting values:', values);
     mutate(values, {
       onSuccess: () => {
         router.push('/login-member');

@@ -195,28 +195,53 @@ export default function MailingAddressForm() {
           </FormItem>
         )}
       />
-
-      {/* Phone Number */}
-      <FormField
-        control={control}
-        name="playerDetails.phoneNumber"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{renderLabel('Phone Number', true)}</FormLabel>
-            <FormControl>
-              <Input
-                placeholder="Enter Phone Number"
-                {...field}
-                value={field.value || ''} // Ensure value is never undefined
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-            </FormControl>
-            <FormMessage>
-              {errors.playerDetails?.phoneNumber?.message}
-            </FormMessage>
-          </FormItem>
-        )}
-      />
+      <div className="flex gap-x-5">
+        <FormField
+          control={control}
+          name="playerDetails.countryCode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-input-grey">Country Code</FormLabel>
+              <FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <SelectTrigger className="w-[125px] h-[42px]">
+                    <SelectValue placeholder="Code" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="+91">+91 (India)</SelectItem>
+                    <SelectItem value="+1">+1 (USA)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* Phone Number */}
+        <FormField
+          control={control}
+          name="playerDetails.phoneNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{renderLabel('Phone Number', true)}</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Enter Phone Number"
+                  {...field}
+                  value={field.value || ''} // Ensure value is never undefined
+                  className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
+                />
+              </FormControl>
+              <FormMessage>
+                {errors.playerDetails?.phoneNumber?.message}
+              </FormMessage>
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
   );
 }

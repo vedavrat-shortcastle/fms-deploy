@@ -133,7 +133,7 @@ export const createPlayerSchema = z.object({
     gender: z.nativeEnum(Gender, { required_error: 'Gender is required' }),
   }),
   playerDetails: z.object({
-    birthDate: z.date({ required_error: 'Birth date is required' }), // Now using z.date()
+    birthDate: z.date({ required_error: 'Birth date is required' }),
     avatarUrl: z.string().optional(),
     ageProof: z.string({ required_error: 'Age proof is required' }),
     streetAddress: z.string({ required_error: 'Street address is required' }),
@@ -148,9 +148,9 @@ export const createPlayerSchema = z.object({
     schoolName: z.string().optional(),
     graduationYear: z.number().optional(),
     gradeInSchool: z.string().optional(),
-    gradeDate: z.date().optional(), // Now using z.date()
+    gradeDate: z.date().nullable().optional(),
     clubName: z.string().optional(),
-    clubId: z.string().optional(),
+    clubId: z.string().nullable().optional(),
   }),
 });
 

@@ -140,7 +140,7 @@ export function OtherInfoForm() {
               <DatePicker
                 value={field.value ? new Date(field.value) : undefined} // Ensure value is a Date
                 onChange={(date) => {
-                  setValue('playerDetails.gradeDate', date ?? undefined); // Store as Date
+                  setValue('playerDetails.gradeDate', date ?? null); // Store as Date
                   trigger('playerDetails.gradeDate');
                 }}
                 onBlur={() => trigger('playerDetails.gradeDate')}
