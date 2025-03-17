@@ -10,7 +10,23 @@ export const federationRouter = router({
   federationOnboarding: publicProcedure
     .input(federationOnboardingSchema)
     .mutation(async ({ ctx, input }) => {
-      const { baseUser, ...federation } = input;
+      const baseUser = {
+        email: input.email,
+        password: input.password,
+        firstName: input.firstName,
+        lastName: input.lastName,
+        middleName: input.middleName,
+        nameSuffix: input.nameSuffix,
+        gender: input.gender,
+      };
+
+      const federation = {
+        name: input.name,
+        type: input.type,
+        country: input.country,
+        domain: input.domain,
+        logo: input.logo,
+      };
 
       try {
         // Check for existing federation outside transaction
@@ -31,8 +47,10 @@ export const federationRouter = router({
         const result = await ctx.db.$transaction(async (tx) => {
           const createdFederation = await tx.federation.create({
             data: federation,
+            select: {
+              id: true,
+            },
           });
-
           const newBaseUser = await tx.baseUser.create({
             data: {
               ...baseUser,
@@ -47,6 +65,8 @@ export const federationRouter = router({
           const newFederationAdmin = await tx.federationAdmin.create({
             data: {
               federationId: createdFederation.id,
+              phoneNumber: input.phoneNumber,
+              countryCode: input.countryCode,
             },
           });
 
@@ -77,7 +97,6 @@ export const federationRouter = router({
               userId: newUserProfile.id,
             })),
           });
-
           return {
             federation: createdFederation,
             userProfile: newUserProfile,

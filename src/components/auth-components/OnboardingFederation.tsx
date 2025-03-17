@@ -23,9 +23,11 @@ import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  createFederationFormSchema,
-  createFederationFormSchemaValues,
+  FederationOnboardingFormValues,
+  federationOnboardingSchema,
 } from '@/schemas/Federation.schema';
+
+/// import { trpc } from '@/utils/trpc'; // trpc import
 
 // All the imports
 
@@ -39,25 +41,42 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
   const router = useRouter(); // Initialize the router
 
   //React hook form Logic
-  const form = useForm<createFederationFormSchemaValues>({
-    resolver: zodResolver(createFederationFormSchema),
+  const form = useForm<FederationOnboardingFormValues>({
+    // Omit domain (if you want to remove federation details in the schema as well)
+    resolver: zodResolver(
+      federationOnboardingSchema.pick({
+        email: true,
+        password: true,
+        firstName: true,
+        lastName: true,
+        gender: true,
+        phoneNumber: true,
+        countryCode: true,
+      })
+    ),
     defaultValues: {
+      // Removed type, name, and country from defaultValues
+      email: '',
+      password: '',
       firstName: '',
       lastName: '',
-      name: '',
+      gender: 'MALE',
       phoneNumber: '',
-      type: undefined,
-      country: '',
       countryCode: '',
     },
   });
 
+  console.log('error', form.formState.errors, form.getValues());
+
+  /// const mutation = trpc.federation.federationOnboarding.useMutation();  // initialisation. Removed as the api call will happen in the next route
+
   // Function to handle submit
   const onSubmit = (values: any) => {
-    console.log('Submitting values:', values);
-    //Replace with actual API request
-    router.push('/onboarding-federation-subdomain');
-    // On Successful Validation, Push to the custom-subdomain page.
+    // const response = await mutation.mutateAsync(values); // integration logic Removed as the api call will happen in the next route
+
+    const queryData = encodeURIComponent(JSON.stringify(values));
+
+    router.push(`/onboarding-federation-subdomain?data=${queryData}`);
   };
 
   return (
@@ -66,9 +85,14 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
       <Logo />
       {/* Global Logo component */}
 
-      <div className="mx-auto mt-10">
+      <div
+        className="mx-10 mt-10 overflow-y-auto  pr-10"
+        style={{ maxHeight: 'calc(100vh - 80px)' }}
+      >
         {/* Container Div */}
-        <h1 className="text-2xl font-bold">Tell us a bit about yourself.</h1>
+        <h1 className="text-xl font-bold mt-10">
+          Tell us a bit about yourself.
+        </h1>
 
         {/* The below is the form-logic for the onboarding-federation */}
         <Form {...form}>
@@ -84,7 +108,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                   <FormControl>
                     <Input
                       placeholder="First name"
-                      className="w-[350px]"
+                      className="w-full"
                       {...field}
                     />
                   </FormControl>
@@ -101,7 +125,26 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                   <FormControl>
                     <Input
                       placeholder="Last name"
-                      className="w-[350px]"
+                      className="w-full"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Additional Fields: Email, Password, Gender */}
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-input-grey">Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="Enter your email"
+                      className="w-full"
                       {...field}
                     />
                   </FormControl>
@@ -111,20 +154,63 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
             />
             <FormField
               control={form.control}
-              name="phoneNumber"
+              name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-input-grey">
-                    Phone number
-                  </FormLabel>
+                  <FormLabel className="text-input-grey">Password</FormLabel>
                   <FormControl>
-                    <div className="flex items-center space-x-2">
-                      {/* Country Code Selector */}
+                    <Input
+                      type="password"
+                      placeholder="Enter your password"
+                      className="w-full"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-input-grey">Gender</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="MALE">Male</SelectItem>
+                        <SelectItem value="FEMALE">Female</SelectItem>
+                        <SelectItem value="OTHER">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Country Code Field */}
+            <div className="flex gap-x-5">
+              <FormField
+                control={form.control}
+                name="countryCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-input-grey">
+                      Country Code
+                    </FormLabel>
+                    <FormControl>
                       <Select
-                        onValueChange={(value) => console.log(value)}
-                        defaultValue="+91"
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
                       >
-                        <SelectTrigger className="w-[125px]">
+                        <SelectTrigger className="w-[125px] h-[42px]">
                           <SelectValue placeholder="Code" />
                         </SelectTrigger>
                         <SelectContent>
@@ -132,91 +218,34 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                           <SelectItem value="+1">+1 (USA)</SelectItem>
                         </SelectContent>
                       </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                      {/* Phone Number Input */}
+              {/* Phone Number Field */}
+              <FormField
+                control={form.control}
+                name="phoneNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-input-grey">
+                      Phone Number
+                    </FormLabel>
+                    <FormControl>
                       <Input
                         placeholder="55555-55555"
                         {...field}
-                        className="w-[220px]"
+                        className="w-[250px] h-[42px]"
                       />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
 
-            {/* Federation Details */}
-            <h2 className="text-lg font-semibold pt-5">Federation details</h2>
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-input-grey">Type</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="club">Club</SelectItem>
-                        <SelectItem value="association">Association</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-input-grey">
-                    Federation Name
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Federation name"
-                      className="w-[350px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="country"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-input-grey">
-                    Federation Country
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="india">India</SelectItem>
-                        <SelectItem value="usa">USA</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <Button type="submit" className="w-full bg-primary text-black">
               Next →
