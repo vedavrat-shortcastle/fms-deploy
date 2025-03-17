@@ -18,7 +18,7 @@ import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LoginFormValues, loginSchema } from '@/schemas/LoginSchema';
 
 // All the imports
@@ -49,6 +49,7 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
     defaultValues: {
       email: '',
       password: '',
+      domain: '',
     },
   });
 
@@ -60,18 +61,18 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
       const result = await signIn('credentials', {
         email: values.email,
         password: values.password,
-        domain: 'localhost', // Update as needed
-        redirect: true,
-        callbackUrl: '/players',
+        domain: values.domain,
+        redirect: false,
       });
 
       if (result?.error) {
         setError('Invalid credentials');
         return;
       }
-
-      router.push('/players');
-      router.refresh();
+      console.log('result', result);
+      if (result?.ok) {
+        router.push('/players');
+      }
     } catch (error) {
       console.error(error);
       setError('An error occurred. Please try again.');
@@ -79,6 +80,13 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Access the current URL using the window object
+      form.setValue('domain', window.location.host);
+    }
+  }, []);
 
   return (
     // Pass the image you accepted as prop to AuthLayout.
