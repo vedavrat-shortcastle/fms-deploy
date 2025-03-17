@@ -31,7 +31,7 @@ import { useEffect } from 'react';
 import {
   SignupMemberFormValues,
   signupMemberSchema,
-} from '@/schemas/player.schema';
+} from '@/schemas/Player.schema';
 
 // All the imports
 // This component is being used for 1 route as of now - /sign-up-member

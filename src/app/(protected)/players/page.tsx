@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { trpc } from '@/utils/trpc';
 import { Pagination } from '@/components/ui/pagination';
 import PlayerCard from '@/components/player-components/PlayerCard';
-import { PlayerCardTypes } from '@/schemas/player.schema';
+import { PlayerCardTypes } from '@/schemas/Player.schema';
 
 export default function Page() {
   const router = useRouter();
