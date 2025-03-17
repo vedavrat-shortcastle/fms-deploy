@@ -1,7 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { format } from 'date-fns';
 
 import {
   FormField,
@@ -100,18 +99,14 @@ export function PersonalInformationForm() {
             </FormLabel>
             <FormControl>
               <DatePicker
-                value={field.value ? new Date(field.value) : undefined} // Use undefined instead of null
+                value={field.value ? new Date(field.value) : undefined} // Ensure it's a valid Date
                 onChange={(date) => {
                   if (date) {
-                    setValue(
-                      'playerDetails.birthDate',
-                      format(date, 'yyyy-MM-dd')
-                    );
-                    trigger('playerDetails.birthDate');
+                    setValue('playerDetails.birthDate', date); // Store as Date object
                   } else {
-                    setValue('playerDetails.birthDate', '');
-                    trigger('playerDetails.birthDate');
+                    setValue('playerDetails.birthDate', new Date()); // Provide a default date
                   }
+                  trigger('playerDetails.birthDate');
                 }}
                 onBlur={() => trigger('playerDetails.birthDate')}
                 disabled={(date) => date > today}
