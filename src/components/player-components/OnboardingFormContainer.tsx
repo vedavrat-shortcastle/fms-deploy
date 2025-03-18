@@ -49,7 +49,14 @@ export const OnboardingFormContainer: React.FC<
           Back
         </Button>
         {activeTab === 'stepOne' ? (
-          <Button variant="destructive" onClick={onNext} type="button">
+          <Button
+            variant="destructive"
+            onClick={(e) => {
+              e.preventDefault(); // Prevent form submission
+              onNext();
+            }}
+            type="button"
+          >
             Next
           </Button>
         ) : (
