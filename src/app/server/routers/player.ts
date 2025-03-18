@@ -64,24 +64,7 @@ export const playerRouter = router({
 
           const newPlayer = await tx.player.create({
             data: {
-              birthDate: playerDetails.birthDate,
-              avatarUrl: playerDetails.avatarUrl,
-              ageProof: playerDetails.ageProof,
-              streetAddress: playerDetails.streetAddress,
-              streetAddress2: playerDetails.streetAddress2,
-              country: playerDetails.country,
-              state: playerDetails.state,
-              city: playerDetails.city,
-              postalCode: playerDetails.postalCode,
-              phoneNumber: playerDetails.phoneNumber,
-              countryCode: playerDetails.countryCode,
-              // fideId: playerDetails.fideId ?? null, //TODO: Enable post MVP
-              schoolName: playerDetails.schoolName,
-              graduationYear: playerDetails.graduationYear,
-              gradeInSchool: playerDetails.gradeInSchool,
-              gradeDate: playerDetails.gradeDate,
-              clubName: playerDetails.clubName,
-              clubId: playerDetails.clubId ?? null,
+              ...playerDetails,
             },
           });
 
@@ -130,15 +113,28 @@ export const playerRouter = router({
       z.object({
         page: z.number().default(1),
         limit: z.number().default(20),
+        searchQuery: z.string().optional(),
       })
     )
     .query(async ({ ctx, input }) => {
       try {
-        const { page, limit } = input;
+        const { page, limit, searchQuery } = input;
         const offset = (page - 1) * limit;
         const where: Prisma.BaseUserWhereInput = {
           role: Role.PLAYER,
           federationId: ctx.session.user.federationId,
+          profile: {
+            userStatus: {
+              not: 'DELETED',
+            },
+          },
+          OR: searchQuery
+            ? [
+                { email: { contains: searchQuery, mode: 'insensitive' } },
+                { firstName: { contains: searchQuery, mode: 'insensitive' } },
+                { lastName: { contains: searchQuery, mode: 'insensitive' } },
+              ]
+            : undefined,
         };
 
         const baseUsers = await ctx.db.baseUser.findMany({
@@ -150,42 +146,23 @@ export const playerRouter = router({
             email: true,
             firstName: true,
             lastName: true,
-            gender: true,
             role: true,
             federation: true,
             profile: {
               select: {
-                isActive: true,
+                userStatus: true,
                 profileId: true,
               },
             },
           },
         });
 
-        const players = await ctx.db.player.findMany({
-          where: {
-            id: {
-              in: baseUsers.map((user) => user.profile!.profileId),
-            },
-          },
-        });
-
-        const result = players.map((player) => {
-          const user = baseUsers.find(
-            (u) => u.profile!.profileId === player.id
-          )!;
-          return { ...user, ...player };
-        });
-
         const totalPlayers = await ctx.db.baseUser.count({
-          where: {
-            role: Role.PLAYER,
-            federationId: ctx.session.user.federationId,
-          },
+          where,
         });
 
         return {
-          players: result,
+          players: baseUsers,
           total: totalPlayers,
           page,
           limit,
@@ -208,28 +185,25 @@ export const playerRouter = router({
           where: {
             role: Role.PLAYER,
             federationId: ctx.session.user.federationId,
-            profile: {
-              profileId: input.id,
-            },
+            id: input.id,
           },
           select: {
             id: true,
             email: true,
             firstName: true,
             lastName: true,
-            gender: true,
             role: true,
             federation: true,
             profile: {
               select: {
                 profileId: true,
                 profileType: true,
-                isActive: true,
+                userStatus: true,
               },
             },
           },
         });
-        console.log('flag1,baseUser', baseUser);
+
         if (!baseUser) {
           throw new TRPCError({
             code: 'NOT_FOUND',
@@ -237,10 +211,10 @@ export const playerRouter = router({
           });
         }
 
-        if (!baseUser.profile?.isActive) {
+        if (baseUser.profile?.userStatus !== 'ACTIVE') {
           throw new TRPCError({
             code: 'FORBIDDEN',
-            message: 'Player profile is disabled',
+            message: `Player profile is ${baseUser.profile?.userStatus}`,
           });
         }
 
@@ -255,7 +229,7 @@ export const playerRouter = router({
         const player = await ctx.db.player.findUnique({
           where: { id: baseUser.profile.profileId },
         });
-        console.log('player', player);
+
         if (!player) {
           throw new TRPCError({
             code: 'NOT_FOUND',
@@ -290,7 +264,7 @@ export const playerRouter = router({
             profile: {
               select: {
                 profileId: true,
-                isActive: true,
+                userStatus: true,
                 profileType: true,
               },
             },
@@ -304,10 +278,10 @@ export const playerRouter = router({
           });
         }
 
-        if (!existingUser.profile?.isActive) {
+        if (existingUser.profile?.userStatus !== 'ACTIVE') {
           throw new TRPCError({
             code: 'FORBIDDEN',
-            message: 'Player profile is inactive',
+            message: `Player profile is ${existingUser.profile?.userStatus}`,
           });
         }
 
@@ -393,7 +367,7 @@ export const playerRouter = router({
             profileType: ProfileType.PLAYER,
           },
           data: {
-            isActive: false,
+            userStatus: 'DELETED',
           },
         });
         return { success: true };
@@ -461,7 +435,7 @@ export const playerRouter = router({
               baseUser: {
                 connect: { id: newBaseUser.id },
               },
-              isActive: false,
+              userStatus: 'INACTIVE',
             },
           });
 
@@ -524,7 +498,7 @@ export const playerRouter = router({
             },
             data: {
               profileId: newPlayer.id,
-              isActive: true,
+              userStatus: 'ACTIVE',
             },
           });
 
