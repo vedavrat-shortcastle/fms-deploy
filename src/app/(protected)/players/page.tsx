@@ -10,6 +10,7 @@ import { trpc } from '@/utils/trpc';
 import { Pagination } from '@/components/ui/pagination';
 import PlayerCard from '@/components/player-components/PlayerCard';
 import { PlayerCardTypes } from '@/schemas/Player.schema';
+import Loader from '@/components/Loader';
 
 export default function Page() {
   const router = useRouter();
@@ -110,7 +111,7 @@ export default function Page() {
 
         {isLoading ? (
           <div className="flex justify-center items-center flex-grow">
-            <span>Loading...</span>
+             <Loader/>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">

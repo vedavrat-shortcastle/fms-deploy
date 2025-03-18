@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import Loader from '@/components/Loader';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const session = useSession();
@@ -35,7 +36,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   // Handle loading states
   if (session.status === 'loading' || profileOnboarded === null) {
-    return <div>Loading...</div>;
+     return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+    ;
   }
 
   // Allow rendering children for onboarding page or when user is authenticated and onboarded
@@ -47,5 +53,5 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
 
   // Return loading state while redirects are happening
-  return <div>Loading...</div>;
+  return  <Loader/>;
 }
