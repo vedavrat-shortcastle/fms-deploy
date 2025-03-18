@@ -163,7 +163,7 @@ export default function PlayerDetails() {
   if (isLoading || !player) {
     return (
       <div className="flex h-screen justify-center items-center">
-        <Loader/>
+        <Loader />
       </div>
     );
   }
