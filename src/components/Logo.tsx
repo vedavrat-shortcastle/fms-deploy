@@ -5,7 +5,7 @@ export const Logo = () => {
   return (
     <Link
       href="/"
-      className="absolute top-10 left-10 text-2xl font-bold text-primary"
+      className="text-2xl font-bold text-primary sm:flex sm:justify-center md:absolute md:top-10 md:left-10"
     >
       FedChess
     </Link>

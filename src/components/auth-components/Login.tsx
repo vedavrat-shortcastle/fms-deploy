@@ -20,12 +20,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useEffect, useState } from 'react';
 import { LoginFormValues, loginSchema } from '@/schemas/LoginSchema';
+import { PasswordInput } from '@/components/PasswordInput';
 
 // All the imports
-
-// This is a reusable component which is currently being used for two routes.
-// 1. login-federation
-// 2. login-member
 
 interface LoginProps {
   imageSrc: string;
@@ -111,7 +108,7 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
           Federated Networks
         </p>
 
-        {/* The below is the form-logic for member login */}
+        {/* The below is the form-logic for login */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             <FormField
@@ -121,6 +118,7 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
                 <FormItem>
                   <FormLabel className="text-input-grey">
                     Email Address
+                    <FormMessage />
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -130,7 +128,6 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
                       className="w-full"
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -139,17 +136,11 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-input-grey">Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password"
-                      {...field}
-                      aria-label="Password"
-                      className="w-full"
-                    />
-                  </FormControl>
-                  <FormMessage />
+                  <FormLabel className="text-input-grey">
+                    Password
+                    <FormMessage />
+                  </FormLabel>
+                  <PasswordInput field={field} />
                 </FormItem>
               )}
             />

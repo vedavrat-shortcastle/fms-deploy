@@ -19,12 +19,12 @@ export const AuthLayout = ({ children, imageSrc }: AuthLayoutProps) => {
   return (
     <div className="flex h-screen w-full">
       {/*Left section , This is where the individual auth component will go*/}
-      <div className="w-1/2 h-full flex flex-col justify-center items-start px-20 overflow-y-auto">
+      <div className="w-full lg:w-1/2 h-auto md:h-full flex flex-col justify-center px-4 sm:px-8 md:px-12 lg:px-20  py-8 md:py-0">
         {children}
       </div>
 
       {/* Right Section with Grey Background , This is where the Image will go */}
-      <div className="w-1/2 h-full bg-gray-100 flex justify-center items-center relative ">
+      <div className="hidden lg:flex w-0 md:w-1/2 h-48 md:h-full bg-gray-100 flex justify-center items-center relative ">
         <Image
           src={imageSrc} // Pass the imageSrc recieved from props
           alt="Signup Illustration"
