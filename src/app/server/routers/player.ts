@@ -75,7 +75,7 @@ export const playerRouter = router({
               postalCode: playerDetails.postalCode,
               phoneNumber: playerDetails.phoneNumber,
               countryCode: playerDetails.countryCode,
-              fideId: playerDetails.fideId,
+              // fideId: playerDetails.fideId ?? null, //TODO: Enable post MVP
               schoolName: playerDetails.schoolName,
               graduationYear: playerDetails.graduationYear,
               gradeInSchool: playerDetails.gradeInSchool,
