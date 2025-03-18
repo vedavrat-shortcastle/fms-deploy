@@ -37,7 +37,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   // Handle loading states
   if (session.status === 'loading' || profileOnboarded === null) {
      return (
-      <div className="w-full h-screen flex items-center justify-center border border-red-600">
+      <div className="w-full h-screen flex items-center justify-center">
         <Loader />
       </div>
     );
