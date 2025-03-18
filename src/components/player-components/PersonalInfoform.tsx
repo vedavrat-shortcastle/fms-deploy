@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DatePicker } from '@/components/player-components/DatePicker';
-import { CreatePlayerFormValues } from '@/schemas/player.schema';
+import { CreatePlayerFormValues } from '@/schemas/Player.schema';
 
 export function PersonalInformationForm() {
   const {

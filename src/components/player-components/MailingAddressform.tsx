@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CreatePlayerFormValues } from '@/schemas/player.schema';
+import { CreatePlayerFormValues } from '@/schemas/Player.schema';
 
 export default function MailingAddressForm() {
   const {

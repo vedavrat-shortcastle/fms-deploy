@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { trpc } from '@/utils/trpc';
 import { Pagination } from '@/components/ui/pagination';
 import PlayerCard from '@/components/player-components/PlayerCard';
-import { PlayerCardTypes } from '@/schemas/player.schema';
+import { PlayerCardTypes } from '@/schemas/Player.schema';
 
 export default function Page() {
   const router = useRouter();
@@ -22,6 +22,7 @@ export default function Page() {
   });
 
   const players = data?.players || [];
+  console.log('players', data);
 
   // Delete player need to handle through api
   const handleDelete = (id: string, e: React.MouseEvent) => {
@@ -65,7 +66,7 @@ export default function Page() {
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
-      <main className="flex-1 overflow-auto p-6">
+      <main className="flex-1 flex flex-col overflow-auto p-6">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <PlusCircle className="h-5 w-5 text-red-500" />
@@ -109,7 +110,7 @@ export default function Page() {
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center items-center h-full">
+          <div className="flex justify-center items-center flex-grow">
             <span>Loading...</span>
           </div>
         ) : (
@@ -127,13 +128,15 @@ export default function Page() {
           </div>
         )}
 
-        <Pagination
-          totalPages={data?.total || 0}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          itemsPerPage={limit}
-          onItemsPerPageChange={setLimit}
-        />
+        <div className="mt-auto">
+          <Pagination
+            totalRecords={data?.total || 0}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+            itemsPerPage={limit}
+            onItemsPerPageChange={setLimit}
+          />
+        </div>
       </main>
     </div>
   );

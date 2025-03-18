@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { publicProcedure, router, validateApiKey } from '@/app/server/trpc';
 import { createFederationSchema } from '@/schemas/Federation.schema';
-import { createPermissionSchema } from '@/schemas/permission.schema';
+import { createPermissionSchema } from '@/schemas/Permission.schema';
 
 export const superUserRouter = router({
   createPermission: publicProcedure

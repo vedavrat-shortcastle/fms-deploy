@@ -215,7 +215,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="+91">+91 (India)</SelectItem>
-                          <SelectItem value="+1">+1 (USA)</SelectItem>
+                          <SelectItem value="+64">+64 (NZ)</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>

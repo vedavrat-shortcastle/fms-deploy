@@ -3,6 +3,7 @@ import {
   permissionProtectedProcedure,
   router,
   publicProcedure,
+  protectedProcedure,
 } from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
 import { hashPassword } from '@/utils/encoder';
@@ -16,8 +17,9 @@ import {
   createPlayerSchema,
   deletePlayerSchema,
   editPlayerSchema,
+  playerOnboardingSchema,
   signupMemberSchema,
-} from '@/schemas/player.schema';
+} from '@/schemas/Player.schema';
 
 export const playerRouter = router({
   // Create a new player
@@ -73,7 +75,7 @@ export const playerRouter = router({
               postalCode: playerDetails.postalCode,
               phoneNumber: playerDetails.phoneNumber,
               countryCode: playerDetails.countryCode,
-              fideId: playerDetails.fideId,
+              // fideId: playerDetails.fideId ?? null, //TODO: Enable post MVP
               schoolName: playerDetails.schoolName,
               graduationYear: playerDetails.graduationYear,
               gradeInSchool: playerDetails.gradeInSchool,
@@ -175,7 +177,12 @@ export const playerRouter = router({
           return { ...user, ...player };
         });
 
-        const totalPlayers = await ctx.db.baseUser.count({ where });
+        const totalPlayers = await ctx.db.baseUser.count({
+          where: {
+            role: Role.PLAYER,
+            federationId: ctx.session.user.federationId,
+          },
+        });
 
         return {
           players: result,
@@ -450,10 +457,11 @@ export const playerRouter = router({
           const newUserProfile = await tx.userProfile.create({
             data: {
               profileType,
-              profileId: 'PENDING',
+              profileId: newBaseUser.id,
               baseUser: {
                 connect: { id: newBaseUser.id },
               },
+              isActive: false,
             },
           });
 
@@ -474,7 +482,7 @@ export const playerRouter = router({
               userId: newUserProfile.id,
             })),
           });
-          console.log('newUserProfile', newUserProfile);
+
           return { ...newBaseUser, newUserProfile };
         });
 
@@ -482,6 +490,51 @@ export const playerRouter = router({
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to sign up player',
+          cause: error.message,
+        });
+      }
+    }),
+
+  onboardPlayer: protectedProcedure
+    .input(playerOnboardingSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        if (ctx.session.user.profileId !== ctx.session.user.id) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Player already onboarded',
+          });
+        }
+
+        const result = await ctx.db.$transaction(async (tx) => {
+          const newPlayer = await tx.player.create({
+            data: {
+              ...input,
+              fideId: null,
+              birthDate: new Date(input.birthDate),
+              gradeDate: input.gradeDate ? new Date(input.gradeDate) : null,
+            },
+          });
+
+          const baseUserId = ctx.session.user.id;
+
+          await tx.userProfile.update({
+            where: {
+              baseUserId,
+            },
+            data: {
+              profileId: newPlayer.id,
+              isActive: true,
+            },
+          });
+
+          return newPlayer;
+        });
+
+        return result;
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to onboard player',
           cause: error.message,
         });
       }
