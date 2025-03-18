@@ -176,6 +176,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
                   <SelectContent>
                     <SelectItem value="india">India</SelectItem>
                     <SelectItem value="usa">USA</SelectItem>
+                    <SelectItem value="nz">New Zealand</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>
