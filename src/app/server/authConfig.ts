@@ -31,7 +31,7 @@ export const authConfig: AuthOptions = {
           include: {
             profile: {
               select: {
-                isActive: true,
+                userStatus: true,
                 permissions: {
                   include: { permission: true },
                 },

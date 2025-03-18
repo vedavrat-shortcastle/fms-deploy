@@ -37,7 +37,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
     <div
       className="cursor-pointer group relative bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700"
       onClick={() => {
-        if (!player.profile?.isActive) {
+        if (player.profile?.userStatus !== 'ACTIVE') {
           return;
         }
         onView(player.id);
@@ -76,7 +76,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
           <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
             <ActivitySquare className="w-4 h-4 mr-2 flex-shrink-0" />
             <span className="capitalize">
-              {player.profile?.isActive ? (
+              {player.profile?.userStatus === 'ACTIVE' ? (
                 <Badge variant="green">Active</Badge>
               ) : (
                 <Badge variant="destructive">Inactive</Badge>

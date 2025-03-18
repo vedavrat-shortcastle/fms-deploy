@@ -38,7 +38,7 @@ model UserProfile {
   profileType ProfileType
   profileId   String // ID of the specific profile record
 
-  isActive    Boolean          @default(true) @map("is_active")
+  userStatus  UserStatus       @default(ACTIVE) @map("user_status")
   deletedAt   DateTime?        @map("deleted_at")
   permissions UserPermission[]
 
@@ -276,6 +276,12 @@ enum EventFormat {
   SWISS
   QUAD
   TEAM
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  DELETED
 }
 
 // --------------------------------------------------- RBAC SETUP --------------------------------------------------- //
