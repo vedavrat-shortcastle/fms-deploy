@@ -3,46 +3,49 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const session = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const [profileOnboarded, setProfileOnboarded] = useState<boolean | null>(
     null
-  ); // Use `null` initially to handle loading state
+  );
 
   useEffect(() => {
     if (session.status === 'authenticated') {
-      // Check if the user profile is onboarded
       setProfileOnboarded(
         session.data?.user.profileId !== session.data?.user.id
       );
     }
   }, [session.data?.user.profileId, session.status]);
 
-  // Handle the different states
-  if (session.status === 'loading') {
-    // Optionally, show a loading spinner or fallback UI while the session is being fetched
+  useEffect(() => {
+    if (
+      session.status === 'authenticated' &&
+      profileOnboarded === false &&
+      pathname !== '/players/onboard-player'
+    ) {
+      router.push('/players/onboard-player');
+    } else if (session.status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [session.status, profileOnboarded, router, pathname]);
+
+  // Handle loading states
+  if (session.status === 'loading' || profileOnboarded === null) {
     return <div>Loading...</div>;
   }
 
-  if (session.status === 'authenticated') {
-    if (profileOnboarded === null) {
-      // Wait for the profileOnboarded state to be set before proceeding
-      return null; // You can show a loading spinner here if desired
-    }
-
-    if (profileOnboarded) {
-      // Render the page content when the user is authenticated and onboarded
-      return <section>{children}</section>;
-    } else {
-      // Redirect to the onboarding page if the user is authenticated but not onboarded
-      router.push('/players/onboard-player');
-      return null; // Prevent rendering the page until the redirect occurs
-    }
+  // Allow rendering children for onboarding page or when user is authenticated and onboarded
+  if (
+    session.status === 'authenticated' &&
+    (profileOnboarded || pathname === '/players/onboard-player')
+  ) {
+    return <section>{children}</section>;
   }
 
-  // If not authenticated, redirect to the login page
-  router.push('/login');
-  return null;
+  // Return loading state while redirects are happening
+  return <div>Loading...</div>;
 }
