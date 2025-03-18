@@ -1,4 +1,4 @@
-import { FedType, Gender } from '@prisma/client';
+import { FedType } from '@prisma/client';
 import { z } from 'zod';
 
 export const createFederationSchema = z.object({
