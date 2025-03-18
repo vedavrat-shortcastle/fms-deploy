@@ -13,8 +13,12 @@ export const createFederationSchema = z.object({
 });
 
 export const federationOnboardingSchema = createFederationSchema.extend({
-  email: z.string().email(),
-  password: z.string().min(8),
+  email: z.string().email({
+    message: 'Invalid email format. Please enter a valid email address.',
+  }),
+  password: z
+    .string()
+    .min(8, { message: 'Password must be at least 8 characters long.' }),
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   middleName: z.string().optional(),
