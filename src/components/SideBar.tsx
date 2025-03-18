@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FC, ReactElement } from 'react';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 
 interface SidebarLinkProps {
   href?: string;
@@ -23,6 +23,8 @@ interface SidebarLinkProps {
 
 const Sidebar: FC = () => {
   const pathname = usePathname();
+
+  const { data } = useSession();
 
   const menuItems: SidebarLinkProps[] = [
     {
@@ -94,8 +96,10 @@ const Sidebar: FC = () => {
             <AvatarFallback>AS</AvatarFallback>
           </Avatar>
           <div>
-            <div className="text-sm font-medium">USER: PLAYER</div>
-            <div className="text-sm text-gray-300">Andrew Smith</div>
+            <div className="text-sm font-medium">USER: {data?.user.role}</div>
+            <div className="text-sm text-gray-300">
+              {data?.user.firstName + ' ' + data?.user.lastName}
+            </div>
           </div>
         </div>
       </div>
