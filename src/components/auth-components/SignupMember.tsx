@@ -31,7 +31,7 @@ import { useEffect } from 'react';
 import {
   SignupMemberFormValues,
   signupMemberSchema,
-} from '@/schemas/player.schema';
+} from '@/schemas/Player.schema';
 
 // All the imports
 // This component is being used for 1 route as of now - /sign-up-member
@@ -64,7 +64,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
   const onSubmit = (values: SignupMemberFormValues) => {
     mutate(values, {
       onSuccess: () => {
-        router.push('/login-member');
+        router.push('/login');
       },
       onError: (error) => {
         console.error('Error:', error);
@@ -75,7 +75,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // Access the current URL using the window object
-      form.setValue('domain', window.location.origin);
+      form.setValue('domain', window.location.host);
     }
   }, []);
   return (
@@ -230,7 +230,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
         </fieldset>
         <div className="mt-5 flex justify-center">
           Already have an account?{' '}
-          <Link href="/login-member" className="text-primary ml-2 underline">
+          <Link href="/login" className="text-primary ml-2 underline">
             Login here
           </Link>
         </div>

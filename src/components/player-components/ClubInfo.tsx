@@ -2,7 +2,7 @@
 
 import { Input } from '@/components/ui/input';
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
-import { EditPlayerFormValues } from '@/schemas/player.schema';
+import { EditPlayerFormValues } from '@/schemas/Player.schema';
 
 interface ClubInfoSectionProps {
   register: UseFormRegister<EditPlayerFormValues>;
