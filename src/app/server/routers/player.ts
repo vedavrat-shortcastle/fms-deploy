@@ -177,7 +177,12 @@ export const playerRouter = router({
           return { ...user, ...player };
         });
 
-        const totalPlayers = await ctx.db.baseUser.count({ where });
+        const totalPlayers = await ctx.db.baseUser.count({
+          where: {
+            role: Role.PLAYER,
+            federationId: ctx.session.user.federationId,
+          },
+        });
 
         return {
           players: result,

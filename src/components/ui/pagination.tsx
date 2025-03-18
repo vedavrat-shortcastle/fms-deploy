@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
 interface PaginationProps {
-  totalPages: number;
+  totalRecords: number;
   currentPage: number;
   onPageChange: (page: number) => void;
   itemsPerPage: number;
@@ -21,13 +21,15 @@ interface PaginationProps {
 }
 
 export function Pagination({
-  totalPages = 10,
+  totalRecords,
   currentPage = 1,
   onPageChange,
   itemsPerPage = 10,
   onItemsPerPageChange,
   itemsPerPageOptions = [5, 10, 20, 50],
 }: PaginationProps) {
+  const totalPages = Math.ceil(totalRecords / itemsPerPage);
+
   // Generate page numbers to display
   const getPageNumbers = () => {
     const pages = [];
