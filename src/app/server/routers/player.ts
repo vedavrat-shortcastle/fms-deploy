@@ -180,9 +180,7 @@ export const playerRouter = router({
           where: {
             role: Role.PLAYER,
             federationId: ctx.session.user.federationId,
-            profile: {
-              profileId: input.id,
-            },
+            id: input.id,
           },
           select: {
             id: true,
