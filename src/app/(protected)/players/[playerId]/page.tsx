@@ -19,6 +19,7 @@ import {
   editPlayerSchema,
 } from '@/schemas/Player.schema';
 import { trpc } from '@/utils/trpc'; // Import your tRPC hook
+import Loader from '@/components/Loader';
 
 export default function PlayerDetails() {
   const router = useRouter();
@@ -162,8 +163,7 @@ export default function PlayerDetails() {
   if (isLoading || !player) {
     return (
       <div className="flex h-screen justify-center items-center">
-        <Loader2 className="h-6 w-6 animate-spin" />
-        <span className="ml-2">Loading player details...</span>
+        <Loader/>
       </div>
     );
   }
