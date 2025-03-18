@@ -17,8 +17,7 @@ import ClubInfoSection from '@/components/player-components/ClubInfo';
 import {
   EditPlayerFormValues,
   editPlayerSchema,
-
-} from '@/schemas/player.schema';
+} from '@/schemas/Player.schema';
 import { trpc } from '@/utils/trpc'; // Import your tRPC hook
 
 export default function PlayerDetails() {
@@ -48,6 +47,18 @@ export default function PlayerDetails() {
     { id: playerId },
     { enabled: !!playerId }
   );
+  // Add the mutation
+  const deletePlayerMutation = trpc.player.deletePlayerById.useMutation({
+    onSuccess: () => {
+      console.log('Player deleted successfully');
+      router.push('/players');
+    },
+    onError: (error) => {
+      console.error('Failed to delete player:', error.message);
+      setIsSubmitting(false);
+      setShowDeleteConfirm(false);
+    },
+  });
 
   useEffect(() => {
     if (data) {
@@ -65,6 +76,7 @@ export default function PlayerDetails() {
         },
         playerDetails: {
           // Convert Date to ISO string if needed, or use your preferred format
+          gender: data.gender,
           birthDate:
             data.birthDate instanceof Date
               ? data.birthDate.toISOString()
@@ -136,6 +148,7 @@ export default function PlayerDetails() {
     setIsSubmitting(true);
     try {
       console.debug('Deleting player with id:', playerId);
+      deletePlayerMutation.mutate({ id: playerId });
       // Simulate deletion delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
       router.push('/players');

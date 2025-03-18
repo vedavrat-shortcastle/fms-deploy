@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, PlusCircle, Upload, Download } from 'lucide-react';
+import { Search, Upload, Download } from 'lucide-react';
 import Sidebar from '@/components/SideBar';
 import { Button } from '@/components/ui/button';
 // import { Input } from '@/components/ui/input';
@@ -19,10 +19,10 @@ export default function Page() {
   const { data, isLoading } = trpc.player.getPlayers.useQuery({
     limit: limit,
     page: currentPage,
+    // searchQuery: '',//TODO: add search query here
   });
 
   const players = data?.players || [];
-  console.log('players', data);
 
   // Delete player need to handle through api
   const handleDelete = (id: string, e: React.MouseEvent) => {
@@ -69,7 +69,6 @@ export default function Page() {
       <main className="flex-1 flex flex-col overflow-auto p-6">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <PlusCircle className="h-5 w-5 text-red-500" />
             <h1 className="text-lg font-medium text-gray-700">Players</h1>
           </div>
           <Button

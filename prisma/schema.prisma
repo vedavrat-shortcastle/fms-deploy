@@ -17,7 +17,6 @@ model BaseUser {
   lastName     String     @map("last_name") @db.VarChar(100)
   middleName   String?    @map("middle_name") @db.VarChar(100)
   nameSuffix   String?    @map("name_suffix") @db.VarChar(50)
-  gender       Gender
   federation   Federation @relation(fields: [federationId], references: [id], name: "FederationBaseUsers")
   federationId String     @map("federation_id")
   createdAt    DateTime   @default(now()) @map("created_at")
@@ -39,7 +38,7 @@ model UserProfile {
   profileType ProfileType
   profileId   String // ID of the specific profile record
 
-  isActive    Boolean          @default(true) @map("is_active")
+  userStatus  UserStatus       @default(ACTIVE) @map("user_status")
   deletedAt   DateTime?        @map("deleted_at")
   permissions UserPermission[]
 
@@ -64,6 +63,7 @@ model Player {
   birthDate DateTime @map("birth_date")
   avatarUrl String?  @map("avatar_url")
   ageProof  String?  @map("age_proof") // URL of uploaded age proof document
+  gender    Gender
 
   // Mailing Details
   streetAddress  String  @map("street_address")
@@ -76,7 +76,7 @@ model Player {
   countryCode    String? @map("country_code")
 
   // Other Info
-  fideId         String?   @unique @map("fide_id")
+  fideId         String?   @map("fide_id")
   schoolName     String?   @map("school_name")
   graduationYear Int?      @map("graduation_year")
   gradeInSchool  String?   @map("grade_in_school")
@@ -276,6 +276,12 @@ enum EventFormat {
   SWISS
   QUAD
   TEAM
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  DELETED
 }
 
 // --------------------------------------------------- RBAC SETUP --------------------------------------------------- //

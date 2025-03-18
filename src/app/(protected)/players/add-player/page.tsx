@@ -30,15 +30,15 @@ export default function AddPlayerPage() {
     defaultValues: {
       baseUser: {
         email: '',
-        password: 'defaultPassw0rd', // default password added here
+        password: 'arunsrinivaas',
         firstName: '',
         lastName: '',
         middleName: '',
         nameSuffix: '',
-        gender: 'MALE',
       },
       playerDetails: {
         birthDate: new Date(), // Now using null instead of an empty string
+        gender: 'MALE',
         avatarUrl: '',
         ageProof: '',
         streetAddress: '',
@@ -82,7 +82,7 @@ export default function AddPlayerPage() {
         'baseUser.firstName',
         'baseUser.lastName',
         'baseUser.email',
-        'baseUser.gender',
+        'playerDetails.gender',
         'playerDetails.birthDate',
         'playerDetails.ageProof',
       ]);
