@@ -197,22 +197,27 @@ export const playerRouter = router({
         });
       }
     }),
+
   // Get a player by ID
   getPlayerById: permissionProtectedProcedure(PERMISSIONS.PLAYER_VIEW)
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       try {
-        const baseUser = await ctx.db.baseUser.findUnique({
+        // Find the base user by filtering on the related user profile's profileId field
+        const baseUser = await ctx.db.baseUser.findFirst({
           where: {
-            id: input.id,
             role: Role.PLAYER,
             federationId: ctx.session.user.federationId,
+            profile: {
+              profileId: input.id,
+            },
           },
           select: {
             id: true,
             email: true,
             firstName: true,
             lastName: true,
+            gender: true,
             role: true,
             federation: true,
             profile: {
@@ -224,7 +229,7 @@ export const playerRouter = router({
             },
           },
         });
-
+        console.log('flag1,baseUser', baseUser);
         if (!baseUser) {
           throw new TRPCError({
             code: 'NOT_FOUND',
@@ -246,11 +251,20 @@ export const playerRouter = router({
           });
         }
 
+        // Fetch the player details using the profileId from the base user profile
         const player = await ctx.db.player.findUnique({
           where: { id: baseUser.profile.profileId },
         });
+        console.log('player', player);
+        if (!player) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player details not found',
+          });
+        }
 
-        return { ...player, ...baseUser };
+        // Combine the player details with the base user info
+        return { ...baseUser, ...player };
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to fetch player',
@@ -258,6 +272,7 @@ export const playerRouter = router({
         });
       }
     }),
+
   // Edit a player by ID
   editPlayerById: permissionProtectedProcedure(PERMISSIONS.PLAYER_UPDATE)
     .input(editPlayerSchema)
