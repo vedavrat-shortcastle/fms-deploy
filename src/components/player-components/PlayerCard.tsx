@@ -36,7 +36,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
 
   return (
     <div
-      className="group relative bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700"
+      className="cursor-pointer group relative bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700"
       onClick={() => onView(player.id)} //TODO: Change it to a button component if we are going to keep the onClick event
     >
       {/* Card Header with Gradient */}

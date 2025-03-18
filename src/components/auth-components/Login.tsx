@@ -30,7 +30,7 @@ import { LoginFormValues, loginSchema } from '@/schemas/LoginSchema';
 interface LoginProps {
   imageSrc: string;
   heading: string; //Two possble values for now -[Federation, Member].
-  signUpHref: string; // Since the signup routes are different for member and federation.
+  signUpHref?: string; // Since the signup routes are different for member and federation.
 }
 // Props for this component --
 
@@ -170,12 +170,14 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
 
         {/* Pass the signUpHref below */}
 
-        <div className="mt-5 flex justify-center">
-          Don’t have an account?{' '}
-          <Link href={signUpHref} className="text-primary ml-2 underline">
-            Sign up here
-          </Link>
-        </div>
+        {signUpHref && (
+          <div className="mt-5 flex justify-center">
+            Don’t have an account?{' '}
+            <Link href={signUpHref} className="text-primary ml-2 underline">
+              Sign up here
+            </Link>
+          </div>
+        )}
       </div>
     </AuthLayout>
   );
