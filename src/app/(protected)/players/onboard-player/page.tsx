@@ -16,7 +16,7 @@ import {
   playerOnboardingSchema,
 } from '@/schemas/Player.schema';
 
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 // Define the tab order for navigation
@@ -58,7 +58,13 @@ export default function PlayerOnboarding() {
 
   const { handleSubmit } = form;
 
-  const { mutate } = trpc.player.onboardPlayer.useMutation();
+  const { mutate } = trpc.player.onboardPlayer.useMutation({
+    onSuccess: async () => {
+      await signOut({ redirect: false });
+
+      router.push('/login');
+    },
+  });
 
   // When manually switching tabs, validate the current tab if moving forward.
   const handleTabChange = async (newTab: 'stepOne' | 'stepTwo') => {
@@ -86,9 +92,11 @@ export default function PlayerOnboarding() {
 
   // Final submission of the form.
   const onSubmit = (data: playerOnboardingInput) => {
-    console.log('data: ', data);
-    // Here you can call your API or process the data.
-    mutate(data);
+    console.log('data: ', data, 'activeTab: ', activeTab);
+    if (activeTab === 'stepTwo') {
+      // Here you can call your API or process the data.
+      mutate(data);
+    }
     // reset();
   };
 

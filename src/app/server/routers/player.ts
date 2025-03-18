@@ -3,6 +3,7 @@ import {
   permissionProtectedProcedure,
   router,
   publicProcedure,
+  protectedProcedure,
 } from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
 import { hashPassword } from '@/utils/encoder';
@@ -474,10 +475,17 @@ export const playerRouter = router({
       }
     }),
 
-  onboardPlayer: permissionProtectedProcedure(PERMISSIONS.PLAYER_CREATE)
+  onboardPlayer: protectedProcedure
     .input(playerOnboardingSchema)
     .mutation(async ({ ctx, input }) => {
       try {
+        if (ctx.session.user.profileId !== ctx.session.user.id) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Player already onboarded',
+          });
+        }
+
         const result = await ctx.db.$transaction(async (tx) => {
           const newPlayer = await tx.player.create({
             data: {
