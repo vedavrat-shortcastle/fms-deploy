@@ -82,6 +82,16 @@ body {
 }
 
 @layer base {
+  /* Hides inbuilt password reveal button in IE/Edge and other browsers */
+  input[type='password']::-ms-reveal,
+  input[type='password']::-ms-clear {
+    display: none;
+  }
+
+  /* Hide inbuilt password reveal button in WebKit browsers (Chrome, Safari) */
+  input[type='password']::-webkit-appearance {
+    -webkit-appearance: none;
+  }
   * {
     @apply border-border;
   }

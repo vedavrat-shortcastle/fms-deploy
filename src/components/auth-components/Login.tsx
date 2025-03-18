@@ -20,6 +20,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useEffect, useState } from 'react';
 import { LoginFormValues, loginSchema } from '@/schemas/LoginSchema';
+import { PasswordInput } from '@/components/PasswordInput';
 
 // All the imports
 
@@ -121,6 +122,7 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
                 <FormItem>
                   <FormLabel className="text-input-grey">
                     Email Address
+                    <FormMessage />
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -130,7 +132,6 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
                       className="w-full"
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -139,17 +140,11 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-input-grey">Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password"
-                      {...field}
-                      aria-label="Password"
-                      className="w-full"
-                    />
-                  </FormControl>
-                  <FormMessage />
+                  <FormLabel className="text-input-grey">
+                    Password
+                    <FormMessage />
+                  </FormLabel>
+                  <PasswordInput field={field} />
                 </FormItem>
               )}
             />

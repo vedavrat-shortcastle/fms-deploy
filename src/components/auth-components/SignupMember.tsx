@@ -32,6 +32,7 @@ import {
   SignupMemberFormValues,
   signupMemberSchema,
 } from '@/schemas/Player.schema';
+import { PasswordInput } from '@/components/PasswordInput';
 
 // All the imports
 // This component is being used for 1 route as of now - /sign-up-member
@@ -156,15 +157,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-input-grey">Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Enter your password"
-                        {...field}
-                        aria-label="Password"
-                        className="w-[350px]"
-                      />
-                    </FormControl>
+                    <PasswordInput field={field} />
                     <FormMessage />
                   </FormItem>
                 )}
