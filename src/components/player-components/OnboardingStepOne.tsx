@@ -9,6 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/phoneinput';
 import {
   Select,
   SelectContent,
@@ -222,19 +223,11 @@ export const PlayerDetailsStepOne = () => {
             <FormItem>
               <FormLabel className="text-input-grey">Country Code</FormLabel>
               <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger className="w-[125px] h-[42px]">
-                    <SelectValue placeholder="Code" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="+91">+91 (India)</SelectItem>
-                    <SelectItem value="+1">+1 (USA)</SelectItem>
-                    <SelectItem value="+64">+64 (NZ)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <PhoneInput
+                  countryCode="countryCode"
+                  phoneNumber="phoneNumber"
+                  field={field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
