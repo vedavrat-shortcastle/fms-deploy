@@ -48,7 +48,7 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
       <Logo />
       {/* Global Logo component */}
 
-      <div className="mx-auto mt-16 p-10 w">
+      <div className="mx-auto mt-16 p-10 max-w-xl w-full">
         {/* Container Div */}
 
         <Suspense fallback={<div>Loading...</div>}>
@@ -149,7 +149,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
               <FormControl>
                 <Input
                   placeholder="Federation name"
-                  className="w-[450px]"
+                  className="w-full"
                   {...field}
                 />
               </FormControl>
@@ -189,11 +189,11 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
           name="domain"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg">Subdomain</FormLabel>
+              <FormLabel className="text-input-grey">Domain</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Enter subdomain"
-                  className="h-12 px-4 text-lg w-[450px]"
+                  className="px-4 text-lg w-full"
                   {...field}
                 />
               </FormControl>
@@ -202,13 +202,13 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
           )}
         />
         <div>
-          <FormLabel className="text-lg">URL</FormLabel>
-          <div className="flex items-center border rounded px-3 py-2 bg-gray-100">
+          <FormLabel className="text-input-grey">URL</FormLabel>
+          <div className="flex items-center border rounded px-2 py-1">
             <span className="text-gray-800">https://</span>
             <Input
-              className="border-0 bg-transparent focus:ring-0 w-[350px] pl-4 bg-white"
+              className="border-0 bg-transparent focus:ring-0 w-full pl-4 bg-white"
               disabled
-              value={`${form.watch('domain')}.fedchess.com`}
+              value={`${form.watch('domain')}`}
             />
           </div>
         </div>

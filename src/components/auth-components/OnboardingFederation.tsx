@@ -26,8 +26,7 @@ import {
   FederationOnboardingFormValues,
   federationOnboardingSchema,
 } from '@/schemas/Federation.schema';
-
-/// import { trpc } from '@/utils/trpc'; // trpc import
+import { PasswordInput } from '@/components/PasswordInput'; // Custom Password component.
 
 // All the imports
 
@@ -42,7 +41,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
 
   //React hook form Logic
   const form = useForm<FederationOnboardingFormValues>({
-    // Omit domain (if you want to remove federation details in the schema as well)
     resolver: zodResolver(
       federationOnboardingSchema.pick({
         email: true,
@@ -55,7 +53,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
       })
     ),
     defaultValues: {
-      // Removed type, name, and country from defaultValues
       email: '',
       password: '',
       firstName: '',
@@ -68,15 +65,16 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
 
   console.log('error', form.formState.errors, form.getValues());
 
-  /// const mutation = trpc.federation.federationOnboarding.useMutation();  // initialisation. Removed as the api call will happen in the next route
-
   // Function to handle submit
   const onSubmit = (values: any) => {
-    // const response = await mutation.mutateAsync(values); // integration logic Removed as the api call will happen in the next route
+    // The Api call will be on the next route
 
+    // What this does : Put all the values obtained from the form and put them on query
+    // The next route will extract the data and make the api call.
     const queryData = encodeURIComponent(JSON.stringify(values));
 
     router.push(`/onboarding-federation-subdomain?data=${queryData}`);
+    // This is the next route that will make the api call.
   };
 
   return (
@@ -85,12 +83,9 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
       <Logo />
       {/* Global Logo component */}
 
-      <div
-        className="mx-10 mt-10 overflow-y-auto  pr-10"
-        style={{ maxHeight: 'calc(100vh - 80px)' }}
-      >
-        {/* Container Div */}
-        <h1 className="text-xl font-bold mt-10">
+      {/* Container Div */}
+      <div className="px-4 sm:px-20 md:px-12 lg:px-20">
+        <h1 className="text-xl md:text-2xl font-bold mt-10">
           Tell us a bit about yourself.
         </h1>
 
@@ -98,7 +93,9 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             {/* Personal Details */}
-            <h2 className="text-md font-semibold mt-5">Personal details</h2>
+            <h2 className="text-base md:text-lg font-semibold mt-5">
+              Personal details
+            </h2>
             <FormField
               control={form.control}
               name="firstName"
@@ -169,14 +166,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                     Password
                     <FormMessage />
                   </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password"
-                      className="w-full"
-                      {...field}
-                    />
-                  </FormControl>
+                  <PasswordInput field={field} />
                 </FormItem>
               )}
             />
@@ -208,7 +198,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               )}
             />
             {/* Country Code Field */}
-            <div className="flex gap-x-5 w-full">
+            <div className="flex flex-col sm:flex-row gap-y-2 sm:gap-x-5 w-full">
               <FormField
                 control={form.control}
                 name="countryCode"
@@ -241,7 +231,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                 control={form.control}
                 name="phoneNumber"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex-1">
                     <FormLabel className="text-input-grey">
                       Phone Number
                       <FormMessage />
