@@ -23,7 +23,6 @@ export const federationOnboardingSchema = createFederationSchema.extend({
   lastName: z.string().min(1, 'Last name is required'),
   middleName: z.string().optional(),
   nameSuffix: z.string().optional(),
-  gender: z.nativeEnum(Gender),
   phoneNumber: z
     .string()
     .min(7, { message: 'Phone number must be at least 7 digits long.' })
