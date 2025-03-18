@@ -48,29 +48,55 @@ export default function PlayerDetails() {
     { enabled: !!playerId }
   );
 
-  // Debug log the fetched data and errors
   useEffect(() => {
     if (data) {
       console.debug('Player data fetched:', data);
-      // Map the data into our local state shape
-      setPlayer({
+      // Map the merged data into the nested structure expected by the form
+      const mappedPlayer: EditPlayerFormValues = {
         baseUser: {
           id: data.id,
           email: data.email,
           firstName: data.firstName,
           lastName: data.lastName,
+          // Provide defaults for missing properties
+          middleName: (data as any).middleName || '',
+          nameSuffix: (data as any).nameSuffix || '',
         },
         playerDetails: {
-          // Map other player details from data as needed
-          // For example: avatarUrl: data.playerDetails?.avatarUrl,
+          // Convert Date to ISO string if needed, or use your preferred format
+          birthDate:
+            data.birthDate instanceof Date
+              ? data.birthDate.toISOString()
+              : data.birthDate,
+          avatarUrl: data.avatarUrl || undefined,
+          ageProof: data.ageProof || undefined,
+          streetAddress: data.streetAddress,
+          streetAddress2: data.streetAddress2 || undefined,
+          country: data.country,
+          state: data.state,
+          city: data.city,
+          postalCode: data.postalCode,
+          phoneNumber: data.phoneNumber || undefined,
+          countryCode: data.countryCode || undefined,
+          fideId: data.fideId || undefined,
+          schoolName: data.schoolName || undefined,
+          graduationYear: data.graduationYear || undefined,
+          gradeInSchool: data.gradeInSchool || undefined,
+          gradeDate:
+            data.gradeDate && typeof data.gradeDate === 'string'
+              ? new Date(data.gradeDate)
+              : data.gradeDate || undefined,
+          clubName: data.clubName || undefined,
+          clubId: data.clubId || undefined,
         },
-        // Map additional sections if necessary
-      });
+      };
+      setPlayer(mappedPlayer);
+      reset(mappedPlayer);
     }
     if (error) {
       console.error('Error fetching player details:', error);
     }
-  }, [data, error]);
+  }, [data, error, reset]);
 
   const onSubmit = async (formData: EditPlayerFormValues) => {
     setIsSubmitting(true);
