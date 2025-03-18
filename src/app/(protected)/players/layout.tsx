@@ -36,12 +36,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   // Handle loading states
   if (session.status === 'loading' || profileOnboarded === null) {
-     return (
+    return (
       <div className="w-full h-screen flex items-center justify-center">
         <Loader />
       </div>
     );
-    ;
   }
 
   // Allow rendering children for onboarding page or when user is authenticated and onboarded
@@ -53,5 +52,5 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
 
   // Return loading state while redirects are happening
-  return  <Loader/>;
+  return <Loader />;
 }
