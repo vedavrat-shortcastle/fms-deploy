@@ -1,4 +1,4 @@
-import { FedType, Gender } from '@prisma/client';
+import { FedType } from '@prisma/client';
 import { z } from 'zod';
 
 export const createFederationSchema = z.object({
@@ -19,7 +19,6 @@ export const federationOnboardingSchema = createFederationSchema.extend({
   lastName: z.string().min(1, 'Last name is required'),
   middleName: z.string().optional(),
   nameSuffix: z.string().optional(),
-  gender: z.nativeEnum(Gender),
   phoneNumber: z.string().min(1, 'Phone number is required'),
   countryCode: z.string().min(1, 'Country code is required'),
 });

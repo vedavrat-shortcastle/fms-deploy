@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select';
 import { DatePicker } from '@/components/player-components/DatePicker';
 import { CreatePlayerFormValues } from '@/schemas/Player.schema';
+import { Gender } from '@prisma/client';
 
 export function PersonalInformationForm() {
   const {
@@ -123,7 +124,7 @@ export function PersonalInformationForm() {
       {/* Gender */}
       <FormField
         control={control}
-        name="baseUser.gender"
+        name="playerDetails.gender"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
@@ -137,10 +138,13 @@ export function PersonalInformationForm() {
                 <SelectTrigger className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500">
                   <SelectValue placeholder="Select Gender" />
                 </SelectTrigger>
+
                 <SelectContent>
-                  <SelectItem value="MALE">Male</SelectItem>
-                  <SelectItem value="FEMALE">Female</SelectItem>
-                  <SelectItem value="OTHER">Other</SelectItem>
+                  {Object.values(Gender).map((gen) => (
+                    <SelectItem value={gen} key={gen}>
+                      {gen}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </FormControl>
