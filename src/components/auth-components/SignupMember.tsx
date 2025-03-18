@@ -35,7 +35,7 @@ import {
 import { PasswordInput } from '@/components/PasswordInput';
 
 // All the imports
-// This component is being used for 1 route as of now - /sign-up-member
+// This component is being used for 1 route as of now - /sign-up
 
 interface SignupProps {
   imageSrc: string;
@@ -85,7 +85,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
       <Logo />
       {/* Global Logo component */}
 
-      <div className="m-auto">
+      <div className="m-auto max-w-xl w-full">
         {/* Container Div */}
         <h1 className="flex justify-center text-2xl m-8 font-bold">
           Member Sign Up
@@ -101,16 +101,16 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                   <FormItem>
                     <FormLabel className="text-input-grey">
                       First name
+                      <FormMessage />
                     </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter your first name"
                         {...field}
                         aria-label="First Name"
-                        className="w-[350px]"
+                        className="w-full"
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -119,16 +119,18 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-input-grey">Last name</FormLabel>
+                    <FormLabel className="text-input-grey">
+                      Last name
+                      <FormMessage />
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter your last name"
                         {...field}
                         aria-label="Last Name"
-                        className="w-[350px]"
+                        className="w-full"
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -137,17 +139,19 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-input-grey">Email</FormLabel>
+                    <FormLabel className="text-input-grey">
+                      Email
+                      <FormMessage />
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="email"
                         placeholder="Email Address"
                         {...field}
                         aria-label="Email"
-                        className="w-[350px]"
+                        className="w-full"
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -156,9 +160,11 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-input-grey">Password</FormLabel>
+                    <FormLabel className="text-input-grey">
+                      Password
+                      <FormMessage />
+                    </FormLabel>
                     <PasswordInput field={field} />
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -167,7 +173,10 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                 name="role"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-input-grey">Role</FormLabel>
+                    <FormLabel className="text-input-grey">
+                      Role
+                      <FormMessage />
+                    </FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
@@ -184,7 +193,6 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -193,7 +201,10 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-input-grey">Gender</FormLabel>
+                    <FormLabel className="text-input-grey">
+                      Gender
+                      <FormMessage />
+                    </FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
@@ -211,7 +222,6 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />

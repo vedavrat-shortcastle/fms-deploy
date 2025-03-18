@@ -24,10 +24,6 @@ import { PasswordInput } from '@/components/PasswordInput';
 
 // All the imports
 
-// This is a reusable component which is currently being used for two routes.
-// 1. login-federation
-// 2. login-member
-
 interface LoginProps {
   imageSrc: string;
   heading: string; //Two possble values for now -[Federation, Member].
@@ -112,7 +108,7 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
           Federated Networks
         </p>
 
-        {/* The below is the form-logic for member login */}
+        {/* The below is the form-logic for login */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             <FormField
