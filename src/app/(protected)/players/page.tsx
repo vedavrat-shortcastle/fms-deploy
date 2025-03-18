@@ -22,6 +22,7 @@ export default function Page() {
   });
 
   const players = data?.players || [];
+  console.log('players', data);
 
   // Delete player need to handle through api
   const handleDelete = (id: string, e: React.MouseEvent) => {
@@ -129,7 +130,7 @@ export default function Page() {
 
         <div className="mt-auto">
           <Pagination
-            totalPages={data?.total || 0}
+            totalRecords={data?.total || 0}
             currentPage={currentPage}
             onPageChange={handlePageChange}
             itemsPerPage={limit}
