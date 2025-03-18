@@ -16,7 +16,7 @@ import {
   playerOnboardingSchema,
 } from '@/schemas/Player.schema';
 
-import { signOut, useSession } from 'next-auth/react';
+import { getSession, signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 // Define the tab order for navigation
@@ -59,10 +59,27 @@ export default function PlayerOnboarding() {
   const { handleSubmit } = form;
 
   const { mutate } = trpc.player.onboardPlayer.useMutation({
-    onSuccess: async () => {
-      await signOut({ redirect: false });
+    onSuccess: async (data) => {
+      // Get the existing session
+      const session = await getSession();
+      // Update the session with the new player id (data.id)
+      if (session) {
+        // Assuming your session has a `user` object
+        const updatedSession = {
+          ...session,
+          user: {
+            ...session.user,
+            profileId: data?.id, // Adding data.id to the session's user object
+          },
+        };
 
-      router.push('/login');
+        await signIn('credentials', {
+          redirect: false,
+          user: updatedSession.user,
+        });
+      }
+
+      router.push('/membership');
     },
   });
 
