@@ -509,6 +509,7 @@ export const playerRouter = router({
             },
             data: {
               profileId: newPlayer.id,
+              isActive: true,
             },
           });
 
