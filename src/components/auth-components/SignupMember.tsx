@@ -56,7 +56,6 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
       firstName: '',
       lastName: '',
       role: 'PLAYER',
-      gender: 'MALE',
       domain: '',
     },
   });
