@@ -17,7 +17,6 @@ export const federationRouter = router({
         lastName: input.lastName,
         middleName: input.middleName,
         nameSuffix: input.nameSuffix,
-        gender: input.gender,
       };
 
       const federation = {

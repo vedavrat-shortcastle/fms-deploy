@@ -49,7 +49,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
         password: true,
         firstName: true,
         lastName: true,
-        gender: true,
         phoneNumber: true,
         countryCode: true,
       })
@@ -60,7 +59,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
       password: '',
       firstName: '',
       lastName: '',
-      gender: 'MALE',
       phoneNumber: '',
       countryCode: '',
     },
@@ -133,7 +131,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                 </FormItem>
               )}
             />
-            {/* Additional Fields: Email, Password, Gender */}
+            {/* Additional Fields: Email, Password */}
             <FormField
               control={form.control}
               name="email"
@@ -165,31 +163,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                       className="w-full"
                       {...field}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-input-grey">Gender</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="MALE">Male</SelectItem>
-                        <SelectItem value="FEMALE">Female</SelectItem>
-                        <SelectItem value="OTHER">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

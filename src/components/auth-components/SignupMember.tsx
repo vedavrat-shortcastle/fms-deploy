@@ -24,7 +24,6 @@ import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Gender } from '@prisma/client';
 import { trpc } from '@/hooks/trpcProvider';
 
 import { useEffect } from 'react';
@@ -55,7 +54,6 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
       firstName: '',
       lastName: '',
       role: 'PLAYER',
-      gender: 'MALE',
       domain: '',
     },
   });
@@ -188,33 +186,6 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                           <SelectItem value="CLUB_MANAGER">
                             Club Manager
                           </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-input-grey">Gender</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select your gender" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.values(Gender).map((gen) => (
-                            <SelectItem value={gen} key={gen}>
-                              {gen}
-                            </SelectItem>
-                          ))}
                         </SelectContent>
                       </Select>
                     </FormControl>

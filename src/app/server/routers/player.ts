@@ -64,24 +64,7 @@ export const playerRouter = router({
 
           const newPlayer = await tx.player.create({
             data: {
-              birthDate: playerDetails.birthDate,
-              avatarUrl: playerDetails.avatarUrl,
-              ageProof: playerDetails.ageProof,
-              streetAddress: playerDetails.streetAddress,
-              streetAddress2: playerDetails.streetAddress2,
-              country: playerDetails.country,
-              state: playerDetails.state,
-              city: playerDetails.city,
-              postalCode: playerDetails.postalCode,
-              phoneNumber: playerDetails.phoneNumber,
-              countryCode: playerDetails.countryCode,
-              // fideId: playerDetails.fideId ?? null, //TODO: Enable post MVP
-              schoolName: playerDetails.schoolName,
-              graduationYear: playerDetails.graduationYear,
-              gradeInSchool: playerDetails.gradeInSchool,
-              gradeDate: playerDetails.gradeDate,
-              clubName: playerDetails.clubName,
-              clubId: playerDetails.clubId ?? null,
+              ...playerDetails,
             },
           });
 
@@ -150,7 +133,6 @@ export const playerRouter = router({
             email: true,
             firstName: true,
             lastName: true,
-            gender: true,
             role: true,
             federation: true,
             profile: {
@@ -217,7 +199,6 @@ export const playerRouter = router({
             email: true,
             firstName: true,
             lastName: true,
-            gender: true,
             role: true,
             federation: true,
             profile: {
@@ -229,7 +210,7 @@ export const playerRouter = router({
             },
           },
         });
-        console.log('flag1,baseUser', baseUser);
+
         if (!baseUser) {
           throw new TRPCError({
             code: 'NOT_FOUND',
@@ -255,7 +236,7 @@ export const playerRouter = router({
         const player = await ctx.db.player.findUnique({
           where: { id: baseUser.profile.profileId },
         });
-        console.log('player', player);
+
         if (!player) {
           throw new TRPCError({
             code: 'NOT_FOUND',
