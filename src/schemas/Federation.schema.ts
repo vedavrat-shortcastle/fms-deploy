@@ -7,8 +7,8 @@ export const createFederationSchema = z.object({
   country: z.string().min(1, 'Country is required'),
   domain: z
     .string()
-    .min(3, { message: 'Subdomain must be at least 3 characters' })
-    .max(50, { message: 'Subdomain cannot exceed 50 characters' }),
+    .min(3, { message: 'Domain must be at least 3 characters' })
+    .max(50, { message: 'Domain cannot exceed 50 characters' }),
   logo: z.string().optional(),
 });
 
