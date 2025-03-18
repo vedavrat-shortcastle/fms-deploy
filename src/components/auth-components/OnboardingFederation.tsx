@@ -47,7 +47,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
         password: true,
         firstName: true,
         lastName: true,
-        gender: true,
         phoneNumber: true,
         countryCode: true,
       })
@@ -57,7 +56,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
       password: '',
       firstName: '',
       lastName: '',
-      gender: 'MALE',
       phoneNumber: '',
       countryCode: '',
     },
