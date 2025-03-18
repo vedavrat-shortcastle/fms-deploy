@@ -11,6 +11,8 @@ import { Pagination } from '@/components/ui/pagination';
 import PlayerCard from '@/components/player-components/PlayerCard';
 import { PlayerCardTypes } from '@/schemas/Player.schema';
 import Loader from '@/components/Loader';
+import { PERMISSIONS } from '@/config/permissions';
+import { ProtectedRoute } from '@/hooks/protectedRoute';
 
 export default function Page() {
   const router = useRouter();
@@ -65,79 +67,81 @@ export default function Page() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar />
-      <main className="flex-1 flex flex-col overflow-auto p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg font-medium text-gray-700">Players</h1>
+    <ProtectedRoute requiredPermission={PERMISSIONS.PLAYER_UPDATE}>
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar />
+        <main className="flex-1 flex flex-col overflow-auto p-6">
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-medium text-gray-700">Players</h1>
+            </div>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white rounded"
+              onClick={handleAddPlayer}
+            >
+              Add Player
+            </Button>
           </div>
-          <Button
-            className="bg-red-600 hover:bg-red-700 text-white rounded"
-            onClick={handleAddPlayer}
-          >
-            Add Player
-          </Button>
-        </div>
 
-        <div className="mb-6 flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            {/* <Input
+          <div className="mb-6 flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              {/* <Input
               className="pl-10 rounded-md border-gray-200"
               placeholder="Search"
               type="search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             /> */}
+            </div>
+            <Button
+              variant="outline"
+              className="border-gray-200 text-gray-600 rounded-md"
+              onClick={handleImport}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Import
+            </Button>
+            <Button
+              variant="outline"
+              className="border-gray-200 text-gray-600 rounded-md"
+              onClick={handleExport}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
           </div>
-          <Button
-            variant="outline"
-            className="border-gray-200 text-gray-600 rounded-md"
-            onClick={handleImport}
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Import
-          </Button>
-          <Button
-            variant="outline"
-            className="border-gray-200 text-gray-600 rounded-md"
-            onClick={handleExport}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-        </div>
 
-        {isLoading ? (
-          <div className="flex justify-center items-center flex-grow">
-             <Loader/>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {players &&
-              players.map((player) => (
-                <PlayerCard
-                  key={player.id}
-                  player={player}
-                  onDelete={handleDelete}
-                  onEdit={handleEdit}
-                  onView={handleViewPlayerDetails}
-                />
-              ))}
-          </div>
-        )}
+          {isLoading ? (
+            <div className="flex justify-center items-center flex-grow">
+              <Loader />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {players &&
+                players.map((player) => (
+                  <PlayerCard
+                    key={player.id}
+                    player={player}
+                    onDelete={handleDelete}
+                    onEdit={handleEdit}
+                    onView={handleViewPlayerDetails}
+                  />
+                ))}
+            </div>
+          )}
 
-        <div className="mt-auto">
-          <Pagination
-            totalRecords={data?.total || 0}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-            itemsPerPage={limit}
-            onItemsPerPageChange={setLimit}
-          />
-        </div>
-      </main>
-    </div>
+          <div className="mt-auto">
+            <Pagination
+              totalRecords={data?.total || 0}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              itemsPerPage={limit}
+              onItemsPerPageChange={setLimit}
+            />
+          </div>
+        </main>
+      </div>
+    </ProtectedRoute>
   );
 }
