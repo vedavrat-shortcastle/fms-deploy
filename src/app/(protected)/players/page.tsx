@@ -19,10 +19,10 @@ export default function Page() {
   const { data, isLoading } = trpc.player.getPlayers.useQuery({
     limit: limit,
     page: currentPage,
+    // searchQuery: '',//TODO: add search query here
   });
 
   const players = data?.players || [];
-  console.log('players', data);
 
   // Delete player need to handle through api
   const handleDelete = (id: string, e: React.MouseEvent) => {
