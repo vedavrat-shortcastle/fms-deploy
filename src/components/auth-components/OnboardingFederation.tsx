@@ -170,33 +170,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-input-grey">
-                    Gender
-                    <FormMessage />
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="MALE">Male</SelectItem>
-                        <SelectItem value="FEMALE">Female</SelectItem>
-                        <SelectItem value="OTHER">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+
             {/* Country Code Field */}
             <div className="flex flex-col sm:flex-row gap-y-2 sm:gap-x-5 w-full">
               <FormField
