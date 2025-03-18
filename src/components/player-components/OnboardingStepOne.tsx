@@ -9,12 +9,19 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export const PlayerDetailsStepOne = () => {
   const { control } = useFormContext();
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
       <FormField
         control={control}
         name="birthDate"
@@ -176,45 +183,52 @@ export const PlayerDetailsStepOne = () => {
           </FormItem>
         )}
       />
-      <FormField
-        control={control}
-        name="phoneNumber"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm text-gray-900">
-              Phone Number
-            </FormLabel>
-            <FormControl>
-              <Input
-                type="tel"
-                placeholder="Enter Phone Number"
-                {...field}
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="countryCode"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm text-gray-900">
-              Country Code
-            </FormLabel>
-            <FormControl>
-              <Input
-                placeholder="Enter Country Code"
-                {...field}
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="flex gap-x-5">
+        <FormField
+          control={control}
+          name="countryCode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-input-grey">Country Code</FormLabel>
+              <FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <SelectTrigger className="w-[125px] h-[42px]">
+                    <SelectValue placeholder="Code" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="+91">+91 (India)</SelectItem>
+                    <SelectItem value="+1">+1 (USA)</SelectItem>
+                    <SelectItem value="+64">+64 (NZ)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* Phone Number */}
+        <FormField
+          control={control}
+          name="phoneNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone Number</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Enter Phone Number"
+                  {...field}
+                  value={field.value || ''} // Ensure value is never undefined
+                  className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
   );
 };
