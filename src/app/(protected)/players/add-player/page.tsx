@@ -37,8 +37,7 @@ export default function AddPlayerPage() {
         nameSuffix: '',
       },
       playerDetails: {
-        birthDate: new Date(), // Now using null instead of an empty string
-        gender: 'MALE',
+        birthDate: undefined, // Now using null instead of an empty string
         avatarUrl: '',
         ageProof: '',
         streetAddress: '',
@@ -53,7 +52,7 @@ export default function AddPlayerPage() {
         schoolName: '',
         graduationYear: undefined,
         gradeInSchool: '',
-        gradeDate: null,
+        gradeDate: undefined,
         clubName: '',
         clubId: null,
       },
