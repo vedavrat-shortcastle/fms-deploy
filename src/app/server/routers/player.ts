@@ -495,6 +495,7 @@ export const playerRouter = router({
           const newPlayer = await tx.player.create({
             data: {
               ...input,
+              fideId: null,
               birthDate: new Date(input.birthDate),
               gradeDate: input.gradeDate ? new Date(input.gradeDate) : null,
             },
