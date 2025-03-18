@@ -57,6 +57,30 @@ const Sidebar: FC = () => {
       label: 'Profile & Settings',
       active: pathname === '/profile',
     },
+    {
+      href: '/coaches',
+      icon: <Users size={20} />,
+      label: 'Coaches',
+      active: pathname === '/coaches',
+    },
+    {
+      href: '/arbiters',
+      icon: <Users size={20} />,
+      label: 'Arbiters',
+      active: pathname === '/arbiters',
+    },
+    {
+      href: '/schools',
+      icon: <Users size={20} />,
+      label: 'Schools',
+      active: pathname === '/schools',
+    },
+    {
+      href: '/clubs',
+      icon: <Users size={20} />,
+      label: 'Clubs',
+      active: pathname === '/clubs',
+    },
   ];
 
   // SidebarLink component defined within the main component
