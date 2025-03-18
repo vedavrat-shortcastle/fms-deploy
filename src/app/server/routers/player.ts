@@ -436,10 +436,11 @@ export const playerRouter = router({
           const newUserProfile = await tx.userProfile.create({
             data: {
               profileType,
-              profileId: 'PENDING',
+              profileId: newBaseUser.id,
               baseUser: {
                 connect: { id: newBaseUser.id },
               },
+              isActive: false,
             },
           });
 
@@ -460,7 +461,7 @@ export const playerRouter = router({
               userId: newUserProfile.id,
             })),
           });
-          console.log('newUserProfile', newUserProfile);
+
           return { ...newBaseUser, newUserProfile };
         });
 
