@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
 import { checkPermission } from '@/utils/auth';
+import Loader from '@/components/Loader';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -38,7 +39,7 @@ export const ProtectedRoute = ({
   }, [session, status, requiredPermission, router]);
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return  <Loader/>;
   }
 
   return <>{children}</>;

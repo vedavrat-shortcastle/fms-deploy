@@ -30,6 +30,7 @@ import {
   federationOnboardingSchema,
 } from '@/schemas/Federation.schema';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import Loader from '../Loader';
 
 // This component is currently being used by 1 route - /onboarding-federation-subdomain
 
@@ -51,7 +52,7 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
       <div className="mx-auto mt-16 p-10 w">
         {/* Container Div */}
 
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={ <Loader/>}>
           <CustomSubdomainForm router={router} />
         </Suspense>
       </div>
