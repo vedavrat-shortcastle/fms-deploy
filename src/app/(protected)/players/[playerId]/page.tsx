@@ -1,14 +1,14 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import Sidebar from '@/components/SideBar';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import Sidebar from '@/components/SideBar';
 import PersonalInfoSection from '@/components/player-components/PersonalInfo';
 import AddressSection from '@/components/player-components/AddressInfo';
 import PlayerDetailsSection from '@/components/player-components/PlayerDetails';
@@ -18,9 +18,16 @@ import {
   EditPlayerFormValues,
   editPlayerSchema,
 } from '@/schemas/player.schema';
+import { trpc } from '@/utils/trpc'; // Import your tRPC hook
 
 export default function PlayerDetails() {
   const router = useRouter();
+  const { playerId } = useParams<{ playerId: string }>();
+  console.log('Player ID:', playerId);
+  if (!playerId) {
+    console.error('No player id found in the route!');
+  }
+
   const [player, setPlayer] = useState<EditPlayerFormValues | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,15 +42,46 @@ export default function PlayerDetails() {
     resolver: zodResolver(editPlayerSchema),
   });
 
-  const onSubmit = async (data: EditPlayerFormValues) => {
+  // Use the tRPC query hook to fetch the player details
+  const { data, error, isLoading } = trpc.player.getPlayerById.useQuery(
+    { id: playerId },
+    { enabled: !!playerId }
+  );
+
+  // Debug log the fetched data and errors
+  useEffect(() => {
+    if (data) {
+      console.debug('Player data fetched:', data);
+      // Map the data into our local state shape
+      setPlayer({
+        baseUser: {
+          id: data.id,
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+        },
+        playerDetails: {
+          // Map other player details from data as needed
+          // For example: avatarUrl: data.playerDetails?.avatarUrl,
+        },
+        // Map additional sections if necessary
+      });
+    }
+    if (error) {
+      console.error('Error fetching player details:', error);
+    }
+  }, [data, error]);
+
+  const onSubmit = async (formData: EditPlayerFormValues) => {
     setIsSubmitting(true);
     try {
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      setPlayer(data);
+      console.debug('Form submitted with data:', formData);
+      setPlayer(formData);
       setIsEditing(false);
-    } catch (error) {
-      console.error('Error submitting form:', error);
+    } catch (submitError) {
+      console.error('Error submitting form:', submitError);
     } finally {
       setIsSubmitting(false);
     }
@@ -54,27 +92,41 @@ export default function PlayerDetails() {
       // Submit form
       handleSubmit(onSubmit)();
     } else {
+      console.debug('Entering edit mode');
       reset({});
       setIsEditing(true);
     }
   };
 
   const handleCancel = () => {
+    console.debug('Cancelling edit mode');
     setIsEditing(false);
     reset({});
   };
-  //delete player
+
+  // Delete player
   const handleDelete = async () => {
     setIsSubmitting(true);
     try {
+      console.debug('Deleting player with id:', playerId);
+      // Simulate deletion delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
       router.push('/players');
-    } catch (error) {
-      console.error('Error deleting player:', error);
+    } catch (deleteError) {
+      console.error('Error deleting player:', deleteError);
       setIsSubmitting(false);
       setShowDeleteConfirm(false);
     }
   };
+
+  if (isLoading || !player) {
+    return (
+      <div className="flex h-screen justify-center items-center">
+        <Loader2 className="h-6 w-6 animate-spin" />
+        <span className="ml-2">Loading player details...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-[#f6f6f6]">
@@ -92,7 +144,7 @@ export default function PlayerDetails() {
           <div className="text-center">
             <Avatar className="h-40 w-40 rounded-none">
               <AvatarImage
-                src={player?.playerDetails.avatarUrl}
+                src={player.playerDetails?.avatarUrl}
                 alt="Profile"
                 className="object-cover"
                 onError={(e) => (e.currentTarget.src = '/default-avatar.png')}
@@ -187,8 +239,8 @@ export default function PlayerDetails() {
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <h3 className="text-xl font-semibold mb-4">Confirm Deletion</h3>
             <p className="mb-6">
-              Are you sure you want to delete {player?.baseUser.firstName}{' '}
-              {player?.baseUser.lastName}? This action cannot be undone.
+              Are you sure you want to delete {player.baseUser?.firstName}{' '}
+              {player.baseUser?.lastName}? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-4">
               <Button
