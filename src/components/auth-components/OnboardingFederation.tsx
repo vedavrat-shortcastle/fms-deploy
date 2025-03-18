@@ -104,7 +104,11 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-input-grey">First name</FormLabel>
+                  <FormLabel className="text-input-grey">
+                    First name
+                    <FormMessage />
+                  </FormLabel>
+
                   <FormControl>
                     <Input
                       placeholder="First name"
@@ -112,7 +116,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -121,7 +124,11 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-input-grey">Last name</FormLabel>
+                  <FormLabel className="text-input-grey">
+                    Last name
+                    <FormMessage />
+                  </FormLabel>
+
                   <FormControl>
                     <Input
                       placeholder="Last name"
@@ -129,7 +136,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -139,7 +145,10 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-input-grey">Email</FormLabel>
+                  <FormLabel className="text-input-grey">
+                    Email
+                    <FormMessage />
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="email"
@@ -148,7 +157,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -157,7 +165,10 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-input-grey">Password</FormLabel>
+                  <FormLabel className="text-input-grey">
+                    Password
+                    <FormMessage />
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="password"
@@ -166,7 +177,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -175,7 +185,10 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               name="gender"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-input-grey">Gender</FormLabel>
+                  <FormLabel className="text-input-grey">
+                    Gender
+                    <FormMessage />
+                  </FormLabel>
                   <FormControl>
                     <Select
                       onValueChange={field.onChange}
@@ -191,7 +204,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -204,6 +216,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                   <FormItem>
                     <FormLabel className="text-input-grey">
                       Country Code
+                      <FormMessage />
                     </FormLabel>
                     <FormControl>
                       <Select
@@ -219,7 +232,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -232,6 +244,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                   <FormItem>
                     <FormLabel className="text-input-grey">
                       Phone Number
+                      <FormMessage />
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -240,8 +253,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
                         className="w-full h-[42px]"
                       />
                     </FormControl>
-
-                    <FormMessage />
                   </FormItem>
                 )}
               />
