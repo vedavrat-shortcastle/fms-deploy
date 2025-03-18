@@ -4,6 +4,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { FormControl } from '@/components/ui/form';
 import { ControllerRenderProps } from 'react-hook-form';
+import { cn } from '@/lib/utils';
 
 // All the imports
 
@@ -17,7 +18,7 @@ interface PasswordInputProps {
 export const PasswordInput = ({
   field, // Mandatory prop
   placeholder = 'Enter your password',
-  className = 'w-full',
+  className,
 }: PasswordInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -27,7 +28,7 @@ export const PasswordInput = ({
         <Input
           type={showPassword ? 'text' : 'password'}
           placeholder={placeholder} // Pass this as a prop or use the default value
-          className={`${className} pr-10`} // Pass this as a prop or use the default value
+          className={cn('w-full pr-10', className)} // Using cn utility to merge classes
           {...field}
         />
         <button
