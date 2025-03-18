@@ -113,15 +113,23 @@ export const playerRouter = router({
       z.object({
         page: z.number().default(1),
         limit: z.number().default(20),
+        searchQuery: z.string().optional(),
       })
     )
     .query(async ({ ctx, input }) => {
       try {
-        const { page, limit } = input;
+        const { page, limit, searchQuery } = input;
         const offset = (page - 1) * limit;
         const where: Prisma.BaseUserWhereInput = {
           role: Role.PLAYER,
           federationId: ctx.session.user.federationId,
+          OR: searchQuery
+            ? [
+                { email: { contains: searchQuery, mode: 'insensitive' } },
+                { firstName: { contains: searchQuery, mode: 'insensitive' } },
+                { lastName: { contains: searchQuery, mode: 'insensitive' } },
+              ]
+            : undefined,
         };
 
         const baseUsers = await ctx.db.baseUser.findMany({
@@ -144,30 +152,12 @@ export const playerRouter = router({
           },
         });
 
-        const players = await ctx.db.player.findMany({
-          where: {
-            id: {
-              in: baseUsers.map((user) => user.profile!.profileId),
-            },
-          },
-        });
-
-        const result = players.map((player) => {
-          const user = baseUsers.find(
-            (u) => u.profile!.profileId === player.id
-          )!;
-          return { ...user, ...player };
-        });
-
         const totalPlayers = await ctx.db.baseUser.count({
-          where: {
-            role: Role.PLAYER,
-            federationId: ctx.session.user.federationId,
-          },
+          where,
         });
 
         return {
-          players: result,
+          players: baseUsers,
           total: totalPlayers,
           page,
           limit,

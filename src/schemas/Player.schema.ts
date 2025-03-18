@@ -125,9 +125,7 @@ export type PlayerCardTypes = {
   email: string;
   firstName: string;
   lastName: string;
-  gender: Gender;
   role: Role;
-  avatarUrl: string | null;
   profile: {
     isActive: boolean | null;
   } | null;

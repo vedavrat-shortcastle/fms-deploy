@@ -1,9 +1,8 @@
 'use client';
 
 import type React from 'react';
-import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Trash2, Edit, Mail, User, ActivitySquare } from 'lucide-react';
+import { Trash2, Edit, Mail, ActivitySquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 import { Badge } from '@/components/ui/badge';
@@ -44,30 +43,18 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
 
       {/* Avatar */}
       <div className="absolute top-12 left-1/2 transform -translate-x-1/2">
-        {player.avatarUrl ? (
-          <div className="rounded-full border-4 border-white dark:border-gray-900 overflow-hidden">
-            <Image
-              src={player.avatarUrl || '/placeholder.svg'}
-              alt={fullName}
-              width={80}
-              height={80}
-              className="object-cover w-20 h-20"
-            />
-          </div>
-        ) : (
-          <Avatar className="w-20 h-20 border-4 border-white dark:border-gray-900">
-            <AvatarImage src="/default-avatar.png" alt={fullName} />
-            <AvatarFallback
-              className={cn(
-                'text-xl font-semibold text-white bg-gradient-to-r',
-                gradient
-              )}
-            >
-              {player.firstName.charAt(0)}
-              {player.lastName.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-        )}
+        <Avatar className="w-20 h-20 border-4 border-white dark:border-gray-900">
+          <AvatarImage src="/default-avatar.png" alt={fullName} />
+          <AvatarFallback
+            className={cn(
+              'text-xl font-semibold text-white bg-gradient-to-r',
+              gradient
+            )}
+          >
+            {player.firstName.charAt(0)}
+            {player.lastName.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
       </div>
 
       {/* Card Content */}
@@ -80,13 +67,6 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
           <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
             <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
             <span className="truncate">{player.email}</span>
-          </div>
-
-          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-            <User className="w-4 h-4 mr-2 flex-shrink-0" />
-            <span className="capitalize">
-              {player.gender || 'Not specified'}
-            </span>
           </div>
           <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
             <ActivitySquare className="w-4 h-4 mr-2 flex-shrink-0" />
