@@ -17,8 +17,7 @@ import ClubInfoSection from '@/components/player-components/ClubInfo';
 import {
   EditPlayerFormValues,
   editPlayerSchema,
-
-} from '@/schemas/player.schema';
+} from '@/schemas/Player.schema';
 import { trpc } from '@/utils/trpc'; // Import your tRPC hook
 
 export default function PlayerDetails() {
