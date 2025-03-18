@@ -210,6 +210,7 @@ export const playerRouter = router({
             email: true,
             firstName: true,
             lastName: true,
+            gender: true,
             role: true,
             federation: true,
             profile: {
