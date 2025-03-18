@@ -52,7 +52,7 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
       <div className="mx-auto mt-16 p-10 max-w-xl w-full">
         {/* Container Div */}
 
-        <Suspense fallback={ <Loader/>}>
+        <Suspense fallback={<Loader />}>
           <CustomSubdomainForm router={router} />
         </Suspense>
       </div>
@@ -122,7 +122,10 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
           name="type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-input-grey">Type</FormLabel>
+              <FormLabel className="text-input-grey">
+                Type
+                <FormMessage />
+              </FormLabel>
               <FormControl>
                 <Select
                   onValueChange={field.onChange}
@@ -137,7 +140,6 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
                   </SelectContent>
                 </Select>
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
@@ -146,7 +148,10 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-input-grey">Federation Name</FormLabel>
+              <FormLabel className="text-input-grey">
+                Federation Name
+                <FormMessage />
+              </FormLabel>
               <FormControl>
                 <Input
                   placeholder="Federation name"
@@ -154,7 +159,6 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
@@ -165,6 +169,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
             <FormItem>
               <FormLabel className="text-input-grey">
                 Federation Country
+                <FormMessage />
               </FormLabel>
               <FormControl>
                 <Select
@@ -181,7 +186,6 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
                   </SelectContent>
                 </Select>
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
@@ -190,15 +194,17 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
           name="domain"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-input-grey">Domain</FormLabel>
+              <FormLabel className="text-input-grey">
+                Domain
+                <FormMessage />
+              </FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter subdomain"
+                  placeholder="Enter Domain"
                   className="px-4 text-lg w-full"
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
