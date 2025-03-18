@@ -196,35 +196,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-input-grey">
-                      Gender
-                      <FormMessage />
-                    </FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select your gender" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.values(Gender).map((gen) => (
-                            <SelectItem value={gen} key={gen}>
-                              {gen}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+
               <Button type="submit" className="w-full font-extrabold">
                 Create My Account
               </Button>
