@@ -123,6 +123,11 @@ export const playerRouter = router({
         const where: Prisma.BaseUserWhereInput = {
           role: Role.PLAYER,
           federationId: ctx.session.user.federationId,
+          profile: {
+            userStatus: {
+              not: 'DELETED',
+            },
+          },
           OR: searchQuery
             ? [
                 { email: { contains: searchQuery, mode: 'insensitive' } },
@@ -145,7 +150,7 @@ export const playerRouter = router({
             federation: true,
             profile: {
               select: {
-                isActive: true,
+                userStatus: true,
                 profileId: true,
               },
             },
@@ -193,7 +198,7 @@ export const playerRouter = router({
               select: {
                 profileId: true,
                 profileType: true,
-                isActive: true,
+                userStatus: true,
               },
             },
           },
@@ -206,10 +211,10 @@ export const playerRouter = router({
           });
         }
 
-        if (!baseUser.profile?.isActive) {
+        if (baseUser.profile?.userStatus !== 'ACTIVE') {
           throw new TRPCError({
             code: 'FORBIDDEN',
-            message: 'Player profile is disabled',
+            message: `Player profile is ${baseUser.profile?.userStatus}`,
           });
         }
 
@@ -259,7 +264,7 @@ export const playerRouter = router({
             profile: {
               select: {
                 profileId: true,
-                isActive: true,
+                userStatus: true,
                 profileType: true,
               },
             },
@@ -273,10 +278,10 @@ export const playerRouter = router({
           });
         }
 
-        if (!existingUser.profile?.isActive) {
+        if (existingUser.profile?.userStatus !== 'ACTIVE') {
           throw new TRPCError({
             code: 'FORBIDDEN',
-            message: 'Player profile is inactive',
+            message: `Player profile is ${existingUser.profile?.userStatus}`,
           });
         }
 
@@ -362,7 +367,7 @@ export const playerRouter = router({
             profileType: ProfileType.PLAYER,
           },
           data: {
-            isActive: false,
+            userStatus: 'DELETED',
           },
         });
         return { success: true };
@@ -430,7 +435,7 @@ export const playerRouter = router({
               baseUser: {
                 connect: { id: newBaseUser.id },
               },
-              isActive: false,
+              userStatus: 'INACTIVE',
             },
           });
 
@@ -493,7 +498,7 @@ export const playerRouter = router({
             },
             data: {
               profileId: newPlayer.id,
-              isActive: true,
+              userStatus: 'ACTIVE',
             },
           });
 

@@ -1,4 +1,4 @@
-import { Gender, Role } from '@prisma/client';
+import { Gender, Role, UserStatus } from '@prisma/client';
 import { z } from 'zod';
 
 export const playerOnboardingSchema = z.object({
@@ -127,6 +127,6 @@ export type PlayerCardTypes = {
   lastName: string;
   role: Role;
   profile: {
-    isActive: boolean | null;
+    userStatus: UserStatus | null;
   } | null;
 };
