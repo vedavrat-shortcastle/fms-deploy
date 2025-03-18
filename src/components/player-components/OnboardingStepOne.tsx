@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Gender } from '@prisma/client';
+import DatePicker from '@/components/player-components/DatePicker';
 
 export const PlayerDetailsStepOne = () => {
   const { control } = useFormContext();
@@ -25,47 +25,14 @@ export const PlayerDetailsStepOne = () => {
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
       <FormField
         control={control}
-        name="birthDate"
+        name="birthDate" // Adjust the field name as needed
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm text-gray-900">Birth Date</FormLabel>
-            <FormControl>
-              <Input
-                type="date"
-                {...field}
-                value={field.value ? field.value : undefined}
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="gender"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm text-gray-900">
-              Gender <span className="text-red-500">*</span>
+            <FormLabel className="block text-sm text-gray-900">
+              Date of Birth
             </FormLabel>
             <FormControl>
-              <Select
-                value={field.value || 'MALE'} // Provide default to ensure it's not undefined
-                onValueChange={field.onChange}
-              >
-                <SelectTrigger className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500">
-                  <SelectValue placeholder="Select Gender" />
-                </SelectTrigger>
-
-                <SelectContent>
-                  {Object.values(Gender).map((gen) => (
-                    <SelectItem value={gen} key={gen}>
-                      {gen}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <DatePicker field={field} allowFuture={false} allowPast={true} />
             </FormControl>
             <FormMessage />
           </FormItem>

@@ -35,7 +35,7 @@ export default function PlayerOnboarding() {
     resolver: zodResolver(playerOnboardingSchema),
     mode: 'onChange', // Validate on every change for instant feedback
     defaultValues: {
-      birthDate: '',
+      birthDate: undefined,
       avatarUrl: '',
       ageProof: '',
       streetAddress: '',
@@ -50,9 +50,9 @@ export default function PlayerOnboarding() {
       schoolName: '',
       graduationYear: undefined,
       gradeInSchool: '',
-      gradeDate: '',
+      gradeDate: undefined,
       clubName: '',
-      clubId: null,
+      clubId: undefined,
     },
   });
 
@@ -108,13 +108,10 @@ export default function PlayerOnboarding() {
   };
 
   // Final submission of the form.
-  const onSubmit = (data: playerOnboardingInput) => {
-    console.log('data: ', data, 'activeTab: ', activeTab);
+  const onSubmit = async (data: playerOnboardingInput) => {
     if (activeTab === 'stepTwo') {
-      // Here you can call your API or process the data.
       mutate(data);
     }
-    // reset();
   };
 
   return (
