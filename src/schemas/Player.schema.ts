@@ -89,10 +89,10 @@ export type CreatePlayerOutput = z.output<typeof createPlayerSchema>;
 
 export const signupMemberSchema = z.object({
   domain: z.string(),
-  email: z.string().email(),
-  password: z.string().min(6),
-  firstName: z.string(),
-  lastName: z.string(),
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters long'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
   role: z.enum([Role.PLAYER, Role.CLUB_MANAGER]),
   gender: z.nativeEnum(Gender),
 });
