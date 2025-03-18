@@ -59,7 +59,7 @@ export const authConfig: AuthOptions = {
           lastName: baseUser.lastName,
           permissions:
             baseUser.profile?.permissions.map((p) => p.permission) || [],
-          profileId: baseUser.profile?.profileId || 'PENDING',
+          profileId: baseUser.profile?.profileId || '',
         };
       },
     }),

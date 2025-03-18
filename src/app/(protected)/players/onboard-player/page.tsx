@@ -26,7 +26,7 @@ export default function PlayerOnboarding() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  if (session?.user?.profileId !== 'PENDING') {
+  if (session?.user?.profileId !== session?.user?.id) {
     router.push('/players');
   }
   const [activeTab, setActiveTab] = useState<'stepOne' | 'stepTwo'>('stepOne');

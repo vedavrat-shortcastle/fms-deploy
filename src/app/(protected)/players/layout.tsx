@@ -14,7 +14,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (session.status === 'authenticated') {
       // Check if the user profile is onboarded
-      setProfileOnboarded(session.data?.user.profileId !== 'PENDING');
+      setProfileOnboarded(
+        session.data?.user.profileId !== session.data?.user.id
+      );
     }
   }, [session.data?.user.profileId, session.status]);
 
