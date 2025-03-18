@@ -75,7 +75,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // Access the current URL using the window object
-      form.setValue('domain', window.location.origin);
+      form.setValue('domain', window.location.host);
     }
   }, []);
   return (
