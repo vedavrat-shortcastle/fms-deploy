@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+//import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -27,7 +28,6 @@ export default function PlayerDetails() {
   if (!playerId) {
     console.error('No player id found in the route!');
   }
-
   const [player, setPlayer] = useState<EditPlayerFormValues | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,10 +43,11 @@ export default function PlayerDetails() {
   });
 
   // Use the tRPC query hook to fetch the player details
-  const { data, error, isLoading } = trpc.player.getPlayerById.useQuery(
-    { id: playerId },
-    { enabled: !!playerId }
-  );
+  const { data, error, isLoading, refetch } =
+    trpc.player.getPlayerById.useQuery(
+      { id: playerId },
+      { enabled: !!playerId }
+    );
   // Add the mutation
   const deletePlayerMutation = trpc.player.deletePlayerById.useMutation({
     onSuccess: () => {
@@ -59,7 +60,19 @@ export default function PlayerDetails() {
       setShowDeleteConfirm(false);
     },
   });
-
+  // Add this with your other trpc hooks
+  const editPlayerMutation = trpc.player.editPlayerById.useMutation({
+    onSuccess: () => {
+      console.log('Player updated successfully');
+      setIsEditing(false);
+      // Refetch the player data to get the updated information
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Failed to update player:', error.message);
+      setIsSubmitting(false);
+    },
+  });
   useEffect(() => {
     if (data) {
       console.debug('Player data fetched:', data);
@@ -111,14 +124,25 @@ export default function PlayerDetails() {
     }
   }, [data, error, reset]);
 
+  // Then update your onSubmit function like this:
   const onSubmit = async (formData: EditPlayerFormValues) => {
     setIsSubmitting(true);
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
       console.debug('Form submitted with data:', formData);
-      setPlayer(formData);
-      setIsEditing(false);
+
+      // Make sure the baseUser object has the correct ID
+      // This is important - the server is looking for baseUser.id
+      const updatedFormData = {
+        ...formData,
+        baseUser: {
+          ...formData.baseUser,
+          id: playerId, // Ensure this ID is correct
+        },
+      };
+
+      console.debug('Submitting updated data:', updatedFormData);
+      await editPlayerMutation.mutateAsync(updatedFormData);
+      setPlayer(updatedFormData);
     } catch (submitError) {
       console.error('Error submitting form:', submitError);
     } finally {
