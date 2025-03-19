@@ -507,6 +507,7 @@ export const playerRouter = router({
 
         return result;
       } catch (error: any) {
+        console.log(error);
         handleError(error, {
           message: 'Failed to onboard player',
           cause: error.message,
