@@ -4,7 +4,6 @@ import { z } from 'zod';
 export const playerOnboardingSchema = z.object({
   birthDate: z.string(),
   gender: z.nativeEnum(Gender),
-  avatarUrl: z.string().nullable().optional(),
   ageProof: z.string(),
   streetAddress: z.string(),
   streetAddress2: z.string().nullable().optional(),
@@ -14,6 +13,7 @@ export const playerOnboardingSchema = z.object({
   postalCode: z.string(),
   phoneNumber: z.string(),
   countryCode: z.string(),
+  avatarUrl: z.string().nullable().optional(),
   fideId: z.string().nullable().optional(),
   schoolName: z.string().nullable().optional(),
   graduationYear: z.number().nullable().optional(),
