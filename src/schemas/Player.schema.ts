@@ -69,10 +69,7 @@ export const editPlayerSchema = z.object({
     schoolName: z.string().optional(),
     graduationYear: z.number().optional(),
     gradeInSchool: z.string().optional(),
-    gradeDate: z
-      .string()
-      .transform((str) => new Date(str))
-      .optional(),
+    gradeDate: z.date().optional(),
     clubName: z.string().optional(),
   }),
 });
