@@ -81,6 +81,9 @@ export default function PlayerOnboarding() {
 
       router.push('/membership');
     },
+    onError: (error) => {
+      console.error('Error onboarding player:', error);
+    },
   });
 
   // When manually switching tabs, validate the current tab if moving forward.
@@ -108,10 +111,10 @@ export default function PlayerOnboarding() {
   };
 
   // Final submission of the form.
-  const onSubmit = (data: playerOnboardingInput) => {
+  const onSubmit = async (data: playerOnboardingInput) => {
     console.log('data: ', data, 'activeTab: ', activeTab);
+
     if (activeTab === 'stepTwo') {
-      // Here you can call your API or process the data.
       mutate(data);
     }
     // reset();
