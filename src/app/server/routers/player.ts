@@ -473,7 +473,7 @@ export const playerRouter = router({
     .input(playerOnboardingSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        if (ctx.session.user.profileId) {
+        if (ctx.session.user.profileId !== ctx.session.user.id) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'Player already onboarded',
