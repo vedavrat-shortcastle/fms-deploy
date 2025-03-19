@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Search, Upload, Download } from 'lucide-react';
 import Sidebar from '@/components/SideBar';
 import { Button } from '@/components/ui/button';
@@ -11,17 +11,33 @@ import { Pagination } from '@/components/ui/pagination';
 import PlayerCard from '@/components/player-components/PlayerCard';
 import { PlayerCardTypes } from '@/schemas/Player.schema';
 import Loader from '@/components/Loader';
+import { Input } from '@/components/ui/input';
+import { debounce } from 'lodash';
 
 export default function Page() {
   const router = useRouter();
   const [limit, setLimit] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debounceSearchTerm, setDebounceSearchTerm] = useState('');
 
   const { data, isLoading } = trpc.player.getPlayers.useQuery({
     limit: limit,
     page: currentPage,
-    // searchQuery: '',//TODO: add search query here
+    searchQuery: debounceSearchTerm,
   });
+
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      setDebounceSearchTerm(value);
+    }, 300),
+    []
+  );
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    debouncedSearch(e.target.value);
+  };
 
   const players = data?.players || [];
 
@@ -83,13 +99,13 @@ export default function Page() {
         <div className="mb-6 flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            {/* <Input
+            <Input
               className="pl-10 rounded-md border-gray-200"
               placeholder="Search"
               type="search"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            /> */}
+              onChange={handleSearchChange}
+            />
           </div>
           <Button
             variant="outline"
@@ -111,7 +127,7 @@ export default function Page() {
 
         {isLoading ? (
           <div className="flex justify-center items-center flex-grow">
-             <Loader/>
+            <Loader />
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">

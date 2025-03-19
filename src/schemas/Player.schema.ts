@@ -2,9 +2,8 @@ import { Gender, Role, UserStatus } from '@prisma/client';
 import { z } from 'zod';
 
 export const playerOnboardingSchema = z.object({
-  birthDate: z.string(),
+  birthDate: z.date(),
   gender: z.nativeEnum(Gender),
-  avatarUrl: z.string().nullable().optional(),
   ageProof: z.string(),
   streetAddress: z.string(),
   streetAddress2: z.string().nullable().optional(),
@@ -14,13 +13,14 @@ export const playerOnboardingSchema = z.object({
   postalCode: z.string(),
   phoneNumber: z.string(),
   countryCode: z.string(),
+  avatarUrl: z.string().nullable().optional(),
   fideId: z.string().nullable().optional(),
   schoolName: z.string().nullable().optional(),
   graduationYear: z.number().nullable().optional(),
   gradeInSchool: z.string().nullable().optional(),
-  gradeDate: z.string().nullable().optional(),
+  gradeDate: z.date().nullable().optional(),
   clubName: z.string().nullable().optional(),
-  clubId: z.string().nullable().optional(),
+  clubId: z.string().optional(),
 });
 
 export type playerOnboardingInput = z.input<typeof playerOnboardingSchema>;
