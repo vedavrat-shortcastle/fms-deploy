@@ -97,32 +97,43 @@ export default function StudentDetailsSection({
           <>
             {/* School Name */}
             <div>
-              <label className="block text-sm font-medium">School Name</label>
-              <p>{player?.playerDetails.schoolName}</p>
+              <label className="block text-sm font-medium mb-2">
+                School Name
+              </label>
+              <p className="text-gray-700">
+                {player?.playerDetails.schoolName || '—'}
+              </p>
             </div>
 
             {/* Grade in School */}
             <div>
-              <label className="block text-sm font-medium">
+              <label className="block text-sm font-medium mb-2">
                 Grade in School
               </label>
-              <p>{player?.playerDetails.gradeInSchool}</p>
+              <p className="text-gray-700">
+                {' '}
+                {player?.playerDetails.gradeInSchool || '—'}
+              </p>
             </div>
 
             {/* Graduation Year */}
             <div>
-              <label className="block text-sm font-medium">
+              <label className="block text-sm font-medium mb-2">
                 Graduation Year
               </label>
-              <p>{player?.playerDetails.graduationYear}</p>
+              <p className="text-gray-700">
+                {player?.playerDetails.graduationYear || '—'}
+              </p>
             </div>
 
             {/* Grade as of (Date) */}
             <div>
-              <label className="block text-sm font-medium">
+              <label className="block text-sm font-medium mb-2">
                 Grade as of (Date)
               </label>
-              <p>{player?.playerDetails.gradeDate?.toString()}</p>
+              <p className="text-gray-700">
+                {player?.playerDetails.gradeDate?.toString() || '—'}
+              </p>
             </div>
           </>
         )}

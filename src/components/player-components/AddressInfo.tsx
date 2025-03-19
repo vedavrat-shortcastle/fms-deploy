@@ -138,50 +138,68 @@ export default function AddressSection({
           <>
             {/* Street Address */}
             <div>
-              <label className="block text-sm font-medium">
+              <label className="block text-sm font-medium mb-2">
                 Street Address
               </label>
-              <p>{player?.playerDetails.streetAddress}</p>
+              <p className="text-gray-700">
+                {player?.playerDetails.streetAddress || '—'}
+              </p>
             </div>
 
             {/* Postal Code */}
             <div>
-              <label className="block text-sm font-medium">Postal Code</label>
-              <p>{player?.playerDetails.postalCode}</p>
+              <label className="block text-sm font-medium mb-2">
+                Postal Code
+              </label>
+              <p className="text-gray-700">
+                {player?.playerDetails.postalCode || '—'}
+              </p>
             </div>
 
             {/* Street Address Line 2 */}
             <div>
-              <label className="block text-sm font-medium">
+              <label className="block text-sm font-medium mb-2">
                 Street Address Line 2
               </label>
-              <p>{player?.playerDetails.streetAddress2}</p>
+              <p className="text-gray-700">
+                {player?.playerDetails.streetAddress2 || '—'}
+              </p>
             </div>
 
             {/* Country */}
             <div>
-              <label className="block text-sm font-medium">Country</label>
-              <p>{player?.playerDetails.country}</p>
+              <label className="block text-sm font-medium mb-2">Country</label>
+              <p className="text-gray-700">
+                {player?.playerDetails.country || '—'}
+              </p>
             </div>
 
             {/* City */}
             <div>
-              <label className="block text-sm font-medium">City</label>
-              <p>{player?.playerDetails.city}</p>
+              <label className="block text-sm font-medium mb-2">City</label>
+              <p className="text-gray-700">
+                {player?.playerDetails.city || '—'}
+              </p>
             </div>
 
             {/* Phone Number */}
             <div>
-              <label className="block text-sm font-medium">Phone Number</label>
-              <p>{player?.playerDetails.phoneNumber}</p>
+              <label className="block text-sm font-medium mb-2">
+                Phone Number
+              </label>
+              <p className="text-gray-700">
+                {player?.playerDetails.phoneNumber || '—'}
+              </p>
             </div>
 
             {/* State/Province */}
             <div>
-              <label className="block text-sm font-medium">
+              <label className="block text-sm font-medium mb-2">
                 State/Province
               </label>
-              <p>{player?.playerDetails.state}</p>
+              <p className="text-gray-700">
+                {player?.playerDetails.state || '—'}
+              </p>
             </div>
           </>
         )}
