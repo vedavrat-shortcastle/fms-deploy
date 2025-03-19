@@ -40,7 +40,7 @@ export function OtherInfoForm() {
         name="playerDetails.fideId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{renderLabel('FIDE ID')}</FormLabel>
+            <FormLabel>{renderLabel('FIDE ID', true)}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter FIDE ID"
@@ -64,7 +64,7 @@ export function OtherInfoForm() {
         name="playerDetails.schoolName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{renderLabel('School Name', true)}</FormLabel>
+            <FormLabel>{renderLabel('School Name')}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter School Name"
@@ -86,7 +86,7 @@ export function OtherInfoForm() {
         name="playerDetails.graduationYear"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{renderLabel('Graduation Year', true)}</FormLabel>
+            <FormLabel>{renderLabel('Graduation Year')}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter Graduation Year"
@@ -114,7 +114,7 @@ export function OtherInfoForm() {
         name="playerDetails.gradeInSchool"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{renderLabel('Grade in School', true)}</FormLabel>
+            <FormLabel>{renderLabel('Grade in School')}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter Grade"
@@ -135,7 +135,7 @@ export function OtherInfoForm() {
         name="playerDetails.gradeDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{renderLabel('Grade Date (as of)', true)}</FormLabel>
+            <FormLabel>{renderLabel('Grade Date (as of)')}</FormLabel>
             <FormControl>
               <DatePicker
                 value={field.value ? new Date(field.value) : undefined} // Ensure value is a Date
