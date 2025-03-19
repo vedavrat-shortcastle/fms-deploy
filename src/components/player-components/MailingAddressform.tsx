@@ -27,7 +27,6 @@ export default function MailingAddressForm() {
     setValue,
     watch,
     formState: { errors },
-    setValue,
   } = useFormContext<CreatePlayerFormValues>();
 
   // Local state to store countries, states, and cities options
@@ -50,7 +49,6 @@ export default function MailingAddressForm() {
     setValue('playerDetails.phoneNumber', phoneNumber);
   };
 
-  
   // Watch country and state values to update the dependent select inputs
   const selectedCountry = watch('playerDetails.country');
   const selectedState = watch('playerDetails.state');
