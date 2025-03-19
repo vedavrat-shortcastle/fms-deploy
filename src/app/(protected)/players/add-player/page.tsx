@@ -54,14 +54,13 @@ export default function AddPlayerPage() {
         gradeInSchool: '',
         gradeDate: undefined,
         clubName: '',
-        clubId: null,
       },
     },
   });
 
   const { handleSubmit, reset, trigger } = form;
 
-  const createPlayerMutation = trpc.player.createPlayer.useMutation({
+  const createPlayerMutation = trpc.federation.createPlayer.useMutation({
     onSuccess: () => {
       reset();
       setActiveTab('personal');

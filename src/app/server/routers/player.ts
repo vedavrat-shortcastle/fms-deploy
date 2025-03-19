@@ -14,7 +14,6 @@ import { z } from 'zod';
 
 import { getProfileByRole } from '@/config/roleTable';
 import {
-  createPlayerSchema,
   deletePlayerSchema,
   editPlayerSchema,
   playerOnboardingSchema,
@@ -22,91 +21,6 @@ import {
 } from '@/schemas/Player.schema';
 
 export const playerRouter = router({
-  // Create a new player
-  createPlayer: permissionProtectedProcedure(PERMISSIONS.PLAYER_CREATE)
-    .input(createPlayerSchema)
-    .mutation(async ({ ctx, input }) => {
-      try {
-        const { baseUser, playerDetails } = input;
-        if (!ctx.session.user.federationId) {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'No federation context found',
-          });
-        }
-
-        const existingUser = await ctx.db.baseUser.findUnique({
-          where: {
-            email_federationId: {
-              email: baseUser.email,
-              federationId: ctx.session.user.federationId,
-            },
-          },
-        });
-
-        if (existingUser) {
-          throw new TRPCError({
-            code: 'CONFLICT',
-            message: 'User already exists',
-          });
-        }
-
-        const hashedPassword = await hashPassword(baseUser.password);
-        const result = await ctx.db.$transaction(async (tx) => {
-          const newBaseUser = await tx.baseUser.create({
-            data: {
-              ...baseUser,
-              password: hashedPassword,
-              role: Role.PLAYER,
-              federationId: ctx.session.user.federationId,
-            },
-          });
-
-          const newPlayer = await tx.player.create({
-            data: {
-              ...playerDetails,
-            },
-          });
-
-          const newUserProfile = await tx.userProfile.create({
-            data: {
-              profileType: ProfileType.PLAYER,
-              profileId: newPlayer.id,
-              baseUser: {
-                connect: { id: newBaseUser.id },
-              },
-            },
-          });
-
-          const fedPlayerPermissions = await tx.permission.findMany({
-            where: {
-              code: {
-                in: roleMap[Role.PLAYER],
-              },
-            },
-            select: {
-              id: true,
-            },
-          });
-
-          await tx.userPermission.createMany({
-            data: fedPlayerPermissions.map((permission) => ({
-              permissionId: permission.id,
-              userId: newUserProfile.id,
-            })),
-          });
-
-          return { ...newUserProfile, password: undefined };
-        });
-
-        return result;
-      } catch (error: any) {
-        handleError(error, {
-          message: 'Failed to create player',
-          cause: error.message,
-        });
-      }
-    }),
   // Get all players
   getPlayers: permissionProtectedProcedure(PERMISSIONS.PLAYER_VIEW)
     .input(
@@ -485,7 +399,6 @@ export const playerRouter = router({
             data: {
               ...input,
               fideId: null,
-              clubId: input.clubId ?? null,
             },
           });
 
