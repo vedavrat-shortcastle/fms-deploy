@@ -3,6 +3,7 @@
 import { Input } from '@/components/ui/input';
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { EditPlayerFormValues } from '@/schemas/Player.schema';
+import { ReactNode } from 'react';
 
 interface StudentDetailsSectionProps {
   register: UseFormRegister<EditPlayerFormValues>;
@@ -11,132 +12,78 @@ interface StudentDetailsSectionProps {
   player: EditPlayerFormValues | null;
 }
 
+interface StudentDetailsField {
+  label: string;
+  fieldName: keyof EditPlayerFormValues['playerDetails'];
+  required?: boolean;
+  inputType?: string;
+}
+
 export default function StudentDetailsSection({
   register,
   errors,
   isEditing,
   player,
 }: StudentDetailsSectionProps) {
+  // Define all student details fields in an array for easy mapping
+  const studentDetailsFields: StudentDetailsField[] = [
+    { label: 'School Name', fieldName: 'schoolName', required: true },
+    { label: 'Grade in School', fieldName: 'gradeInSchool', required: true },
+    { label: 'Graduation Year', fieldName: 'graduationYear', required: true },
+    { label: 'Grade as of (Date)', fieldName: 'gradeDate', required: true },
+  ];
+
+  // Helper function to safely convert any value to ReactNode
+  const formatFieldValue = (value: any): ReactNode => {
+    if (value === null || value === undefined) {
+      return '—';
+    }
+
+    if (value instanceof Date) {
+      return value.toLocaleDateString();
+    }
+
+    return String(value);
+  };
+
   return (
     <section className="mb-8">
       <h2 className="text-xl font-semibold mb-4">Student Details</h2>
       <div className="rounded-lg border border-gray-200 bg-white p-4 grid grid-cols-2 gap-4">
-        {isEditing ? (
-          <>
-            {/* School Name */}
-            <div>
-              <label className="block text-sm font-medium">School Name</label>
-              <Input
-                {...register('playerDetails.schoolName')}
-                className={`w-full p-1 border rounded ${
-                  errors?.playerDetails?.schoolName ? 'border-red-500' : ''
-                }`}
-              />
-              {errors?.playerDetails?.schoolName && (
-                <p className="text-red-500 text-sm">
-                  {errors.playerDetails.schoolName.message as string}
-                </p>
-              )}
-            </div>
+        {studentDetailsFields.map((field) => (
+          <div key={field.fieldName}>
+            <label
+              className={`block text-sm font-medium ${!isEditing ? 'mb-2' : ''}`}
+            >
+              {field.label}
+            </label>
 
-            {/* Grade in School */}
-            <div>
-              <label className="block text-sm font-medium">
-                Grade in School
-              </label>
-              <Input
-                {...register('playerDetails.gradeInSchool')}
-                className={`w-full p-1 border rounded ${
-                  errors?.playerDetails?.gradeInSchool ? 'border-red-500' : ''
-                }`}
-              />
-              {errors?.playerDetails?.gradeInSchool && (
-                <p className="text-red-500 text-sm">
-                  {errors.playerDetails.gradeInSchool.message as string}
-                </p>
-              )}
-            </div>
-
-            {/* Graduation Year */}
-            <div>
-              <label className="block text-sm font-medium">
-                Graduation Year
-              </label>
-              <Input
-                {...register('playerDetails.graduationYear')}
-                className={`w-full p-1 border rounded ${
-                  errors?.playerDetails?.graduationYear ? 'border-red-500' : ''
-                }`}
-              />
-              {errors?.playerDetails?.graduationYear && (
-                <p className="text-red-500 text-sm">
-                  {errors.playerDetails.graduationYear.message as string}
-                </p>
-              )}
-            </div>
-
-            {/* Grade as of (Date) */}
-            <div>
-              <label className="block text-sm font-medium">
-                Grade as of (Date)
-              </label>
-              <Input
-                {...register('playerDetails.gradeDate')}
-                className={`w-full p-1 border rounded ${
-                  errors?.playerDetails?.gradeDate ? 'border-red-500' : ''
-                }`}
-              />
-              {errors?.playerDetails?.gradeDate && (
-                <p className="text-red-500 text-sm">
-                  {errors.playerDetails.gradeDate.message as string}
-                </p>
-              )}
-            </div>
-          </>
-        ) : (
-          <>
-            {/* School Name */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                School Name
-              </label>
+            {isEditing ? (
+              <>
+                <Input
+                  type={field.inputType || 'text'}
+                  {...register(`playerDetails.${field.fieldName}`)}
+                  className={`w-full p-1 border rounded ${
+                    errors?.playerDetails?.[field.fieldName]
+                      ? 'border-red-500'
+                      : ''
+                  }`}
+                />
+                {errors?.playerDetails?.[field.fieldName] && (
+                  <p className="text-red-500 text-sm">
+                    {errors.playerDetails[field.fieldName]?.message as string}
+                  </p>
+                )}
+              </>
+            ) : (
               <p className="text-gray-700">
-                {player?.playerDetails.schoolName || '—'}
+                {field.fieldName === 'gradeDate'
+                  ? player?.playerDetails.gradeDate?.toString() || '—'
+                  : formatFieldValue(player?.playerDetails[field.fieldName])}
               </p>
-            </div>
-
-            {/* Grade in School */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Grade in School
-              </label>
-              <p className="text-gray-700">
-                {' '}
-                {player?.playerDetails.gradeInSchool || '—'}
-              </p>
-            </div>
-
-            {/* Graduation Year */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Graduation Year
-              </label>
-              <p className="text-gray-700">
-                {player?.playerDetails.graduationYear || '—'}
-              </p>
-            </div>
-
-            {/* Grade as of (Date) */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Grade as of (Date)
-              </label>
-              <p className="text-gray-700">
-                {player?.playerDetails.gradeDate?.toString() || '—'}
-              </p>
-            </div>
-          </>
-        )}
+            )}
+          </div>
+        ))}
       </div>
     </section>
   );
