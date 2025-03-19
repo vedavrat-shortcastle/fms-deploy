@@ -28,7 +28,11 @@ export default function PlayerOnboarding() {
   const { data: session } = useSession();
 
   useEffect(() => {
-    if (session?.user?.profileId) {
+    console.log(session);
+  }, [session]);
+
+  useEffect(() => {
+    if (session?.user?.profileId !== session?.user?.id) {
       router.push('/menbership');
     }
   }, [session?.user?.profileId, router]);
@@ -99,7 +103,7 @@ export default function PlayerOnboarding() {
   };
 
   // Final submission of the form.
-  const onSubmit = async (data: playerOnboardingInput) => {
+  const onSubmit = (data: playerOnboardingInput) => {
     if (activeTab === 'stepTwo') {
       mutate(data);
     }

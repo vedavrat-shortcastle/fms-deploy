@@ -59,6 +59,7 @@ export const authConfig: AuthOptions = {
           lastName: baseUser.lastName,
           permissions:
             baseUser.profile?.permissions.map((p) => p.permission) || [],
+          profileId: baseUser.profile?.profileId || baseUser.id,
         };
       },
     }),
@@ -76,6 +77,7 @@ export const authConfig: AuthOptions = {
         token.lastName = user.lastName;
         token.permissions = user.permissions;
         token.federationId = user.federationId;
+        token.profileId = user.profileId;
       }
       if (trigger === 'update' && session.user?.profileId) {
         token.profileId = session?.user.profileId;
@@ -91,8 +93,6 @@ export const authConfig: AuthOptions = {
         session.user.firstName = token.firstName;
         session.user.lastName = token.lastName;
         session.user.permissions = token.permissions;
-      }
-      if (token?.profileId) {
         session.user.profileId = token.profileId;
       }
       return session;
