@@ -4,7 +4,6 @@ import React, { useCallback, useState } from 'react';
 import { Search, Upload, Download } from 'lucide-react';
 import Sidebar from '@/components/SideBar';
 import { Button } from '@/components/ui/button';
-// import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { trpc } from '@/utils/trpc';
 import { Pagination } from '@/components/ui/pagination';
@@ -26,6 +25,12 @@ export default function Page() {
     page: currentPage,
     searchQuery: debounceSearchTerm,
   });
+
+  // Set up a query for CSV export; disable automatic fetching
+  const exportCSVQuery = trpc.player.getPlayersCSV.useQuery(
+    { searchQuery: debounceSearchTerm },
+    { enabled: false }
+  );
 
   const debouncedSearch = useCallback(
     debounce((value) => {
@@ -70,9 +75,30 @@ export default function Page() {
     alert('Import functionality would open file dialog');
   };
 
-  // Export functionality
-  const handleExport = () => {
-    alert('Export functionality would download player data');
+  // Export functionality: fetch CSV from the API and trigger download
+  const handleExport = async () => {
+    try {
+      const result = await exportCSVQuery.refetch();
+      if (result.data) {
+        const csvContent = result.data;
+        const blob = new Blob([csvContent], {
+          type: 'text/csv;charset=utf-8;',
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'players.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } else {
+        alert('No data available for export.');
+      }
+    } catch (error) {
+      console.error('Export failed', error);
+      alert('Export failed. Please try again.');
+    }
   };
 
   // implement pagination logic
@@ -131,16 +157,15 @@ export default function Page() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {players &&
-              players.map((player) => (
-                <PlayerCard
-                  key={player.id}
-                  player={player}
-                  onDelete={handleDelete}
-                  onEdit={handleEdit}
-                  onView={handleViewPlayerDetails}
-                />
-              ))}
+            {players.map((player) => (
+              <PlayerCard
+                key={player.id}
+                player={player}
+                onDelete={handleDelete}
+                onEdit={handleEdit}
+                onView={handleViewPlayerDetails}
+              />
+            ))}
           </div>
         )}
 

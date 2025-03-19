@@ -133,7 +133,6 @@ export function OtherInfoForm() {
         name="playerDetails.gradeDate" // Adjust the field name as needed
         render={({ field }) => (
           <FormItem>
-
             <FormLabel>{renderLabel('Grade Date (as of)')}</FormLabel>
 
             <FormControl>
