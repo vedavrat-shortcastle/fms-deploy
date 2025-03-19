@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { User } from 'lucide-react';
@@ -16,7 +16,7 @@ import {
   playerOnboardingSchema,
 } from '@/schemas/Player.schema';
 
-import { getSession, signIn, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 // Define the tab order for navigation
@@ -24,11 +24,15 @@ const tabOrder: Array<'stepOne' | 'stepTwo'> = ['stepOne', 'stepTwo'];
 
 export default function PlayerOnboarding() {
   const router = useRouter();
+
   const { data: session } = useSession();
 
-  if (session?.user?.profileId !== session?.user?.id) {
-    router.push('/players');
-  }
+  useEffect(() => {
+    if (session?.user?.profileId) {
+      router.push('/menbership');
+    }
+  }, [session?.user?.profileId, router]);
+
   const [activeTab, setActiveTab] = useState<'stepOne' | 'stepTwo'>('stepOne');
 
   const form = useForm<playerOnboardingInput>({
@@ -57,29 +61,13 @@ export default function PlayerOnboarding() {
   });
 
   const { handleSubmit } = form;
+  const { update } = useSession();
 
   const { mutate } = trpc.player.onboardPlayer.useMutation({
     onSuccess: async (data) => {
-      // Get the existing session
-      const session = await getSession();
-      // Update the session with the new player id (data.id)
-      if (session) {
-        // Assuming your session has a `user` object
-        const updatedSession = {
-          ...session,
-          user: {
-            ...session.user,
-            profileId: data?.id, // Adding data.id to the session's user object
-          },
-        };
-
-        await signIn('credentials', {
-          redirect: false,
-          user: updatedSession.user,
-        });
+      if (data?.id) {
+        update({ user: { ...session?.user, profileId: data.id } });
       }
-
-      router.push('/membership');
     },
     onError: (error) => {
       console.error('Error onboarding player:', error);

@@ -473,7 +473,7 @@ export const playerRouter = router({
     .input(playerOnboardingSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        if (ctx.session.user.profileId !== ctx.session.user.id) {
+        if (ctx.session.user.profileId) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'Player already onboarded',
@@ -485,7 +485,9 @@ export const playerRouter = router({
             data: {
               ...input,
               fideId: null,
-              clubId: input.clubId ?? null,
+              clubId: null,
+              birthDate: new Date(input.birthDate),
+              gradeDate: input.gradeDate ? new Date(input.gradeDate) : null,
             },
           });
 

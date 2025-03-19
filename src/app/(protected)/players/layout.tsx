@@ -16,9 +16,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (session.status === 'authenticated') {
-      setProfileOnboarded(
-        session.data?.user.profileId !== session.data?.user.id
-      );
+      setProfileOnboarded(!!session.data?.user.profileId);
     }
   }, [session.data?.user.profileId, session.status]);
 
