@@ -39,7 +39,7 @@ export const ProtectedRoute = ({
   }, [session, status, requiredPermission, router]);
 
   if (status === 'loading') {
-    return  <Loader/>;
+    return <Loader />;
   }
 
   return <>{children}</>;

@@ -2,9 +2,8 @@ import { Gender, Role, UserStatus } from '@prisma/client';
 import { z } from 'zod';
 
 export const playerOnboardingSchema = z.object({
-  birthDate: z.string(),
+  birthDate: z.date(),
   gender: z.nativeEnum(Gender),
-  avatarUrl: z.string().nullable().optional(),
   ageProof: z.string(),
   streetAddress: z.string(),
   streetAddress2: z.string().nullable().optional(),
@@ -14,13 +13,14 @@ export const playerOnboardingSchema = z.object({
   postalCode: z.string(),
   phoneNumber: z.string(),
   countryCode: z.string(),
+  avatarUrl: z.string().nullable().optional(),
   fideId: z.string().nullable().optional(),
   schoolName: z.string().nullable().optional(),
   graduationYear: z.number().nullable().optional(),
   gradeInSchool: z.string().nullable().optional(),
-  gradeDate: z.string().nullable().optional(),
+  gradeDate: z.date().nullable().optional(),
   clubName: z.string().nullable().optional(),
-  clubId: z.string().nullable().optional(),
+  clubId: z.string().optional(),
 });
 
 export type playerOnboardingInput = z.input<typeof playerOnboardingSchema>;
@@ -87,24 +87,26 @@ export const createPlayerSchema = z.object({
     password: z
       .string()
       .min(8, { message: 'Password must be at least 8 characters' }),
-    firstName: z.string({ required_error: 'First name is required' }),
-    lastName: z.string({ required_error: 'Last name is required' }),
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
     middleName: z.string().nullable().optional(),
     nameSuffix: z.string().nullable().optional(),
   }),
   playerDetails: z.object({
-    birthDate: z.date({ required_error: 'Birth date is required' }),
+    birthDate: z
+      .date()
+      .min(new Date('1900-01-01'), { message: 'Invalid birth date' }),
     gender: z.nativeEnum(Gender, { required_error: 'Gender is required' }),
     avatarUrl: z.string().nullable().optional(),
-    ageProof: z.string({ required_error: 'Age proof is required' }),
-    streetAddress: z.string({ required_error: 'Street address is required' }),
+    ageProof: z.string().nullable().optional(),
+    streetAddress: z.string().min(1, 'Street address is required'),
     streetAddress2: z.string().nullable().optional(),
-    country: z.string({ required_error: 'Country is required' }),
-    state: z.string({ required_error: 'State is required' }),
-    city: z.string({ required_error: 'City is required' }),
-    postalCode: z.string({ required_error: 'Postal code is required' }),
-    phoneNumber: z.string({ required_error: 'Phone number is required' }),
-    countryCode: z.string({ required_error: 'Country code is required' }),
+    country: z.string().min(1, 'Country is required'),
+    state: z.string().min(1, 'State is required'),
+    city: z.string().min(1, 'City is required'),
+    postalCode: z.string().min(1, 'Postal code is required'),
+    phoneNumber: z.string().nullable().optional(),
+    countryCode: z.string().nullable().optional(),
     fideId: z.string().nullable().optional(),
     schoolName: z.string().nullable().optional(),
     graduationYear: z.number().nullable().optional(),
