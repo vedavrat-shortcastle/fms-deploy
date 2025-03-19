@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CreatePlayerFormValues } from '@/schemas/Player.schema';
+import { PhoneInput } from '@/components/phoneinput';
 
 export default function MailingAddressForm() {
   const {
@@ -26,6 +27,7 @@ export default function MailingAddressForm() {
     setValue,
     watch,
     formState: { errors },
+    setValue,
   } = useFormContext<CreatePlayerFormValues>();
 
   // Local state to store countries, states, and cities options
@@ -38,7 +40,17 @@ export default function MailingAddressForm() {
   const [cityOptions, setCityOptions] = useState<
     { value: string; label: string }[]
   >([]);
+  const handleCountrySelect = (country: string) => {
+    console.log(country);
+    setValue('playerDetails.countryCode', '+' + country);
+  };
 
+  const handlePhoneNumberChange = (phoneNumber: string) => {
+    console.log(phoneNumber);
+    setValue('playerDetails.phoneNumber', phoneNumber);
+  };
+
+  
   // Watch country and state values to update the dependent select inputs
   const selectedCountry = watch('playerDetails.country');
   const selectedState = watch('playerDetails.state');
@@ -254,52 +266,12 @@ export default function MailingAddressForm() {
       />
 
       <div className="flex gap-x-5">
-        {/* Country Code - for phone number */}
-        <FormField
-          control={control}
-          name="playerDetails.countryCode"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-input-grey">Country Code</FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger className="w-[125px] h-[42px]">
-                    <SelectValue placeholder="Code" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="+91">+91 (India)</SelectItem>
-                    <SelectItem value="+1">+1 (USA)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
-        {/* Phone Number */}
-        <FormField
-          control={control}
-          name="playerDetails.phoneNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{renderLabel('Phone Number', true)}</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter Phone Number"
-                  {...field}
-                  value={field.value || ''}
-                  className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-                />
-              </FormControl>
-              <FormMessage>
-                {errors.playerDetails?.phoneNumber?.message}
-              </FormMessage>
-            </FormItem>
-          )}
+        <PhoneInput
+          placeholder="Your phone number"
+          defaultCountry="US"
+          onCountrySelect={handleCountrySelect}
+          onPhoneNumberChange={handlePhoneNumberChange}
         />
       </div>
     </div>

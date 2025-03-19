@@ -485,8 +485,7 @@ export const playerRouter = router({
             data: {
               ...input,
               fideId: null,
-              birthDate: new Date(input.birthDate),
-              gradeDate: input.gradeDate ? new Date(input.gradeDate) : null,
+              clubId: input.clubId ?? null,
             },
           });
 
@@ -507,6 +506,7 @@ export const playerRouter = router({
 
         return result;
       } catch (error: any) {
+        console.log(error);
         handleError(error, {
           message: 'Failed to onboard player',
           cause: error.message,
