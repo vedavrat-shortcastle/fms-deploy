@@ -81,6 +81,9 @@ export default function PlayerOnboarding() {
 
       router.push('/membership');
     },
+    onError: (error) => {
+      console.error('Error onboarding player:', error);
+    },
   });
 
   // When manually switching tabs, validate the current tab if moving forward.
