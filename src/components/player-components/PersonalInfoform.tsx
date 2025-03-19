@@ -10,6 +10,10 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+
+import { CreatePlayerFormValues } from '@/schemas/Player.schema';
+import DatePicker from '@/components/player-components/DatePicker';
+import { Gender } from '@prisma/client';
 import {
   Select,
   SelectContent,
@@ -17,25 +21,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DatePicker } from '@/components/player-components/DatePicker';
-import { CreatePlayerFormValues } from '@/schemas/Player.schema';
-import { Gender } from '@prisma/client';
 
 export function PersonalInformationForm() {
-  const {
-    control,
-    register,
-    setValue,
-    trigger,
-    formState: { errors },
-  } = useFormContext<CreatePlayerFormValues>();
+  const { control, register } = useFormContext<CreatePlayerFormValues>();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  const today = new Date();
 
   if (!isClient) return null;
 
@@ -92,29 +85,14 @@ export function PersonalInformationForm() {
       {/* Birth Date */}
       <FormField
         control={control}
-        name="playerDetails.birthDate"
+        name="playerDetails.birthDate" // Adjust the field name as needed
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm text-gray-900">
-              Birth Date <span className="text-red-500">*</span>
+            <FormLabel className="block text-sm text-gray-900">
+              Date of Birth
             </FormLabel>
             <FormControl>
-              <DatePicker
-                value={field.value ? new Date(field.value) : undefined} // Ensure it's a valid Date
-                onChange={(date) => {
-                  if (date) {
-                    setValue('playerDetails.birthDate', date); // Store as Date object
-                  } else {
-                    setValue('playerDetails.birthDate', new Date()); // Provide a default date
-                  }
-                  trigger('playerDetails.birthDate');
-                }}
-                onBlur={() => trigger('playerDetails.birthDate')}
-                disabled={(date) => date > today}
-                placeholder="Select birth date"
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-                error={!!errors?.playerDetails?.birthDate}
-              />
+              <DatePicker field={field} allowFuture={false} allowPast={true} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -138,7 +116,6 @@ export function PersonalInformationForm() {
                 <SelectTrigger className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500">
                   <SelectValue placeholder="Select Gender" />
                 </SelectTrigger>
-
                 <SelectContent>
                   {Object.values(Gender).map((gen) => (
                     <SelectItem value={gen} key={gen}>

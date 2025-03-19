@@ -9,6 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/phoneinput';
 import {
   Select,
   SelectContent,
@@ -16,56 +17,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Gender } from '@prisma/client';
+import DatePicker from '@/components/player-components/DatePicker';
 
 export const PlayerDetailsStepOne = () => {
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
+  setValue('countryCode', '+1');
+
+  const handleCountrySelect = (country: string) => {
+    setValue('countryCode', '+' + country);
+  };
+
+  const handlePhoneNumberChange = (phoneNumber: string) => {
+    setValue('phoneNumber', phoneNumber);
+  };
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
       <FormField
         control={control}
-        name="birthDate"
+        name="birthDate" // Adjust the field name as needed
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm text-gray-900">Birth Date</FormLabel>
-            <FormControl>
-              <Input
-                type="date"
-                {...field}
-                value={field.value ? field.value : undefined}
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="gender"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm text-gray-900">
-              Gender <span className="text-red-500">*</span>
+            <FormLabel className="block text-sm text-gray-900">
+              Date of Birth
             </FormLabel>
             <FormControl>
-              <Select
-                value={field.value || 'MALE'} // Provide default to ensure it's not undefined
-                onValueChange={field.onChange}
-              >
-                <SelectTrigger className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500">
-                  <SelectValue placeholder="Select Gender" />
-                </SelectTrigger>
-
-                <SelectContent>
-                  {Object.values(Gender).map((gen) => (
-                    <SelectItem value={gen} key={gen}>
-                      {gen}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <DatePicker field={field} allowFuture={false} allowPast={true} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -215,49 +192,12 @@ export const PlayerDetailsStepOne = () => {
         )}
       />
       <div className="flex gap-x-5">
-        <FormField
-          control={control}
-          name="countryCode"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-input-grey">Country Code</FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger className="w-[125px] h-[42px]">
-                    <SelectValue placeholder="Code" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="+91">+91 (India)</SelectItem>
-                    <SelectItem value="+1">+1 (USA)</SelectItem>
-                    <SelectItem value="+64">+64 (NZ)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Phone Number */}
-        <FormField
-          control={control}
-          name="phoneNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone Number</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter Phone Number"
-                  {...field}
-                  value={field.value || ''} // Ensure value is never undefined
-                  className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        <PhoneInput
+          placeholder="Your phone number"
+          defaultCountry="US"
+          onCountrySelect={handleCountrySelect}
+          onPhoneNumberChange={handlePhoneNumberChange}
+          className="w-full"
         />
       </div>
     </div>

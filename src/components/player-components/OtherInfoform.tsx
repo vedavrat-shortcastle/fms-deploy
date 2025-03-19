@@ -11,13 +11,11 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { CreatePlayerFormValues } from '@/schemas/Player.schema';
-import { DatePicker } from '@/components/player-components/DatePicker';
+import DatePicker from '@/components/player-components/DatePicker';
 
 export function OtherInfoForm() {
   const {
     control,
-    setValue,
-    trigger,
     formState: { errors },
   } = useFormContext<CreatePlayerFormValues>();
 
@@ -132,26 +130,20 @@ export function OtherInfoForm() {
       {/* Grade Date (as of) using DatePicker */}
       <FormField
         control={control}
-        name="playerDetails.gradeDate"
+        name="playerDetails.gradeDate" // Adjust the field name as needed
         render={({ field }) => (
           <FormItem>
+
             <FormLabel>{renderLabel('Grade Date (as of)')}</FormLabel>
+
             <FormControl>
               <DatePicker
-                value={field.value ? new Date(field.value) : undefined} // Ensure value is a Date
-                onChange={(date) => {
-                  setValue('playerDetails.gradeDate', date ?? null); // Store as Date
-                  trigger('playerDetails.gradeDate');
-                }}
-                onBlur={() => trigger('playerDetails.gradeDate')}
-                placeholder="Select date"
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-                error={!!errors.playerDetails?.gradeDate}
+                field={{ ...field, value: field.value ?? undefined }}
+                allowFuture={false} // Example: disallow future dates
+                allowPast={true}
               />
             </FormControl>
-            <FormMessage>
-              {errors.playerDetails?.gradeDate?.message}
-            </FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
