@@ -135,25 +135,6 @@ export const PlayerDetailsStepTwo = () => {
           </FormItem>
         )}
       />
-      <FormField
-        control={control}
-        name="clubId"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm text-gray-900">
-              Club ID (Optional)
-            </FormLabel>
-            <FormControl>
-              <Input
-                placeholder="Enter Club ID"
-                {...field}
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
     </div>
   );
 };

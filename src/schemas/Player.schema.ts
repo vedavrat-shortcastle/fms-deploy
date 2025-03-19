@@ -20,7 +20,6 @@ export const playerOnboardingSchema = z.object({
   gradeInSchool: z.string().nullable().optional(),
   gradeDate: z.date().nullable().optional(),
   clubName: z.string().nullable().optional(),
-  clubId: z.string().optional(),
 });
 
 export type playerOnboardingInput = z.input<typeof playerOnboardingSchema>;
@@ -63,7 +62,6 @@ export const editPlayerSchema = z.object({
     countryCode: z.string().optional(),
     phoneNumber: z.string().optional(),
     adminFederationId: z.string().optional(),
-    clubId: z.string().optional(),
     avatarUrl: z.string().optional(),
     fideId: z.string().optional(),
     schoolName: z.string().optional(),
@@ -113,7 +111,6 @@ export const createPlayerSchema = z.object({
     gradeInSchool: z.string().nullable().optional(),
     gradeDate: z.date().nullable().optional(),
     clubName: z.string().nullable().optional(),
-    clubId: z.string().nullable().optional(),
   }),
 });
 

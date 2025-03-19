@@ -111,7 +111,6 @@ export default function PlayerDetails() {
               ? new Date(data.gradeDate)
               : data.gradeDate || undefined,
           clubName: data.clubName || undefined,
-          clubId: data.clubId || undefined,
         },
       };
       setPlayer(mappedPlayer);

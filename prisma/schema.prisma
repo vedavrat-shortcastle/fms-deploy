@@ -112,9 +112,9 @@ model Player {
   subscriptions Subscription[]
   club          Club?          @relation(name: "ClubPlayers", fields: [clubId], references: [id])
   clubId        String?
-  createdAt     DateTime       @default(now()) @map("created_at")
   parent        Parent?        @relation(fields: [parentId], references: [id], name: "ParentPlayers")
   parentId      String?
+  createdAt     DateTime       @default(now()) @map("created_at")
 
   @@map("player")
 }
