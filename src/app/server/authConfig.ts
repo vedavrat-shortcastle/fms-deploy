@@ -59,7 +59,6 @@ export const authConfig: AuthOptions = {
           lastName: baseUser.lastName,
           permissions:
             baseUser.profile?.permissions.map((p) => p.permission) || [],
-          profileId: baseUser.profile?.profileId || '',
         };
       },
     }),
@@ -69,7 +68,7 @@ export const authConfig: AuthOptions = {
     error: '/auth/error',
   },
   callbacks: {
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
@@ -77,10 +76,13 @@ export const authConfig: AuthOptions = {
         token.lastName = user.lastName;
         token.permissions = user.permissions;
         token.federationId = user.federationId;
-        token.profileId = user.profileId;
+      }
+      if (trigger === 'update' && session.user?.profileId) {
+        token.profileId = session?.user.profileId;
       }
       return token;
     },
+
     session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id;
@@ -89,6 +91,8 @@ export const authConfig: AuthOptions = {
         session.user.firstName = token.firstName;
         session.user.lastName = token.lastName;
         session.user.permissions = token.permissions;
+      }
+      if (token?.profileId) {
         session.user.profileId = token.profileId;
       }
       return session;
