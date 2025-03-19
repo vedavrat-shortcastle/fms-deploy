@@ -205,7 +205,7 @@ export default function MailingAddressForm() {
               <FormControl>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  defaultValue={field.value || undefined}
                 >
                   <SelectTrigger className="w-[125px] h-[42px]">
                     <SelectValue placeholder="Code" />
