@@ -3,6 +3,7 @@
 import { Input } from '@/components/ui/input';
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { EditPlayerFormValues } from '@/schemas/Player.schema';
+import { ReactNode } from 'react';
 
 interface AddressSectionProps {
   register: UseFormRegister<EditPlayerFormValues>;
@@ -11,198 +12,77 @@ interface AddressSectionProps {
   player: EditPlayerFormValues | null;
 }
 
+interface AddressField {
+  label: string;
+  fieldName: keyof EditPlayerFormValues['playerDetails'];
+  required?: boolean;
+}
+
 export default function AddressSection({
   register,
   errors,
   isEditing,
   player,
 }: AddressSectionProps) {
+  // Define all address fields in an array for easy mapping
+  const addressFields: AddressField[] = [
+    { label: 'Street Address', fieldName: 'streetAddress', required: true },
+    { label: 'Postal Code', fieldName: 'postalCode', required: true },
+    { label: 'Street Address Line 2', fieldName: 'streetAddress2' },
+    { label: 'Country', fieldName: 'country', required: true },
+    { label: 'City', fieldName: 'city', required: true },
+    { label: 'Phone Number', fieldName: 'phoneNumber', required: true },
+    { label: 'State/Province', fieldName: 'state', required: true },
+  ];
+
+  // Helper function to safely convert any value to ReactNode
+  const formatFieldValue = (value: any): ReactNode => {
+    if (value === null || value === undefined) {
+      return '—';
+    }
+
+    if (value instanceof Date) {
+      return value.toLocaleDateString();
+    }
+
+    return String(value);
+  };
+
   return (
     <section className="mb-8">
       <h2 className="text-xl font-semibold mb-4">Mailing Address</h2>
       <div className="rounded-lg border border-gray-200 bg-white p-4 grid grid-cols-2 gap-4">
-        {isEditing ? (
-          <>
-            {/* Street Address */}
-            <div>
-              <label className="block text-sm font-medium">
-                Street Address
-              </label>
-              <Input
-                {...register('playerDetails.streetAddress')}
-                className={`w-full p-1 border rounded ${
-                  errors?.playerDetails?.streetAddress ? 'border-red-500' : ''
-                }`}
-              />
-              {errors?.playerDetails?.streetAddress && (
-                <p className="text-red-500 text-sm">
-                  {errors.playerDetails.streetAddress.message as string}
-                </p>
-              )}
-            </div>
+        {addressFields.map((field) => (
+          <div key={field.fieldName}>
+            <label
+              className={`block text-sm font-medium ${!isEditing ? 'mb-2' : ''}`}
+            >
+              {field.label}
+            </label>
 
-            {/* Postal Code */}
-            <div>
-              <label className="block text-sm font-medium">Postal Code</label>
-              <Input
-                {...register('playerDetails.postalCode')}
-                className={`w-full p-1 border rounded ${
-                  errors?.playerDetails?.postalCode ? 'border-red-500' : ''
-                }`}
-              />
-              {errors?.playerDetails?.postalCode && (
-                <p className="text-red-500 text-sm">
-                  {errors.playerDetails.postalCode.message as string}
-                </p>
-              )}
-            </div>
-
-            {/* Street Address Line 2 */}
-            <div>
-              <label className="block text-sm font-medium">
-                Street Address Line 2
-              </label>
-              <Input
-                {...register('playerDetails.streetAddress2')}
-                className="w-full p-1 border rounded"
-              />
-            </div>
-
-            {/* Country */}
-            <div>
-              <label className="block text-sm font-medium">Country</label>
-              <Input
-                {...register('playerDetails.country')}
-                className={`w-full p-1 border rounded ${
-                  errors?.playerDetails?.country ? 'border-red-500' : ''
-                }`}
-              />
-              {errors?.playerDetails?.country && (
-                <p className="text-red-500 text-sm">
-                  {errors.playerDetails.country.message as string}
-                </p>
-              )}
-            </div>
-
-            {/* City */}
-            <div>
-              <label className="block text-sm font-medium">City</label>
-              <Input
-                {...register('playerDetails.city')}
-                className={`w-full p-1 border rounded ${
-                  errors?.playerDetails?.city ? 'border-red-500' : ''
-                }`}
-              />
-              {errors?.playerDetails?.city && (
-                <p className="text-red-500 text-sm">
-                  {errors.playerDetails.city.message as string}
-                </p>
-              )}
-            </div>
-
-            {/* Phone Number */}
-            <div>
-              <label className="block text-sm font-medium">Phone Number</label>
-              <Input
-                {...register('playerDetails.phoneNumber')}
-                className={`w-full p-1 border rounded ${
-                  errors?.playerDetails?.phoneNumber ? 'border-red-500' : ''
-                }`}
-              />
-              {errors?.playerDetails?.phoneNumber && (
-                <p className="text-red-500 text-sm">
-                  {errors.playerDetails.phoneNumber.message as string}
-                </p>
-              )}
-            </div>
-
-            {/* State/Province */}
-            <div>
-              <label className="block text-sm font-medium">
-                State/Province
-              </label>
-              <Input
-                {...register('playerDetails.state')}
-                className={`w-full p-1 border rounded ${
-                  errors?.playerDetails?.state ? 'border-red-500' : ''
-                }`}
-              />
-              {errors?.playerDetails?.state && (
-                <p className="text-red-500 text-sm">
-                  {errors.playerDetails.state.message as string}
-                </p>
-              )}
-            </div>
-          </>
-        ) : (
-          <>
-            {/* Street Address */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Street Address
-              </label>
+            {isEditing ? (
+              <>
+                <Input
+                  {...register(`playerDetails.${field.fieldName}`)}
+                  className={`w-full p-1 border rounded ${
+                    errors?.playerDetails?.[field.fieldName]
+                      ? 'border-red-500'
+                      : ''
+                  }`}
+                />
+                {errors?.playerDetails?.[field.fieldName] && (
+                  <p className="text-red-500 text-sm">
+                    {errors.playerDetails[field.fieldName]?.message as string}
+                  </p>
+                )}
+              </>
+            ) : (
               <p className="text-gray-700">
-                {player?.playerDetails.streetAddress || '—'}
+                {formatFieldValue(player?.playerDetails[field.fieldName])}
               </p>
-            </div>
-
-            {/* Postal Code */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Postal Code
-              </label>
-              <p className="text-gray-700">
-                {player?.playerDetails.postalCode || '—'}
-              </p>
-            </div>
-
-            {/* Street Address Line 2 */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Street Address Line 2
-              </label>
-              <p className="text-gray-700">
-                {player?.playerDetails.streetAddress2 || '—'}
-              </p>
-            </div>
-
-            {/* Country */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Country</label>
-              <p className="text-gray-700">
-                {player?.playerDetails.country || '—'}
-              </p>
-            </div>
-
-            {/* City */}
-            <div>
-              <label className="block text-sm font-medium mb-2">City</label>
-              <p className="text-gray-700">
-                {player?.playerDetails.city || '—'}
-              </p>
-            </div>
-
-            {/* Phone Number */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Phone Number
-              </label>
-              <p className="text-gray-700">
-                {player?.playerDetails.phoneNumber || '—'}
-              </p>
-            </div>
-
-            {/* State/Province */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                State/Province
-              </label>
-              <p className="text-gray-700">
-                {player?.playerDetails.state || '—'}
-              </p>
-            </div>
-          </>
-        )}
+            )}
+          </div>
+        ))}
       </div>
     </section>
   );
