@@ -24,7 +24,6 @@ import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-// import { Gender } from '@prisma/client';
 import { trpc } from '@/hooks/trpcProvider';
 
 import { useEffect } from 'react';
