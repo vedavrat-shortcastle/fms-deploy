@@ -30,7 +30,7 @@ export default function Page() {
   const debouncedSearch = useCallback(
     debounce((value) => {
       setDebounceSearchTerm(value);
-    }, 1500),
+    }, 300),
     []
   );
 
