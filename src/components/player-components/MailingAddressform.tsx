@@ -208,11 +208,13 @@ export default function MailingAddressForm() {
         )}
       />
       <div className="flex gap-x-5">
+
         <PhoneInput
           placeholder="Your phone number"
           defaultCountry="US"
           onCountrySelect={handleCountrySelect}
           onPhoneNumberChange={handlePhoneNumberChange}
+
         />
       </div>
     </div>
