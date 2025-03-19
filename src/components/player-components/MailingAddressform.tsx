@@ -1,6 +1,7 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { Country, State, City } from 'country-state-city';
 
 import {
   FormField,
@@ -23,10 +24,22 @@ import { PhoneInput } from '@/components/phoneinput';
 export default function MailingAddressForm() {
   const {
     control,
+    setValue,
+    watch,
     formState: { errors },
     setValue,
   } = useFormContext<CreatePlayerFormValues>();
 
+  // Local state to store countries, states, and cities options
+  const [countryOptions, setCountryOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [stateOptions, setStateOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [cityOptions, setCityOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
   const handleCountrySelect = (country: string) => {
     console.log(country);
     setValue('playerDetails.countryCode', '+' + country);
@@ -37,19 +50,49 @@ export default function MailingAddressForm() {
     setValue('playerDetails.phoneNumber', phoneNumber);
   };
 
-  const countryOptions = [
-    { value: 'United States', label: 'United States' },
-    { value: 'Canada', label: 'Canada' },
-    { value: 'Mexico', label: 'Mexico' },
-  ];
+  
+  // Watch country and state values to update the dependent select inputs
+  const selectedCountry = watch('playerDetails.country');
+  const selectedState = watch('playerDetails.state');
 
-  const stateOptions = [
-    { value: 'AL', label: 'Alabama' },
-    { value: 'AK', label: 'Alaska' },
-    { value: 'AZ', label: 'Arizona' },
-    { value: 'AR', label: 'Arkansas' },
-    { value: 'CA', label: 'California' },
-  ];
+  // Load all countries on mount
+  useEffect(() => {
+    const countries = Country.getAllCountries().map((country) => ({
+      value: country.isoCode, // Using ISO code as value
+      label: country.name,
+    }));
+    setCountryOptions(countries);
+  }, []);
+
+  // Update states when selected country changes
+  useEffect(() => {
+    if (selectedCountry) {
+      const states = State.getStatesOfCountry(selectedCountry).map((state) => ({
+        value: state.isoCode,
+        label: state.name,
+      }));
+      setStateOptions(states);
+      // Reset dependent fields when country changes
+      setValue('playerDetails.state', '');
+      setValue('playerDetails.city', '');
+      setCityOptions([]);
+    }
+  }, [selectedCountry, setValue]);
+
+  // Update cities when selected state changes
+  useEffect(() => {
+    if (selectedCountry && selectedState) {
+      const cities = City.getCitiesOfState(selectedCountry, selectedState).map(
+        (city) => ({
+          value: city.name, // or any unique identifier available
+          label: city.name,
+        })
+      );
+      setCityOptions(cities);
+      // Reset city if state changes
+      setValue('playerDetails.city', '');
+    }
+  }, [selectedState, setValue]);
 
   const renderLabel = (text: string, isRequired: boolean = false) => (
     <>
@@ -75,7 +118,7 @@ export default function MailingAddressForm() {
               <Input
                 placeholder="Enter Street Address"
                 {...field}
-                value={field.value || ''} // Ensure value is never undefined
+                value={field.value || ''}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -97,7 +140,7 @@ export default function MailingAddressForm() {
               <Input
                 placeholder="Enter Address Line 2"
                 {...field}
-                value={field.value || ''} // Ensure value is never undefined
+                value={field.value || ''}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -116,10 +159,7 @@ export default function MailingAddressForm() {
           <FormItem>
             <FormLabel>{renderLabel('Country', true)}</FormLabel>
             <FormControl>
-              <Select
-                value={field.value || ''} // Ensure value is never undefined
-                onValueChange={field.onChange}
-              >
+              <Select value={field.value || ''} onValueChange={field.onChange}>
                 <SelectTrigger className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500">
                   <SelectValue placeholder="Select Country" />
                 </SelectTrigger>
@@ -145,10 +185,7 @@ export default function MailingAddressForm() {
           <FormItem>
             <FormLabel>{renderLabel('State/Province', true)}</FormLabel>
             <FormControl>
-              <Select
-                value={field.value || ''} // Ensure value is never undefined
-                onValueChange={field.onChange}
-              >
+              <Select value={field.value || ''} onValueChange={field.onChange}>
                 <SelectTrigger className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500">
                   <SelectValue placeholder="Select State/Province" />
                 </SelectTrigger>
@@ -173,14 +210,34 @@ export default function MailingAddressForm() {
         render={({ field }) => (
           <FormItem>
             <FormLabel>{renderLabel('City', true)}</FormLabel>
-            <FormControl>
-              <Input
-                placeholder="Enter City"
-                {...field}
-                value={field.value || ''} // Ensure value is never undefined
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-            </FormControl>
+            {cityOptions.length > 0 ? (
+              <FormControl>
+                <Select
+                  value={field.value || ''}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500">
+                    <SelectValue placeholder="Select City" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cityOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+            ) : (
+              <FormControl>
+                <Input
+                  placeholder="Enter City"
+                  {...field}
+                  value={field.value || ''}
+                  className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
+                />
+              </FormControl>
+            )}
             <FormMessage>{errors.playerDetails?.city?.message}</FormMessage>
           </FormItem>
         )}
@@ -197,7 +254,7 @@ export default function MailingAddressForm() {
               <Input
                 placeholder="Enter Postal Code"
                 {...field}
-                value={field.value || ''} // Ensure value is never undefined
+                value={field.value || ''}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -207,6 +264,7 @@ export default function MailingAddressForm() {
           </FormItem>
         )}
       />
+
       <div className="flex gap-x-5">
         <PhoneInput
           placeholder="Your phone number"
