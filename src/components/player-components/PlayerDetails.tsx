@@ -38,8 +38,10 @@ export default function PlayerDetailsSection({
           </>
         ) : (
           <>
-            <label className="block text-sm font-medium">FIDE ID</label>
-            <p>{player?.playerDetails.fideId}</p>
+            <label className="block text-sm font-medium mb-2">FIDE ID</label>
+            <p className="text-gray-700">
+              {player?.playerDetails.fideId || '—'}
+            </p>
           </>
         )}
       </div>
