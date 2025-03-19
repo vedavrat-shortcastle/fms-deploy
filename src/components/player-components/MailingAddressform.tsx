@@ -80,7 +80,7 @@ export default function MailingAddressForm() {
       // Reset city if state changes
       setValue('playerDetails.city', '');
     }
-  }, [selectedCountry, selectedState, setValue]);
+  }, [selectedState, setValue]);
 
   const renderLabel = (text: string, isRequired: boolean = false) => (
     <>
