@@ -513,4 +513,96 @@ export const playerRouter = router({
         });
       }
     }),
+  // to get players  csv:
+
+  getPlayersCSV: permissionProtectedProcedure(PERMISSIONS.PLAYER_VIEW)
+    .input(
+      z.object({
+        searchQuery: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const { searchQuery } = input;
+        const where: Prisma.BaseUserWhereInput = {
+          role: Role.PLAYER,
+          federationId: ctx.session.user.federationId,
+          profile: {
+            userStatus: {
+              not: 'DELETED',
+            },
+          },
+          OR: searchQuery
+            ? [
+                { email: { contains: searchQuery, mode: 'insensitive' } },
+                { firstName: { contains: searchQuery, mode: 'insensitive' } },
+                { lastName: { contains: searchQuery, mode: 'insensitive' } },
+              ]
+            : undefined,
+        };
+
+        // Query all players without pagination.
+        const players = await ctx.db.baseUser.findMany({
+          where,
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            createdAt: true,
+            profile: {
+              select: {
+                userStatus: true,
+                profileId: true,
+              },
+            },
+          },
+        });
+
+        // Create CSV header and rows
+        const header = [
+          'id',
+          'email',
+          'firstName',
+          'lastName',
+          'role',
+          'createdAt',
+          'userStatus',
+          'profileId',
+        ];
+        const rows = players.map((player) => [
+          player.id,
+          player.email,
+          player.firstName,
+          player.lastName,
+          player.role,
+          player.createdAt.toISOString(),
+          player.profile?.userStatus ?? '',
+          player.profile?.profileId ?? '',
+        ]);
+
+        // Convert rows to CSV string (basic implementation)
+        const csvContent = [header, ...rows]
+          .map((row) =>
+            row
+              .map((cell) => {
+                // Wrap cell content in quotes if it contains commas or newlines
+                const cellStr = String(cell);
+                return cellStr.includes(',') || cellStr.includes('\n')
+                  ? `"${cellStr}"`
+                  : cellStr;
+              })
+              .join(',')
+          )
+          .join('\n');
+
+        return csvContent;
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to fetch players CSV',
+          cause: error.message,
+        });
+      }
+    }),
 });
