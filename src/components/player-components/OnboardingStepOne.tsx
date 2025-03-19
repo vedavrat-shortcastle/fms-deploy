@@ -21,6 +21,7 @@ import { Gender } from '@prisma/client';
 
 export const PlayerDetailsStepOne = () => {
   const { control, setValue } = useFormContext();
+  setValue('countryCode', '+1');
 
   const handleCountrySelect = (country: string) => {
     setValue('countryCode', '+' + country);

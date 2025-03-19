@@ -111,11 +111,10 @@ export default function PlayerOnboarding() {
   };
 
   // Final submission of the form.
-  const onSubmit = (data: playerOnboardingInput) => {
+  const onSubmit = async (data: playerOnboardingInput) => {
     console.log('data: ', data, 'activeTab: ', activeTab);
-    console.log(form.formState.errors);
+
     if (activeTab === 'stepTwo') {
-      // Here you can call your API or process the data.
       mutate(data);
     }
     // reset();

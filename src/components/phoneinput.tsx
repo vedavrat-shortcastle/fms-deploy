@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
 
 // Updated PhoneInputProps type with new callback props
 type PhoneInputProps = {
@@ -83,6 +84,7 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
     return (
       <div className={cn('flex flex-col gap-4', className)}>
         {' '}
+        <Label>Phone Number</Label>
         {/* Changed from <form> to <div> */}
         <div className="flex items-center gap-2">
           {/* Country Selector */}
@@ -94,7 +96,8 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
           {/* Phone Number Input */}
           <Input
             ref={ref}
-            className="rounded-e-lg rounded-s-none"
+            type="tel"
+            className="rounded-e-lg rounded-s-none w-full"
             value={phoneNumber}
             onChange={handlePhoneNumberChangeInternal}
             placeholder={placeholder || 'Enter phone number'}
@@ -152,7 +155,7 @@ const CountrySelect = ({
         <Button
           type="button"
           variant="outline"
-          className="flex gap-1 rounded-e-none rounded-s-lg border-r-0 px-3 focus:z-10"
+          className="flex gap-1 h-[42px] rounded-e-none rounded-s-lg border-r-0 px-3 focus:z-10"
           disabled={disabled}
         >
           <FlagComponent
