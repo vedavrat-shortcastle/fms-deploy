@@ -40,7 +40,7 @@ export default function AddPlayerPage() {
         birthDate: new Date(), // Now using null instead of an empty string
         gender: 'MALE',
         avatarUrl: '',
-        ageProof: '',
+        ageProof: 'random',
         streetAddress: '',
         streetAddress2: '',
         country: '',
