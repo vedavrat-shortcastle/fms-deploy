@@ -344,7 +344,6 @@ export const playerRouter = router({
   deletePlayerById: permissionProtectedProcedure(PERMISSIONS.PLAYER_DELETE)
     .input(deletePlayerSchema)
     .mutation(async ({ ctx, input }) => {
-      console.log(input.id);
       try {
         const userProfileId = await ctx.db.baseUser.findUnique({
           where: {

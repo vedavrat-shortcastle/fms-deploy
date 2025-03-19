@@ -5,7 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-//import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -83,12 +82,10 @@ export default function PlayerDetails() {
           email: data.email,
           firstName: data.firstName,
           lastName: data.lastName,
-          // Provide defaults for missing properties
           middleName: (data as any).middleName || '',
           nameSuffix: (data as any).nameSuffix || '',
         },
         playerDetails: {
-          // Convert Date to ISO string if needed, or use your preferred format
           gender: data.gender,
           birthDate:
             data.birthDate instanceof Date
@@ -125,29 +122,28 @@ export default function PlayerDetails() {
   }, [data, error, reset]);
 
   // Then update your onSubmit function like this:
-  const onSubmit = async (formData: EditPlayerFormValues) => {
+  const onSubmit = (formData: EditPlayerFormValues) => {
     setIsSubmitting(true);
-    try {
-      console.debug('Form submitted with data:', formData);
 
-      // Make sure the baseUser object has the correct ID
-      // This is important - the server is looking for baseUser.id
-      const updatedFormData = {
-        ...formData,
-        baseUser: {
-          ...formData.baseUser,
-          id: playerId, // Ensure this ID is correct
-        },
-      };
+    // Make sure the baseUser object has the correct ID
+    const updatedFormData = {
+      ...formData,
+      baseUser: {
+        ...formData.baseUser,
+        id: playerId, // Ensure this ID is correct
+      },
+    };
 
-      console.debug('Submitting updated data:', updatedFormData);
-      await editPlayerMutation.mutateAsync(updatedFormData);
-      setPlayer(updatedFormData);
-    } catch (submitError) {
-      console.error('Error submitting form:', submitError);
-    } finally {
-      setIsSubmitting(false);
-    }
+    editPlayerMutation.mutate(updatedFormData, {
+      onSuccess: () => {
+        setPlayer(updatedFormData);
+        setIsSubmitting(false);
+      },
+      onError: (error) => {
+        console.error('Error submitting form:', error);
+        setIsSubmitting(false);
+      },
+    });
   };
 
   const handleEditToggle = () => {
