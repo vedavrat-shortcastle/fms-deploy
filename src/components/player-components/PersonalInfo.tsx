@@ -134,50 +134,76 @@ export default function PersonalInfoSection({
           <>
             {/* First Name */}
             <div>
-              <label className="block text-sm font-medium">First Name</label>
-              <p>{player?.baseUser.firstName}</p>
+              <label className="block text-sm font-medium mb-2">
+                First Name
+              </label>
+              <p className="text-gray-700">
+                {player?.baseUser.firstName || '—'}
+              </p>
             </div>
 
             {/* Birth Date */}
             <div>
-              <label className="block text-sm font-medium">Birth Date</label>
-              <p>{player?.playerDetails.birthDate}</p>
+              <label className="block text-sm font-medium mb-2">
+                Birth Date
+              </label>
+              <p className="text-gray-700">
+                {player?.playerDetails.birthDate || '—'}
+              </p>
             </div>
 
             {/* Middle Name */}
             <div>
-              <label className="block text-sm font-medium">Middle Name</label>
-              <p>{player?.baseUser.middleName}</p>
+              <label className="block text-sm font-medium mb-2">
+                Middle Name
+              </label>
+              <p className="text-gray-700">
+                {player?.baseUser.middleName || '—'}
+              </p>
             </div>
 
             {/* Gender */}
             <div>
-              <label className="block text-sm font-medium">Gender</label>
-              <p>{player?.playerDetails.gender}</p>
+              <label className="block text-sm font-medium mb-2">Gender</label>
+              <p className="text-gray-700">
+                {player?.playerDetails.gender || '—'}
+              </p>
             </div>
 
             {/* Last Name */}
             <div>
-              <label className="block text-sm font-medium">Last Name</label>
-              <p>{player?.baseUser.lastName}</p>
+              <label className="block text-sm font-medium mb-2">
+                Last Name
+              </label>
+              <p className="text-gray-700">
+                {player?.baseUser.lastName || '—'}
+              </p>
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium">Email</label>
-              <p>{player?.baseUser.email}</p>
+              <label className="block text-sm font-medium mb-2 ">Email</label>
+              <p className="text-gray-700">{player?.baseUser.email || '—'}</p>
             </div>
 
             {/* Name Suffix */}
             <div>
-              <label className="block text-sm font-medium">Name Suffix</label>
-              <p>{player?.baseUser.nameSuffix}</p>
+              <label className="block text-sm font-medium mb-2">
+                Name Suffix
+              </label>
+              <p className="text-gray-700">
+                {player?.baseUser.nameSuffix || '—'}
+              </p>
             </div>
 
             {/* Age Proof */}
             <div>
-              <label className="block text-sm font-medium">Age Proof</label>
-              <p>{player?.playerDetails.ageProof}</p>
+              <label className="block text-sm font-medium mb-2">
+                Age Proof
+              </label>
+              <p className="text-gray-700">
+                {player?.playerDetails.ageProof || '—'}
+              </p>
             </div>
           </>
         )}
