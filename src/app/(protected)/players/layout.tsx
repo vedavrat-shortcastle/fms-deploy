@@ -41,7 +41,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <Loader />
       </div>
     );
-    ;
   }
 
   // Allow rendering children for onboarding page or when user is authenticated and onboarded
