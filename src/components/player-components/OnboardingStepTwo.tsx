@@ -67,7 +67,7 @@ export const PlayerDetailsStepTwo = () => {
                 type="number"
                 placeholder="Enter Graduation Year"
                 {...field}
-                value={field.value ? Number(field.value) : ''}
+                value={field.value ? parseInt(field.value, 10) : undefined}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>

@@ -24,23 +24,32 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
+// Updated PhoneInputProps type with new callback props
 type PhoneInputProps = {
   placeholder?: string;
   defaultCountry?: RPNInput.Country | undefined;
   className?: string;
+  onCountrySelect?: (countryCode: string) => void;
+  onPhoneNumberChange?: (phoneNumber: string) => void;
 };
 
 const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
-  ({ placeholder, defaultCountry = 'US', className }, ref) => {
+  (
+    {
+      placeholder,
+      defaultCountry = 'US',
+      className,
+      onCountrySelect,
+      onPhoneNumberChange,
+    },
+    ref
+  ) => {
     const [countryCode, setCountryCode] = React.useState(
       getCountryCallingCode(defaultCountry)
     );
     const [phoneNumber, setPhoneNumber] = React.useState('');
     const [selectedCountry, setSelectedCountry] =
       React.useState<RPNInput.Country>(defaultCountry);
-    const [submitMessage, setSubmitMessage] = React.useState<string | null>(
-      null
-    );
 
     // Sync country code with selected country
     React.useEffect(() => {
@@ -51,61 +60,62 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
     }, [selectedCountry, countryCode]);
 
     // Handle phone number input change
-    const handlePhoneNumberChange = (
+    const handlePhoneNumberChangeInternal = (
       e: React.ChangeEvent<HTMLInputElement>
     ) => {
-      setPhoneNumber(e.target.value);
+      const newValue = e.target.value;
+      setPhoneNumber(newValue);
+      if (onPhoneNumberChange) {
+        onPhoneNumberChange(newValue);
+      }
     };
 
-    // Handle form submission
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      // Example submission logic (e.g., log to console or send to an API)
-      const fullPhoneNumber = `+${countryCode}${phoneNumber}`;
-      console.log('Submitted:', { countryCode, phoneNumber, fullPhoneNumber });
-
-      // Simulate an API call or processing
-      setSubmitMessage(`Phone number submitted: ${fullPhoneNumber}`);
-      setTimeout(() => setSubmitMessage(null), 3000); // Clear message after 3 seconds
-
-      // Optionally reset the form
-      // setPhoneNumber('');
+    // Handle country change
+    const handleCountryChange = (country: RPNInput.Country) => {
+      const callingCode = getCountryCallingCode(country);
+      setCountryCode(callingCode);
+      setSelectedCountry(country);
+      if (onCountrySelect) {
+        onCountrySelect(callingCode);
+      }
     };
 
     return (
-      <form
-        onSubmit={handleSubmit}
-        className={cn('flex flex-col gap-4', className)}
-      >
+      <div className={cn('flex flex-col gap-4', className)}>
+        {' '}
+        {/* Changed from <form> to <div> */}
         <div className="flex items-center gap-2">
           {/* Country Selector */}
           <CountrySelect
             disabled={false}
             value={selectedCountry}
-            onChange={(country) => setSelectedCountry(country)}
+            onChange={handleCountryChange}
           />
           {/* Phone Number Input */}
           <Input
             ref={ref}
             className="rounded-e-lg rounded-s-none"
             value={phoneNumber}
-            onChange={handlePhoneNumberChange}
+            onChange={handlePhoneNumberChangeInternal}
             placeholder={placeholder || 'Enter phone number'}
           />
         </div>
-        <Button type="submit" className="w-fit">
+        {/* <Button type="submit" className="w-fit">
           Submit
-        </Button>
-        {submitMessage && (
+        </Button> */}{' '}
+        {/* Removed Submit Button */}
+        {/* {submitMessage && (
           <p className="text-sm text-green-600">{submitMessage}</p>
-        )}
-      </form>
+        )} */}{' '}
+        {/* Removed submit message */}
+      </div>
     );
   }
 );
 
 PhoneInput.displayName = 'PhoneInput';
 
+// CountryEntry and CountrySelect components remain unchanged
 type CountryEntry = { label: string; value: RPNInput.Country };
 
 type CountrySelectProps = {

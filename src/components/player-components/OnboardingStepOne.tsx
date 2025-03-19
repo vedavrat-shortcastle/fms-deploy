@@ -20,7 +20,15 @@ import {
 import { Gender } from '@prisma/client';
 
 export const PlayerDetailsStepOne = () => {
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
+
+  const handleCountrySelect = (country: string) => {
+    setValue('countryCode', '+' + country);
+  };
+
+  const handlePhoneNumberChange = (phoneNumber: string) => {
+    setValue('phoneNumber', phoneNumber);
+  };
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
@@ -216,41 +224,12 @@ export const PlayerDetailsStepOne = () => {
         )}
       />
       <div className="flex gap-x-5">
-        <FormField
-          control={control}
-          name="countryCode"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-input-grey">Country Code</FormLabel>
-              <FormControl>
-                <PhoneInput
-                  countryCode="countryCode"
-                  phoneNumber="phoneNumber"
-                  field={field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Phone Number */}
-        <FormField
-          control={control}
-          name="phoneNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone Number</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter Phone Number"
-                  {...field}
-                  value={field.value || ''} // Ensure value is never undefined
-                  className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        <PhoneInput
+          placeholder="Your phone number"
+          defaultCountry="US"
+          onCountrySelect={handleCountrySelect}
+          onPhoneNumberChange={handlePhoneNumberChange}
+          className="w-full"
         />
       </div>
     </div>
