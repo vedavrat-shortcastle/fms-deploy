@@ -22,6 +22,12 @@ export const PERMISSIONS = {
   PLAYER_CREATE: 'player.create',
   PLAYER_UPDATE: 'player.update',
   PLAYER_DELETE: 'player.delete',
+
+  // Parent permissions
+  PARENT_CREATE: 'parent:create',
+  PARENT_VIEW: 'parent:view',
+  PARENT_UPDATE: 'parent:update',
+  PARENT_DELETE: 'parent:delete',
 } as const;
 
 export const roleMap = {
@@ -68,4 +74,10 @@ export const roleMap = {
     PERMISSIONS.PLAYER_DELETE,
   ],
   PLAYER: [PERMISSIONS.EVENT_VIEW, PERMISSIONS.PLAYER_VIEW],
+  PARENT: [
+    PERMISSIONS.PARENT_VIEW,
+    PERMISSIONS.PLAYER_CREATE,
+    PERMISSIONS.PLAYER_VIEW,
+    PERMISSIONS.PLAYER_UPDATE,
+  ],
 };

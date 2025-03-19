@@ -60,7 +60,6 @@ export default function PlayerOnboarding() {
       gradeInSchool: '',
       gradeDate: undefined,
       clubName: '',
-      clubId: undefined,
     },
   });
 

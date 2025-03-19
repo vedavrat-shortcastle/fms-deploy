@@ -57,6 +57,32 @@ model ClubManager {
   @@map("club_manager")
 }
 
+// Parent Schema
+model Parent {
+  id String @id @default(uuid())
+
+  // Contact Details
+  phoneNumber String? @map("phone_number")
+  countryCode String? @map("country_code")
+
+  // Address Details
+  streetAddress  String  @map("street_address")
+  streetAddress2 String? @map("street_address2")
+  country        String
+  state          String
+  city           String
+  postalCode     String  @map("postal_code")
+
+  // Relationships
+  players Player[] @relation("ParentPlayers")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("parent")
+}
+
 // Player Schema
 model Player {
   id        String   @id @default(uuid())
@@ -86,6 +112,8 @@ model Player {
   subscriptions Subscription[]
   club          Club?          @relation(name: "ClubPlayers", fields: [clubId], references: [id])
   clubId        String?
+  parent        Parent?        @relation(fields: [parentId], references: [id], name: "ParentPlayers")
+  parentId      String?
   createdAt     DateTime       @default(now()) @map("created_at")
 
   @@map("player")
@@ -123,8 +151,9 @@ model Federation {
   events        Event[]
   subscriptions Subscription[]
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  MembershipPlan MembershipPlan[]
 
   @@map("federation")
 }
@@ -158,13 +187,39 @@ model Subscription {
   subscriber   Player @relation(fields: [subscriberId], references: [id])
   subscriberId String @map("subscriber_id")
 
-  type      SubscriptionType
-  status    SubscriptionStatus
-  startDate DateTime           @map("start_date")
-  endDate   DateTime           @map("end_date")
-  createdAt DateTime           @default(now()) @map("created_at")
+  type          SubscriptionType
+  status        SubscriptionStatus
+  startDate     DateTime           @map("start_date")
+  endDate       DateTime           @map("end_date")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  plan          MembershipPlan     @relation(fields: [planId], references: [id])
+  planId        String
+  paymentStatus PaymentStatus      @default(PENDING)
+  amount        Float
+  currency      String
 
   @@map("subscription")
+}
+
+// Membership Plan Schema
+model MembershipPlan {
+  id            String         @id @default(uuid())
+  name          String
+  description   String?
+  duration      Int // in days
+  price         Float
+  currency      String
+  benefits      String[]
+  autoRenewal   Boolean        @default(false)
+  status        PlanStatus     @default(ACTIVE)
+  criteria      Json? // Flexible criteria storage
+  federation    Federation     @relation(fields: [federationId], references: [id])
+  federationId  String
+  subscriptions Subscription[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("membership_plan")
 }
 
 // Event Schema
@@ -231,6 +286,7 @@ enum FedType {
 }
 
 enum ProfileType {
+  PARENT
   PLAYER
   FEDERATION_ADMIN
   CLUB_MANAGER
@@ -244,6 +300,7 @@ enum ProfileType {
 enum Role {
   FED_ADMIN
   CLUB_MANAGER
+  PARENT
   PLAYER
   COACH
   ARBITER
@@ -254,6 +311,19 @@ enum Gender {
   MALE
   FEMALE
   OTHER
+}
+
+enum PlanStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
 }
 
 enum SubscriptionType {
