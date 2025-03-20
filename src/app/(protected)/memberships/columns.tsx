@@ -4,12 +4,11 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 
 export type PlanTable = {
-    name: string;
-    price: string;
-    benefits: string;
-    eligibility: string | null;
-  };
-  
+  name: string;
+  price: string;
+  benefits: string;
+  eligibility: string | null;
+};
 
 export const columns: ColumnDef<PlanTable>[] = [
   {
@@ -31,12 +30,10 @@ export const columns: ColumnDef<PlanTable>[] = [
   {
     id: 'actions',
     // header: 'Actions',
-    cell: ({ }) => (
-      <div className="flex space-x-2 flex justify-end">
+    cell: () => (
+      <div className="flex space-x-2 justify-end">
         <Button className="bg-red-600 text-white">Purchase Plan</Button>
       </div>
     ),
   },
- 
 ];
-
