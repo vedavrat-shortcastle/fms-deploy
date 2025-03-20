@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { renderLabel } from '@/components/player-components/OtherInfoform';
+import { FileUploader } from '@/components/FileUploader';
 
 export const PlayerDetailsStepOne = () => {
   const { control, setValue } = useFormContext();
@@ -80,42 +81,6 @@ export const PlayerDetailsStepOne = () => {
         )}
       />
 
-      <FormField
-        control={control}
-        name="avatarUrl"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm text-gray-900">
-              Avatar URL (Optional)
-            </FormLabel>
-            <FormControl>
-              <Input
-                placeholder="Enter Avatar URL"
-                {...field}
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="ageProof"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm text-gray-900">Age Proof</FormLabel>
-            <FormControl>
-              <Input
-                placeholder="Enter Age Proof"
-                {...field}
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
       <FormField
         control={control}
         name="streetAddress"
@@ -229,6 +194,33 @@ export const PlayerDetailsStepOne = () => {
           onCountrySelect={handleCountrySelect}
           onPhoneNumberChange={handlePhoneNumberChange}
           className="w-full"
+        />
+      </div>
+
+      {/* Age Proof Upload */}
+      <div className="space-y-2">
+        <FormField
+          control={control}
+          name="ageProof"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-sm text-gray-900">
+                Age Proof Upload
+              </FormLabel>
+              <FormControl>
+                <FileUploader
+                  field={field}
+                  uploadFolder="age-proof"
+                  accept={{
+                    'image/*': ['.jpeg', '.jpg', '.png'],
+                    'application/pdf': ['.pdf'],
+                  }}
+                  label="Click or drag to upload age proof"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
       </div>
     </div>
