@@ -38,6 +38,7 @@ export default function AddPlayerPage() {
       },
       playerDetails: {
         birthDate: undefined, // Now using null instead of an empty string
+        gender: 'MALE',
         avatarUrl: '',
         ageProof: '',
         streetAddress: '',

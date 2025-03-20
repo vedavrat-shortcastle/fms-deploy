@@ -12,6 +12,14 @@ import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/phoneinput';
 import DatePicker from '@/components/player-components/DatePicker';
 import { Gender } from '@prisma/client';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { renderLabel } from '@/components/player-components/OtherInfoform';
 
 export const PlayerDetailsStepOne = () => {
   const { control, setValue } = useFormContext();
@@ -33,7 +41,7 @@ export const PlayerDetailsStepOne = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="block text-sm text-gray-900">
-              Date of Birth
+              {renderLabel('Date of Birth', true)}
             </FormLabel>
             <FormControl>
               <DatePicker field={field} allowFuture={false} allowPast={true} />
@@ -48,7 +56,7 @@ export const PlayerDetailsStepOne = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              Gender <span className="text-red-500">*</span>
+              {renderLabel('Gender', true)}
             </FormLabel>
             <FormControl>
               <Select

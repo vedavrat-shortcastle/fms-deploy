@@ -46,7 +46,6 @@ export default function Page() {
   // Add a tRPC mutation for deleting a player
   const deletePlayerMutation = trpc.player.deletePlayerById.useMutation({
     onSuccess: () => {
-      console.log('Player deleted successfully');
       // Refetch players to update the list after deletion
       refetch();
     },
