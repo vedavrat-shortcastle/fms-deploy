@@ -11,25 +11,27 @@ import {
 import { Input } from '@/components/ui/input';
 import DatePicker from '@/components/player-components/DatePicker';
 import { FileUploader } from '@/components/FileUploader';
+import { playerOnboardingInput } from '@/schemas/Player.schema';
+import { renderLabel } from '@/components/RenderLable';
 
 export const PlayerDetailsStepTwo = () => {
-  const { control } = useFormContext();
+  const { control } = useFormContext<playerOnboardingInput>();
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
+    <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-2 lg:grid-cols-2">
       <FormField
         control={control}
         name="fideId"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              FIDE ID (Optional)
+              {renderLabel('FIDE ID', false)}
             </FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter FIDE ID"
                 {...field}
-                value={field.value ? field.value : ''}
+                value={field.value ?? ''}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -43,12 +45,13 @@ export const PlayerDetailsStepTwo = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              School Name (Optional)
+              {renderLabel('School Name', false)}
             </FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter School Name"
                 {...field}
+                value={field.value ?? ''}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -62,7 +65,7 @@ export const PlayerDetailsStepTwo = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              Graduation Year (Optional)
+              {renderLabel('Graduation Year', false)}
             </FormLabel>
             <FormControl>
               <Input
@@ -84,12 +87,13 @@ export const PlayerDetailsStepTwo = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              Grade In School (Optional)
+              {renderLabel('Grade In School', false)}
             </FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter Grade In School"
                 {...field}
+                value={field.value ?? ''}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -99,15 +103,15 @@ export const PlayerDetailsStepTwo = () => {
       />
       <FormField
         control={control}
-        name="playerDetails.gradeDate" // Adjust the field name as needed
+        name="gradeDate" // Adjust the field name as needed
         render={({ field }) => (
           <FormItem>
             <FormLabel className="block text-sm text-gray-900">
-              Grade Date
+              {renderLabel('Grade Date', false)}
             </FormLabel>
             <FormControl>
               <DatePicker
-                field={field}
+                field={{ ...field, value: field.value ?? undefined }}
                 allowFuture={false} // Example: disallow future dates
                 allowPast={true}
               />
@@ -123,12 +127,13 @@ export const PlayerDetailsStepTwo = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              Club Name (Optional)
+              {renderLabel('Club Name', false)}
             </FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter Club Name"
                 {...field}
+                value={field.value ?? ''}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>

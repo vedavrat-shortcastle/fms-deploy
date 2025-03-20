@@ -24,6 +24,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import { renderLabel } from '@/components/RenderLable';
 
 // Updated PhoneInputProps type with new callback props
 type PhoneInputProps = {
@@ -83,8 +84,7 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
 
     return (
       <div className={cn('flex flex-col gap-4', className)}>
-        {' '}
-        <Label>Phone Number</Label>
+        <Label> {renderLabel('Phone Number', true)}</Label>
         {/* Changed from <form> to <div> */}
         <div className="flex items-center gap-2">
           {/* Country Selector */}
@@ -101,16 +101,9 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
             value={phoneNumber}
             onChange={handlePhoneNumberChangeInternal}
             placeholder={placeholder || 'Enter phone number'}
+            pattern="[0-9]*"
           />
         </div>
-        {/* <Button type="submit" className="w-fit">
-          Submit
-        </Button> */}{' '}
-        {/* Removed Submit Button */}
-        {/* {submitMessage && (
-          <p className="text-sm text-green-600">{submitMessage}</p>
-        )} */}{' '}
-        {/* Removed submit message */}
       </div>
     );
   }

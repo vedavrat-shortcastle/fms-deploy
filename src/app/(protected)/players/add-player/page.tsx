@@ -24,7 +24,6 @@ export default function AddPlayerPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: session } = useSession();
 
-  // Use nested default values with proper Date objects
   const form = useForm<CreatePlayerFormValues>({
     resolver: zodResolver(createPlayerSchema),
     mode: 'onChange',
@@ -38,7 +37,7 @@ export default function AddPlayerPage() {
         nameSuffix: '',
       },
       playerDetails: {
-        birthDate: undefined, // Now using null instead of an empty string
+        birthDate: undefined,
         gender: 'MALE',
         avatarUrl: '',
         ageProof: '',

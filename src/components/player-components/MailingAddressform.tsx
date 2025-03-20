@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select';
 import { CreatePlayerFormValues } from '@/schemas/Player.schema';
 import { PhoneInput } from '@/components/phoneinput';
+import { renderLabel } from '@/components/RenderLable';
 
 export default function MailingAddressForm() {
   const {
@@ -39,7 +40,8 @@ export default function MailingAddressForm() {
   const [cityOptions, setCityOptions] = useState<
     { value: string; label: string }[]
   >([]);
-  const handleCountrySelect = (country: string) => {
+
+  const handleCountryCodeSelect = (country: string) => {
     setValue('playerDetails.countryCode', '+' + country);
   };
 
@@ -89,13 +91,6 @@ export default function MailingAddressForm() {
       setValue('playerDetails.city', '');
     }
   }, [selectedState, setValue]);
-
-  const renderLabel = (text: string, isRequired: boolean = false) => (
-    <>
-      <span className="text-sm text-gray-900">{text}</span>
-      {isRequired && <span className="text-red-500"> *</span>}
-    </>
-  );
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto bg-white p-6 rounded-lg">
@@ -266,7 +261,7 @@ export default function MailingAddressForm() {
         <PhoneInput
           placeholder="Your phone number"
           defaultCountry="US"
-          onCountrySelect={handleCountrySelect}
+          onCountrySelect={handleCountryCodeSelect}
           onPhoneNumberChange={handlePhoneNumberChange}
         />
       </div>

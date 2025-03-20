@@ -109,7 +109,7 @@ export default function DatePicker({
         <Button
           variant="outline"
           className={cn(
-            'w-full h-[44px] justify-start text-left font-normal',
+            'w-full h-[42px] justify-start text-left font-normal',
             !field.value && 'text-muted-foreground'
           )}
         >
