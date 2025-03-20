@@ -201,7 +201,7 @@ export const PlayerDetailsStepOne = () => {
       <div className="space-y-2">
         <FormField
           control={control}
-          name="playerDetails.ageProof"
+          name="ageProof"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm text-gray-900">
