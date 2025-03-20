@@ -5,16 +5,30 @@ import { z } from 'zod';
 export const dashboardRouter = router({
   getMemberCount: permissionProtectedProcedure(PERMISSIONS.PLAYER_VIEW).query(
     async ({ ctx }) => {
-      const count = await ctx.db.player.count();
-      return { count };
+      const count = await ctx.db.baseUser.count({
+        where: {
+          role: 'PLAYER',
+          profile: {
+            userStatus: 'ACTIVE',
+          },
+          federationId: ctx.session.user.federationId,
+        },
+      });
+      return count;
     }
   ),
+
   getClubCount: permissionProtectedProcedure(PERMISSIONS.CLUB_VIEW).query(
     async ({ ctx }) => {
-      const count = await ctx.db.club.count();
+      const count = await ctx.db.club.count({
+        where: {
+          federationId: ctx.session.user.federationId,
+        },
+      });
       return { count };
     }
   ),
+
   getMemberGrowth: permissionProtectedProcedure(PERMISSIONS.PLAYER_VIEW)
     .input(
       z.object({
@@ -24,8 +38,10 @@ export const dashboardRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { startDate, endDate } = input;
-      const growth = await ctx.db.player.count({
+      const growth = await ctx.db.baseUser.count({
         where: {
+          role: 'PLAYER',
+          federationId: ctx.session.user.federationId,
           createdAt: {
             gte: new Date(startDate),
             lte: new Date(endDate),

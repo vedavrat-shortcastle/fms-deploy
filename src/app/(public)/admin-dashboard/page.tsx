@@ -8,7 +8,7 @@ import HorizontalBarChart from '@/components/dashboard-components/HorizontalBarC
 import { trpc } from '@/utils/trpc';
 
 export default function AdminDashboard() {
-  const { data, error } = trpc.dashboard.getMemberCount.useQuery();
+  const { data: memberCount, error } = trpc.dashboard.getMemberCount.useQuery();
 
   if (error) {
     console.error('Error fetching member count:', error);
@@ -26,7 +26,7 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <MetricCard
               title="Total Members"
-              value={String(data?.count)}
+              value={String(memberCount)}
               change="+11.01%"
               isPositive={true}
             />
