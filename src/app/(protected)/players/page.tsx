@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useRef } from 'react';
 import { Search, Upload, Download } from 'lucide-react';
 import Sidebar from '@/components/SideBar';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,9 @@ export default function Page() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [debounceSearchTerm, setDebounceSearchTerm] = useState('');
+
+  // Add a ref for the file input element
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const { data, isLoading } = trpc.player.getPlayers.useQuery({
     limit: limit,
@@ -78,15 +81,27 @@ export default function Page() {
     router.push(`/players/${playerId}`);
   };
 
-  // Handle CSV upload (open file dialog or your custom logic)
+  // Handle CSV upload: trigger file picker by clicking hidden file input
   const handleUploadCSV = () => {
-    alert('Upload CSV functionality would open file dialog');
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  // Handle file selection from file picker
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      console.log('Selected CSV file:', file.name);
+      // TODO: Process the CSV file here (e.g., read content, send to API, etc.)
+    }
   };
 
   // Handle sample CSV download (CSV with just the header row)
   const handleSampleCSV = () => {
     // Define a sample CSV header (adjust columns as needed)
-    const header = 'id,email,firstname,lastname,role,profileId\n';
+    const header =
+      'email,password,firstName,lastName,middleName,nameSuffix,birthDate,gender,avatarUrl,ageProof,streetAddress,streetAddress2,country,state,city,postalCode,phoneNumber,countryCode,fideId,schoolName,graduationYear,gradeInSchool,gradeDate,clubName\n';
     const blob = new Blob([header], {
       type: 'text/csv;charset=utf-8;',
     });
@@ -126,7 +141,7 @@ export default function Page() {
     }
   };
 
-  // implement pagination logic
+  // Implement pagination logic
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -187,6 +202,15 @@ export default function Page() {
             Export
           </Button>
         </div>
+
+        {/* Hidden file input for CSV upload */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept=".csv"
+          style={{ display: 'none' }}
+          onChange={handleFileChange}
+        />
 
         {isLoading ? (
           <div className="flex justify-center items-center flex-grow">
