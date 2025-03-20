@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { User } from 'lucide-react';
@@ -16,7 +16,7 @@ import {
   playerOnboardingSchema,
 } from '@/schemas/Player.schema';
 
-import { getSession, signIn, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 // Define the tab order for navigation
@@ -24,18 +24,26 @@ const tabOrder: Array<'stepOne' | 'stepTwo'> = ['stepOne', 'stepTwo'];
 
 export default function PlayerOnboarding() {
   const router = useRouter();
+
   const { data: session } = useSession();
 
-  if (session?.user?.profileId !== session?.user?.id) {
-    router.push('/players');
-  }
+  useEffect(() => {
+    console.log(session);
+  }, [session]);
+
+  useEffect(() => {
+    if (session?.user?.profileId !== session?.user?.id) {
+      router.push('/menbership');
+    }
+  }, [session?.user?.profileId, router]);
+
   const [activeTab, setActiveTab] = useState<'stepOne' | 'stepTwo'>('stepOne');
 
   const form = useForm<playerOnboardingInput>({
     resolver: zodResolver(playerOnboardingSchema),
     mode: 'onChange', // Validate on every change for instant feedback
     defaultValues: {
-      birthDate: '',
+      birthDate: undefined,
       avatarUrl: '',
       ageProof: '',
       streetAddress: '',
@@ -50,36 +58,23 @@ export default function PlayerOnboarding() {
       schoolName: '',
       graduationYear: undefined,
       gradeInSchool: '',
-      gradeDate: '',
+      gradeDate: undefined,
       clubName: '',
-      clubId: null,
+      gender: 'MALE',
     },
   });
 
   const { handleSubmit } = form;
+  const { update } = useSession();
 
   const { mutate } = trpc.player.onboardPlayer.useMutation({
     onSuccess: async (data) => {
-      // Get the existing session
-      const session = await getSession();
-      // Update the session with the new player id (data.id)
-      if (session) {
-        // Assuming your session has a `user` object
-        const updatedSession = {
-          ...session,
-          user: {
-            ...session.user,
-            profileId: data?.id, // Adding data.id to the session's user object
-          },
-        };
-
-        await signIn('credentials', {
-          redirect: false,
-          user: updatedSession.user,
-        });
+      if (data?.id) {
+        update({ user: { ...session?.user, profileId: data.id } });
       }
-
-      router.push('/membership');
+    },
+    onError: (error) => {
+      console.error('Error onboarding player:', error);
     },
   });
 
@@ -109,12 +104,9 @@ export default function PlayerOnboarding() {
 
   // Final submission of the form.
   const onSubmit = (data: playerOnboardingInput) => {
-    console.log('data: ', data, 'activeTab: ', activeTab);
     if (activeTab === 'stepTwo') {
-      // Here you can call your API or process the data.
       mutate(data);
     }
-    // reset();
   };
 
   return (
@@ -122,7 +114,7 @@ export default function PlayerOnboarding() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex h-screen bg-gray-50">
           <Sidebar />
-          <main className="flex-1 overflow-auto p-6">
+          <main className="flex-1 overflow-auto">
             <PageHeader
               icon={<User size={16} color="white" />}
               title="Players"

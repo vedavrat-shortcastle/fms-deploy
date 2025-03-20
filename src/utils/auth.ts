@@ -16,5 +16,11 @@ export function checkPermission(
   userPermissions: string[],
   requiredPermission: string
 ) {
+  const resourceName = requiredPermission.split(':')[0];
+  const allPermission = `${resourceName}:all`;
+
+  if (userPermissions.includes(allPermission)) {
+    return true;
+  }
   return userPermissions.includes(requiredPermission);
 }

@@ -14,7 +14,6 @@ import { z } from 'zod';
 
 import { getProfileByRole } from '@/config/roleTable';
 import {
-  createPlayerSchema,
   deletePlayerSchema,
   editPlayerSchema,
   playerOnboardingSchema,
@@ -22,91 +21,6 @@ import {
 } from '@/schemas/Player.schema';
 
 export const playerRouter = router({
-  // Create a new player
-  createPlayer: permissionProtectedProcedure(PERMISSIONS.PLAYER_CREATE)
-    .input(createPlayerSchema)
-    .mutation(async ({ ctx, input }) => {
-      try {
-        const { baseUser, playerDetails } = input;
-        if (!ctx.session.user.federationId) {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'No federation context found',
-          });
-        }
-
-        const existingUser = await ctx.db.baseUser.findUnique({
-          where: {
-            email_federationId: {
-              email: baseUser.email,
-              federationId: ctx.session.user.federationId,
-            },
-          },
-        });
-
-        if (existingUser) {
-          throw new TRPCError({
-            code: 'CONFLICT',
-            message: 'User already exists',
-          });
-        }
-
-        const hashedPassword = await hashPassword(baseUser.password);
-        const result = await ctx.db.$transaction(async (tx) => {
-          const newBaseUser = await tx.baseUser.create({
-            data: {
-              ...baseUser,
-              password: hashedPassword,
-              role: Role.PLAYER,
-              federationId: ctx.session.user.federationId,
-            },
-          });
-
-          const newPlayer = await tx.player.create({
-            data: {
-              ...playerDetails,
-            },
-          });
-
-          const newUserProfile = await tx.userProfile.create({
-            data: {
-              profileType: ProfileType.PLAYER,
-              profileId: newPlayer.id,
-              baseUser: {
-                connect: { id: newBaseUser.id },
-              },
-            },
-          });
-
-          const fedPlayerPermissions = await tx.permission.findMany({
-            where: {
-              code: {
-                in: roleMap[Role.PLAYER],
-              },
-            },
-            select: {
-              id: true,
-            },
-          });
-
-          await tx.userPermission.createMany({
-            data: fedPlayerPermissions.map((permission) => ({
-              permissionId: permission.id,
-              userId: newUserProfile.id,
-            })),
-          });
-
-          return { ...newUserProfile, password: undefined };
-        });
-
-        return result;
-      } catch (error: any) {
-        handleError(error, {
-          message: 'Failed to create player',
-          cause: error.message,
-        });
-      }
-    }),
   // Get all players
   getPlayers: permissionProtectedProcedure(PERMISSIONS.PLAYER_VIEW)
     .input(
@@ -180,6 +94,16 @@ export const playerRouter = router({
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       try {
+        const role = ctx.session.user.role;
+        if (role === Role.PLAYER) {
+          if (ctx.session.user.profileId !== input.id) {
+            throw new TRPCError({
+              code: 'FORBIDDEN',
+              message: 'Player not found',
+            });
+          }
+        }
+
         // Find the base user by filtering on the related user profile's profileId field
         const baseUser = await ctx.db.baseUser.findFirst({
           where: {
@@ -485,8 +409,6 @@ export const playerRouter = router({
             data: {
               ...input,
               fideId: null,
-              birthDate: new Date(input.birthDate),
-              gradeDate: input.gradeDate ? new Date(input.gradeDate) : null,
             },
           });
 
@@ -507,8 +429,101 @@ export const playerRouter = router({
 
         return result;
       } catch (error: any) {
+        console.log(error);
         handleError(error, {
           message: 'Failed to onboard player',
+          cause: error.message,
+        });
+      }
+    }),
+  // to get players  csv:
+
+  getPlayersCSV: permissionProtectedProcedure(PERMISSIONS.PLAYER_VIEW)
+    .input(
+      z.object({
+        searchQuery: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const { searchQuery } = input;
+        const where: Prisma.BaseUserWhereInput = {
+          role: Role.PLAYER,
+          federationId: ctx.session.user.federationId,
+          profile: {
+            userStatus: {
+              not: 'DELETED',
+            },
+          },
+          OR: searchQuery
+            ? [
+                { email: { contains: searchQuery, mode: 'insensitive' } },
+                { firstName: { contains: searchQuery, mode: 'insensitive' } },
+                { lastName: { contains: searchQuery, mode: 'insensitive' } },
+              ]
+            : undefined,
+        };
+
+        // Query all players without pagination.
+        const players = await ctx.db.baseUser.findMany({
+          where,
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            createdAt: true,
+            profile: {
+              select: {
+                userStatus: true,
+                profileId: true,
+              },
+            },
+          },
+        });
+
+        // Create CSV header and rows
+        const header = [
+          'id',
+          'email',
+          'firstName',
+          'lastName',
+          'role',
+          'createdAt',
+          'userStatus',
+          'profileId',
+        ];
+        const rows = players.map((player) => [
+          player.id,
+          player.email,
+          player.firstName,
+          player.lastName,
+          player.role,
+          player.createdAt.toISOString(),
+          player.profile?.userStatus ?? '',
+          player.profile?.profileId ?? '',
+        ]);
+
+        // Convert rows to CSV string (basic implementation)
+        const csvContent = [header, ...rows]
+          .map((row) =>
+            row
+              .map((cell) => {
+                // Wrap cell content in quotes if it contains commas or newlines
+                const cellStr = String(cell);
+                return cellStr.includes(',') || cellStr.includes('\n')
+                  ? `"${cellStr}"`
+                  : cellStr;
+              })
+              .join(',')
+          )
+          .join('\n');
+
+        return csvContent;
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to fetch players CSV',
           cause: error.message,
         });
       }

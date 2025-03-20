@@ -11,22 +11,20 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { CreatePlayerFormValues } from '@/schemas/Player.schema';
-import { DatePicker } from '@/components/player-components/DatePicker';
+import DatePicker from '@/components/player-components/DatePicker';
+
+export const renderLabel = (text: string, isRequired: boolean = false) => (
+  <>
+    <span className="text-sm text-gray-900">{text}</span>
+    {isRequired && <span className="text-red-500"> *</span>}
+  </>
+);
 
 export function OtherInfoForm() {
   const {
     control,
-    setValue,
-    trigger,
     formState: { errors },
   } = useFormContext<CreatePlayerFormValues>();
-
-  const renderLabel = (text: string, isRequired: boolean = false) => (
-    <>
-      <span className="text-sm text-gray-900">{text}</span>
-      {isRequired && <span className="text-red-500"> *</span>}
-    </>
-  );
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto bg-white p-6 rounded-lg">
@@ -64,7 +62,7 @@ export function OtherInfoForm() {
         name="playerDetails.schoolName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{renderLabel('School Name', true)}</FormLabel>
+            <FormLabel>{renderLabel('School Name')}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter School Name"
@@ -86,7 +84,7 @@ export function OtherInfoForm() {
         name="playerDetails.graduationYear"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{renderLabel('Graduation Year', true)}</FormLabel>
+            <FormLabel>{renderLabel('Graduation Year')}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter Graduation Year"
@@ -114,7 +112,7 @@ export function OtherInfoForm() {
         name="playerDetails.gradeInSchool"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{renderLabel('Grade in School', true)}</FormLabel>
+            <FormLabel>{renderLabel('Grade in School')}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter Grade"
@@ -132,26 +130,19 @@ export function OtherInfoForm() {
       {/* Grade Date (as of) using DatePicker */}
       <FormField
         control={control}
-        name="playerDetails.gradeDate"
+        name="playerDetails.gradeDate" // Adjust the field name as needed
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{renderLabel('Grade Date (as of)', true)}</FormLabel>
+            <FormLabel>{renderLabel('Grade Date (as of)')}</FormLabel>
+
             <FormControl>
               <DatePicker
-                value={field.value ? new Date(field.value) : undefined} // Ensure value is a Date
-                onChange={(date) => {
-                  setValue('playerDetails.gradeDate', date ?? null); // Store as Date
-                  trigger('playerDetails.gradeDate');
-                }}
-                onBlur={() => trigger('playerDetails.gradeDate')}
-                placeholder="Select date"
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-                error={!!errors.playerDetails?.gradeDate}
+                field={{ ...field, value: field.value ?? undefined }}
+                allowFuture={false} // Example: disallow future dates
+                allowPast={true}
               />
             </FormControl>
-            <FormMessage>
-              {errors.playerDetails?.gradeDate?.message}
-            </FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -166,7 +157,7 @@ export function OtherInfoForm() {
         name="playerDetails.clubName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{renderLabel('Club Name', true)}</FormLabel>
+            <FormLabel>{renderLabel('Club Name')}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter Club Name"

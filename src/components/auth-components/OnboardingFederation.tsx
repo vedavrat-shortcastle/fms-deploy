@@ -61,8 +61,6 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
     },
   });
 
-  console.log('error', form.formState.errors, form.getValues());
-
   // Function to handle submit
   const onSubmit = (values: any) => {
     // The Api call will be on the next route

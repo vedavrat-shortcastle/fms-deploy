@@ -1,132 +1,143 @@
 import { TRPCError } from '@trpc/server';
 import {
   permissionProtectedProcedure,
-  publicProcedure,
   router,
+  protectedProcedure,
 } from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
 import { hashPassword } from '@/utils/encoder';
 import { ProfileType, Role } from '@prisma/client';
 import { PERMISSIONS, roleMap } from '@/config/permissions';
-import { federationOnboardingSchema } from '@/schemas/Federation.schema';
+import { z } from 'zod';
+import { createParentSchema } from '@/schemas/Parent.schema';
 import { createPlayerSchema } from '@/schemas/Player.schema';
 
-export const federationRouter = router({
-  federationOnboarding: publicProcedure
-    .input(federationOnboardingSchema)
-    .mutation(async ({ ctx, input }) => {
-      const baseUser = {
-        email: input.email,
-        password: input.password,
-        firstName: input.firstName,
-        lastName: input.lastName,
-        middleName: input.middleName,
-        nameSuffix: input.nameSuffix,
-      };
-
-      const federation = {
-        name: input.name,
-        type: input.type,
-        country: input.country,
-        domain: input.domain,
-        logo: input.logo,
-      };
-
-      try {
-        // Check for existing federation outside transaction
-        const existingFederation = await ctx.db.federation.findUnique({
-          where: { domain: federation.domain },
-        });
-
-        if (existingFederation) {
-          throw new TRPCError({
-            code: 'CONFLICT',
-            message: 'Federation with this domain already exists',
-          });
-        }
-
-        const hashedPassword = await hashPassword(baseUser.password);
-
-        // Wrap all database operations in a transaction
-        const result = await ctx.db.$transaction(async (tx) => {
-          const createdFederation = await tx.federation.create({
-            data: federation,
-            select: {
-              id: true,
-            },
-          });
-          const newBaseUser = await tx.baseUser.create({
-            data: {
-              ...baseUser,
-              password: hashedPassword,
-              role: Role.FED_ADMIN,
-              federation: {
-                connect: { id: createdFederation.id },
-              },
-            },
-          });
-
-          const newFederationAdmin = await tx.federationAdmin.create({
-            data: {
-              federationId: createdFederation.id,
-              phoneNumber: input.phoneNumber,
-              countryCode: input.countryCode,
-            },
-          });
-
-          const fedAdminPermissions = await tx.permission.findMany({
-            where: {
-              code: {
-                in: roleMap[Role.FED_ADMIN],
-              },
-            },
-            select: {
-              id: true,
-            },
-          });
-
-          const newUserProfile = await tx.userProfile.create({
-            data: {
-              baseUser: {
-                connect: { id: newBaseUser.id },
-              },
-              profileType: ProfileType.FEDERATION_ADMIN,
-              profileId: newFederationAdmin.id,
-            },
-          });
-
-          await tx.userPermission.createMany({
-            data: fedAdminPermissions.map((permission) => ({
-              permissionId: permission.id,
-              userId: newUserProfile.id,
-            })),
-          });
-          return {
-            federation: createdFederation,
-            userProfile: newUserProfile,
-          };
-        });
-
-        return result;
-      } catch (error: any) {
-        handleError(error, {
-          message: 'Failed to create federation with admin',
-          cause: error.message,
-        });
-      }
-    }),
-  // Create a new player
-  createPlayer: permissionProtectedProcedure(PERMISSIONS.PLAYER_CREATE)
-    .input(createPlayerSchema)
+export const parentRouter = router({
+  // Create a new parent
+  createParent: protectedProcedure
+    .input(createParentSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        const { baseUser, playerDetails } = input;
         if (!ctx.session.user.federationId) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'No federation context found',
           });
         }
+
+        const result = await ctx.db.$transaction(async (tx) => {
+          const newParent = await tx.parent.create({
+            data: {
+              ...input,
+            },
+          });
+          const baseUserId = ctx.session.user.id;
+
+          const newUserProfile = await tx.userProfile.create({
+            data: {
+              profileType: ProfileType.PARENT,
+              profileId: newParent.id,
+              baseUser: {
+                connect: { id: baseUserId },
+              },
+            },
+          });
+
+          const parentPermissions = await tx.permission.findMany({
+            where: {
+              code: {
+                in: roleMap[Role.PARENT],
+              },
+            },
+            select: {
+              id: true,
+            },
+          });
+
+          await tx.userPermission.createMany({
+            data: parentPermissions.map((permission) => ({
+              permissionId: permission.id,
+              userId: newUserProfile.id,
+            })),
+          });
+
+          return { ...newUserProfile, password: undefined };
+        });
+
+        return result;
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to create parent',
+          cause: error.message,
+        });
+      }
+    }),
+
+  // Get parent by ID with players
+  getParentById: permissionProtectedProcedure(PERMISSIONS.PARENT_VIEW)
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const parent = await ctx.db.baseUser.findFirst({
+          where: {
+            id: input.id,
+            role: Role.PARENT,
+            federationId: ctx.session.user.federationId,
+          },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            profile: {
+              select: {
+                profileId: true,
+                profileType: true,
+                userStatus: true,
+              },
+            },
+          },
+        });
+
+        if (!parent) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Parent not found',
+          });
+        }
+
+        const parentDetails = await ctx.db.parent.findUnique({
+          where: { id: parent.profile?.profileId },
+          include: {
+            players: true,
+          },
+        });
+
+        return {
+          ...parent,
+          ...parentDetails,
+        };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to fetch parent',
+          cause: error.message,
+        });
+      }
+    }),
+
+  // Add player to parent
+  addPlayer: permissionProtectedProcedure(PERMISSIONS.PLAYER_CREATE)
+    .input(createPlayerSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        if (!ctx.session.user.federationId) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'No federation context found',
+          });
+        }
+        const { baseUser, playerDetails } = input;
 
         const existingUser = await ctx.db.baseUser.findUnique({
           where: {
@@ -144,7 +155,22 @@ export const federationRouter = router({
           });
         }
 
+        const parentProfile = await ctx.db.userProfile.findFirst({
+          where: {
+            baseUserId: ctx.session.user.id,
+            profileType: ProfileType.PARENT,
+          },
+        });
+
+        if (!parentProfile) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Not authorized as parent',
+          });
+        }
+
         const hashedPassword = await hashPassword(baseUser.password);
+
         const result = await ctx.db.$transaction(async (tx) => {
           const newBaseUser = await tx.baseUser.create({
             data: {
@@ -158,6 +184,9 @@ export const federationRouter = router({
           const newPlayer = await tx.player.create({
             data: {
               ...playerDetails,
+              parent: {
+                connect: { id: parentProfile.profileId },
+              },
             },
           });
 
@@ -171,7 +200,7 @@ export const federationRouter = router({
             },
           });
 
-          const fedPlayerPermissions = await tx.permission.findMany({
+          const playerPermissions = await tx.permission.findMany({
             where: {
               code: {
                 in: roleMap[Role.PLAYER],
@@ -183,7 +212,7 @@ export const federationRouter = router({
           });
 
           await tx.userPermission.createMany({
-            data: fedPlayerPermissions.map((permission) => ({
+            data: playerPermissions.map((permission) => ({
               permissionId: permission.id,
               userId: newUserProfile.id,
             })),
@@ -195,7 +224,7 @@ export const federationRouter = router({
         return result;
       } catch (error: any) {
         handleError(error, {
-          message: 'Failed to create player',
+          message: 'Failed to add player',
           cause: error.message,
         });
       }
