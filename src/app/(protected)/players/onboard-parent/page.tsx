@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createParentSchema } from '@/schemas/Parent.schema';
@@ -10,9 +10,22 @@ import { User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/utils/trpc';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 export default function OnboardParentPage() {
   const router = useRouter();
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    console.log(session);
+  }, [session]);
+
+  useEffect(() => {
+    if (session?.user?.profileId !== session?.user?.id) {
+      router.push('/players');
+    }
+  }, [session?.user?.profileId, router]);
+
   const methods = useForm({
     resolver: zodResolver(createParentSchema),
     defaultValues: {
@@ -27,26 +40,28 @@ export default function OnboardParentPage() {
     },
   });
 
-  // Initialize the onboardParent mutation
-  const onboardParentMutation = trpc.parent.onboardParent.useMutation({
-    onSuccess: (data) => {
-      console.log('Parent onboarded successfully:', data);
+  const { handleSubmit } = methods;
+  const { update } = useSession(); // ✅ Get the update function
+
+  const { mutate } = trpc.parent.onboardParent.useMutation({
+    onSuccess: async (data) => {
+      if (data?.id) {
+        update({ user: { ...session?.user, profileId: data.id } });
+      }
       router.push('/players');
     },
     onError: (error) => {
-      // Handle errors
       console.error('Error onboarding parent:', error);
     },
   });
 
   const onSubmit = (data: any) => {
-    // Call the onboardParent mutation with the form data
-    onboardParentMutation.mutate(data);
+    mutate(data);
   };
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex h-screen bg-gray-50">
           <Sidebar />
           <main className="flex-1 overflow-auto">
@@ -61,14 +76,8 @@ export default function OnboardParentPage() {
                 </h2>
                 <ParentOnboardingForm />
                 <div className="flex justify-end mt-4">
-                  <Button
-                    variant="destructive"
-                    type="submit"
-                    disabled={onboardParentMutation.isLoading}
-                  >
-                    {onboardParentMutation.isLoading
-                      ? 'Submitting...'
-                      : 'Submit'}
+                  <Button variant="destructive" type="submit">
+                    Submit
                   </Button>
                 </div>
               </div>
