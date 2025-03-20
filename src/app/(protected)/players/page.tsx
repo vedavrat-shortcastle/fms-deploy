@@ -28,10 +28,11 @@ export default function Page() {
   const [searchTerm, setSearchTerm] = useState('');
   const [debounceSearchTerm, setDebounceSearchTerm] = useState('');
 
+
   // Add a ref for the file input element
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { data, isLoading } = trpc.player.getPlayers.useQuery({
+  const { data, isLoading, refetch } = trpc.player.getPlayers.useQuery({
     limit: limit,
     page: currentPage,
     searchQuery: debounceSearchTerm,
@@ -42,6 +43,19 @@ export default function Page() {
     { searchQuery: debounceSearchTerm },
     { enabled: false }
   );
+
+  // Add a tRPC mutation for deleting a player
+  const deletePlayerMutation = trpc.player.deletePlayerById.useMutation({
+    onSuccess: () => {
+      console.log('Player deleted successfully');
+      // Refetch players to update the list after deletion
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Failed to delete player:', error.message);
+      alert('Delete failed. Please try again.');
+    },
+  });
 
   const debouncedSearch = useCallback(
     debounce((value) => {
@@ -57,11 +71,13 @@ export default function Page() {
 
   const players = data?.players || [];
 
-  // Delete player need to handle through API
+
+  // Delete player using tRPC mutation
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (window.confirm('Are you sure you want to delete this player?')) {
-      console.log('player is deleted'); // TODO: add delete flow here
+      deletePlayerMutation.mutate({ id });
+
     }
   };
 
