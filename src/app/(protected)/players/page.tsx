@@ -101,7 +101,7 @@ export default function Page() {
   const handleSampleCSV = () => {
     // Define a sample CSV header (adjust columns as needed)
     const header =
-      'email,password,firstName,lastName,middleName,nameSuffix,birthDate,gender,avatarUrl,ageProof,streetAddress,streetAddress2,country,state,city,postalCode,phoneNumber,countryCode,fideId,schoolName,graduationYear,gradeInSchool,gradeDate,clubName\n';
+      'Email,Password,First Name,Last Name,Middle Name,Name Suffix,Birth Date,Gender,AvatarUrl,AgeProof,Street Address,Street Address2,Country,State,City,Postal Code,Phone Number,Country Code,FideId,School Name,Graduation Year,Grade In School,Grade Date,Club Name\n';
     const blob = new Blob([header], {
       type: 'text/csv;charset=utf-8;',
     });
