@@ -141,7 +141,7 @@ export const PlayerDetailsStepTwo = () => {
       <div className="space-y-2">
         <FormField
           control={control}
-          name="playerDetails.avatarUrl"
+          name="avatarUrl"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm text-gray-900">
