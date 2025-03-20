@@ -59,7 +59,7 @@ export const authConfig: AuthOptions = {
           lastName: baseUser.lastName,
           permissions:
             baseUser.profile?.permissions.map((p) => p.permission) || [],
-          profileId: baseUser.profile?.profileId || '',
+          profileId: baseUser.profile?.profileId || baseUser.id,
         };
       },
     }),
@@ -69,7 +69,7 @@ export const authConfig: AuthOptions = {
     error: '/auth/error',
   },
   callbacks: {
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
@@ -79,8 +79,12 @@ export const authConfig: AuthOptions = {
         token.federationId = user.federationId;
         token.profileId = user.profileId;
       }
+      if (trigger === 'update' && session.user?.profileId) {
+        token.profileId = session?.user.profileId;
+      }
       return token;
     },
+
     session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id;
