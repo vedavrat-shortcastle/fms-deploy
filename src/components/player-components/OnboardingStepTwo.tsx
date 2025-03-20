@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import DatePicker from '@/components/player-components/DatePicker';
+import { FileUploader } from '@/components/FileUploader';
 
 export const PlayerDetailsStepTwo = () => {
   const { control } = useFormContext();
@@ -135,6 +136,30 @@ export const PlayerDetailsStepTwo = () => {
           </FormItem>
         )}
       />
+
+      {/* Photo Upload */}
+      <div className="space-y-2">
+        <FormField
+          control={control}
+          name="avatarUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-sm text-gray-900">
+                Photo Upload
+              </FormLabel>
+              <FormControl>
+                <FileUploader
+                  field={field}
+                  uploadFolder="avatar"
+                  accept={{ 'image/*': ['.jpeg', '.jpg', '.png'] }}
+                  label="Click or drag to upload photo"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
   );
 };
