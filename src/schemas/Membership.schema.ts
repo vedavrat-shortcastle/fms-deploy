@@ -18,3 +18,15 @@ export const getPlanSchema = z.object({
   status: z.nativeEnum(PlanStatus).optional(),
   searchQuery: z.string().optional(),
 });
+
+export const updatePlanSchema = z.object({
+  id: z.string(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  price: z.number().optional(),
+  currency: z.string().optional(),
+  benefits: z.array(z.string()).optional(),
+  autoRenewal: z.boolean().optional(),
+  status: z.enum(['ACTIVE', 'INACTIVE', 'ARCHIVED']).optional(),
+  criteria: z.object({}).passthrough().optional(),
+});

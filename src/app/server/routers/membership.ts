@@ -8,7 +8,11 @@ import { handleError } from '@/utils/errorHandler';
 import { PERMISSIONS } from '@/config/permissions';
 import { z } from 'zod';
 import { Prisma, PlanStatus } from '@prisma/client';
-import { createPlanSchema, getPlanSchema } from '@/schemas/Membership.schema';
+import {
+  createPlanSchema,
+  getPlanSchema,
+  updatePlanSchema,
+} from '@/schemas/Membership.schema';
 
 export const membershipRouter = router({
   // Create membership plan
@@ -139,19 +143,7 @@ export const membershipRouter = router({
 
   // Update plan
   updatePlan: permissionProtectedProcedure(PERMISSIONS.PLAN_UPDATE)
-    .input(
-      z.object({
-        id: z.string(),
-        name: z.string().optional(),
-        description: z.string().optional(),
-        price: z.number().optional(),
-        currency: z.string().optional(),
-        benefits: z.array(z.string()).optional(),
-        autoRenewal: z.boolean().optional(),
-        status: z.enum(['ACTIVE', 'INACTIVE', 'ARCHIVED']).optional(),
-        criteria: z.object({}).passthrough().optional(),
-      })
-    )
+    .input(updatePlanSchema)
     .mutation(async ({ ctx, input }) => {
       try {
         const { id, ...updateData } = input;
