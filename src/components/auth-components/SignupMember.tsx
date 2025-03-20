@@ -71,12 +71,17 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
         });
 
         if (signInResult?.error === null) {
-          redirect('/players/onboard-player');
+          // Check role and redirect accordingly
+          if (values.role === 'PARENT') {
+            redirect('/players/onboard-parent');
+          } else {
+            redirect('/players/onboard-player');
+          }
         } else {
           console.error('Sign In Error:', signInResult?.error);
         }
       },
-      onError: (error) => {
+      onError: (error: any) => {
         console.error('Error:', error);
       },
     });
@@ -199,6 +204,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                           <SelectItem value="CLUB_MANAGER">
                             Club Manager
                           </SelectItem>
+                          <SelectItem value="PARENT">Parent</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
