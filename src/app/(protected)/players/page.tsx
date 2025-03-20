@@ -28,7 +28,6 @@ export default function Page() {
   const [searchTerm, setSearchTerm] = useState('');
   const [debounceSearchTerm, setDebounceSearchTerm] = useState('');
 
-
   // Add a ref for the file input element
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -71,13 +70,11 @@ export default function Page() {
 
   const players = data?.players || [];
 
-
   // Delete player using tRPC mutation
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (window.confirm('Are you sure you want to delete this player?')) {
       deletePlayerMutation.mutate({ id });
-
     }
   };
 
