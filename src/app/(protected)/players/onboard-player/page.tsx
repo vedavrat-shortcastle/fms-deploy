@@ -60,6 +60,7 @@ export default function PlayerOnboarding() {
       gradeInSchool: '',
       gradeDate: undefined,
       clubName: '',
+      gender: 'MALE',
     },
   });
 
@@ -113,7 +114,7 @@ export default function PlayerOnboarding() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex h-screen bg-gray-50">
           <Sidebar />
-          <main className="flex-1 overflow-auto p-6">
+          <main className="flex-1 overflow-auto">
             <PageHeader
               icon={<User size={16} color="white" />}
               title="Players"

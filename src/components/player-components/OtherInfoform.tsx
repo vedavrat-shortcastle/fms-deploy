@@ -13,18 +13,18 @@ import { Input } from '@/components/ui/input';
 import { CreatePlayerFormValues } from '@/schemas/Player.schema';
 import DatePicker from '@/components/player-components/DatePicker';
 
+export const renderLabel = (text: string, isRequired: boolean = false) => (
+  <>
+    <span className="text-sm text-gray-900">{text}</span>
+    {isRequired && <span className="text-red-500"> *</span>}
+  </>
+);
+
 export function OtherInfoForm() {
   const {
     control,
     formState: { errors },
   } = useFormContext<CreatePlayerFormValues>();
-
-  const renderLabel = (text: string, isRequired: boolean = false) => (
-    <>
-      <span className="text-sm text-gray-900">{text}</span>
-      {isRequired && <span className="text-red-500"> *</span>}
-    </>
-  );
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto bg-white p-6 rounded-lg">
@@ -38,7 +38,7 @@ export function OtherInfoForm() {
         name="playerDetails.fideId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{renderLabel('FIDE ID', true)}</FormLabel>
+            <FormLabel>{renderLabel('FIDE ID')}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter FIDE ID"
@@ -157,7 +157,7 @@ export function OtherInfoForm() {
         name="playerDetails.clubName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{renderLabel('Club Name', true)}</FormLabel>
+            <FormLabel>{renderLabel('Club Name')}</FormLabel>
             <FormControl>
               <Input
                 placeholder="Enter Club Name"

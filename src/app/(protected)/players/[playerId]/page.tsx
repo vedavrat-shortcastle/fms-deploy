@@ -24,7 +24,6 @@ import Loader from '@/components/Loader';
 export default function PlayerDetails() {
   const router = useRouter();
   const { playerId } = useParams<{ playerId: string }>();
-  console.log('Player ID:', playerId);
   if (!playerId) {
     console.error('No player id found in the route!');
   }
@@ -51,7 +50,6 @@ export default function PlayerDetails() {
   // Add the mutation
   const deletePlayerMutation = trpc.player.deletePlayerById.useMutation({
     onSuccess: () => {
-      console.log('Player deleted successfully');
       router.push('/players');
     },
     onError: (error) => {
@@ -63,7 +61,6 @@ export default function PlayerDetails() {
   // Add this with your other trpc hooks
   const editPlayerMutation = trpc.player.editPlayerById.useMutation({
     onSuccess: () => {
-      console.log('Player updated successfully');
       setIsEditing(false);
       // Refetch the player data to get the updated information
       refetch();
