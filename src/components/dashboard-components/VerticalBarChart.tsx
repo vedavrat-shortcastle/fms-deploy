@@ -1,21 +1,20 @@
 'use client';
 
-import Loader from '@/components/Loader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 // All the imports
 
 export default function VerticalBarChart() {
-  const [isLoading, setIsLoading] = useState(false); // Set the state to true while making a api call
+  // Commenting out loader logic for now
+  // const [isLoading, setIsLoading] = useState(false); // Set the state to true while making a api call
 
-  // Just for testing purpose, remove later.
-  useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000); // Simulating API call delay
-  }, []);
+  // // Just for testing purpose, remove later.
+  // useEffect(() => {
+  //   setIsLoading(true);
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //   }, 1000); // Simulating API call delay
+  // }, []);
 
   // Sample data for now, replace with an api call.
   // https://claude.ai/share/15cad61f-a27d-4ded-8690-5e72a6dc6d55
@@ -28,17 +27,18 @@ export default function VerticalBarChart() {
     { name: 'Twitter', value: 35 },
   ];
 
+  // Commenting out loader logic for now
   // Set the state to true while making a api call
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-full">
-        <Loader />;
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-full">
+  //       <Loader />;
+  //     </div>
+  //   );
+  // }
 
   return (
-    <Card className="w-full max-w-sm bg-gray-50 border-0 shadow-sm">
+    <Card className="w-full border-0 shadow-sm">
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-semibold">
           Traffic by Website

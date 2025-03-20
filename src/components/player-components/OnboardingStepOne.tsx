@@ -12,6 +12,13 @@ import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/phoneinput';
 import DatePicker from '@/components/player-components/DatePicker';
 import { Gender } from '@prisma/client';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export const PlayerDetailsStepOne = () => {
   const { control, setValue } = useFormContext();
