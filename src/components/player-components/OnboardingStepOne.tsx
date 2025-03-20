@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/phoneinput';
 import DatePicker from '@/components/player-components/DatePicker';
+import { Gender } from '@prisma/client';
 
 export const PlayerDetailsStepOne = () => {
   const { control, setValue } = useFormContext();
@@ -36,6 +37,35 @@ export const PlayerDetailsStepOne = () => {
             </FormLabel>
             <FormControl>
               <DatePicker field={field} allowFuture={false} allowPast={true} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="gender"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-sm text-gray-900">
+              Gender <span className="text-red-500">*</span>
+            </FormLabel>
+            <FormControl>
+              <Select
+                value={field.value || 'MALE'}
+                onValueChange={field.onChange}
+              >
+                <SelectTrigger className="w-full p-3 text-sm border rounded-md focus:ring-2 focus:ring-red-500">
+                  <SelectValue placeholder="Select Gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.values(Gender).map((gen) => (
+                    <SelectItem value={gen} key={gen}>
+                      {gen}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </FormControl>
             <FormMessage />
           </FormItem>
