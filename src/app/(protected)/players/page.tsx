@@ -161,7 +161,7 @@ export default function Page() {
   };
 
   return (
-    <ProtectedRoute requiredPermission={PERMISSIONS.PLAYER_UPDATE}>
+    <ProtectedRoute requiredPermission={PERMISSIONS.PLAYER_VIEW}>
       <div className="flex h-screen bg-gray-50">
         <Sidebar />
         <main className="flex-1 flex flex-col overflow-auto p-6">
