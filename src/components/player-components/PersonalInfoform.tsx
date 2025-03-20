@@ -21,33 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { S3Service } from '@/lib/s3service';
+import { FileUploader } from '@/components/FileUploader';
 
 export function PersonalInformationForm() {
-  const { control, register } = useFormContext<CreatePlayerFormValues>();
+  const { control } = useFormContext<CreatePlayerFormValues>();
   const [isClient, setIsClient] = useState(false);
-
-  const { generatePresignedUploadUrl } = new S3Service();
-
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    console.log('Uploading file:', file);
-    generatePresignedUploadUrl(file.name, 'avatarUrl').then((url) => {
-      console.log('Presigned URL:', url);
-    });
-  };
-
-  const handleAgeProofUplaod = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    console.log('Uploading file:', file);
-    generatePresignedUploadUrl(file.name, 'avatarUrl').then((url) => {
-      console.log('Presigned URL:', url);
-    });
-  };
 
   useEffect(() => {
     setIsClient(true);
@@ -178,42 +156,53 @@ export function PersonalInformationForm() {
 
       {/* Photo Upload */}
       <div className="space-y-2">
-        <FormLabel className="text-sm text-gray-900">Photo Upload</FormLabel>
-        <FormControl>
-          <label className="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-            <span className="text-base text-gray-900">
-              Click to upload a photo
-            </span>
-            <Input
-              type="file"
-              accept=".jpg,.jpeg,.png"
-              {...register('playerDetails.avatarUrl')}
-              className="hidden"
-              onChange={handleAvatarUpload}
-            />
-          </label>
-        </FormControl>
+        <FormField
+          control={control}
+          name="playerDetails.avatarUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-sm text-gray-900">
+                Photo Upload
+              </FormLabel>
+              <FormControl>
+                <FileUploader
+                  field={field}
+                  uploadFolder="avatar"
+                  accept={{ 'image/*': ['.jpeg', '.jpg', '.png'] }}
+                  label="Click or drag to upload photo"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
 
       {/* Age Proof Upload */}
       <div className="space-y-2">
-        <FormLabel className="text-sm text-gray-900">
-          Age Proof Upload
-        </FormLabel>
-        <FormControl>
-          <label className="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-            <span className="text-base text-gray-900">
-              Click to upload age proof
-            </span>
-            <Input
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png"
-              {...register('playerDetails.ageProof')}
-              className="hidden"
-              onChange={handleAgeProofUplaod}
-            />
-          </label>
-        </FormControl>
+        <FormField
+          control={control}
+          name="playerDetails.ageProof"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-sm text-gray-900">
+                Age Proof Upload
+              </FormLabel>
+              <FormControl>
+                <FileUploader
+                  field={field}
+                  uploadFolder="age-proof"
+                  accept={{
+                    'image/*': ['.jpeg', '.jpg', '.png'],
+                    'application/pdf': ['.pdf'],
+                  }}
+                  label="Click or drag to upload age proof"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
     </div>
   );
