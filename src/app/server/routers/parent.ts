@@ -229,4 +229,47 @@ export const parentRouter = router({
         });
       }
     }),
+
+  // Onboard a new parent
+  onboardParent: protectedProcedure
+    .input(createParentSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        if (ctx.session.user.profileId !== ctx.session.user.id) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Parent already onboarded',
+          });
+        }
+
+        const result = await ctx.db.$transaction(async (tx) => {
+          const newParent = await tx.parent.create({
+            data: {
+              ...input,
+            },
+          });
+
+          const baseUserId = ctx.session.user.id;
+
+          await tx.userProfile.update({
+            where: {
+              baseUserId,
+            },
+            data: {
+              profileId: newParent.id,
+              userStatus: 'ACTIVE',
+            },
+          });
+
+          return newParent;
+        });
+
+        return result;
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to onboard parent',
+          cause: error.message,
+        });
+      }
+    }),
 });
