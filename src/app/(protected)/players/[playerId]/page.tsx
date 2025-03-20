@@ -24,11 +24,9 @@ import Loader from '@/components/Loader';
 export default function PlayerDetails() {
   const router = useRouter();
   const { playerId } = useParams<{ playerId: string }>();
-  console.log('Player ID:', playerId);
   if (!playerId) {
     console.error('No player id found in the route!');
   }
-
   const [player, setPlayer] = useState<EditPlayerFormValues | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,14 +42,14 @@ export default function PlayerDetails() {
   });
 
   // Use the tRPC query hook to fetch the player details
-  const { data, error, isLoading } = trpc.player.getPlayerById.useQuery(
-    { id: playerId },
-    { enabled: !!playerId }
-  );
+  const { data, error, isLoading, refetch } =
+    trpc.player.getPlayerById.useQuery(
+      { id: playerId },
+      { enabled: !!playerId }
+    );
   // Add the mutation
   const deletePlayerMutation = trpc.player.deletePlayerById.useMutation({
     onSuccess: () => {
-      console.log('Player deleted successfully');
       router.push('/players');
     },
     onError: (error) => {
@@ -60,7 +58,18 @@ export default function PlayerDetails() {
       setShowDeleteConfirm(false);
     },
   });
-
+  // Add this with your other trpc hooks
+  const editPlayerMutation = trpc.player.editPlayerById.useMutation({
+    onSuccess: () => {
+      setIsEditing(false);
+      // Refetch the player data to get the updated information
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Failed to update player:', error.message);
+      setIsSubmitting(false);
+    },
+  });
   useEffect(() => {
     if (data) {
       console.debug('Player data fetched:', data);
@@ -71,12 +80,10 @@ export default function PlayerDetails() {
           email: data.email,
           firstName: data.firstName,
           lastName: data.lastName,
-          // Provide defaults for missing properties
           middleName: (data as any).middleName || '',
           nameSuffix: (data as any).nameSuffix || '',
         },
         playerDetails: {
-          // Convert Date to ISO string if needed, or use your preferred format
           gender: data.gender,
           birthDate:
             data.birthDate instanceof Date
@@ -101,7 +108,6 @@ export default function PlayerDetails() {
               ? new Date(data.gradeDate)
               : data.gradeDate || undefined,
           clubName: data.clubName || undefined,
-          clubId: data.clubId || undefined,
         },
       };
       setPlayer(mappedPlayer);
@@ -112,19 +118,29 @@ export default function PlayerDetails() {
     }
   }, [data, error, reset]);
 
-  const onSubmit = async (formData: EditPlayerFormValues) => {
+  // Then update your onSubmit function like this:
+  const onSubmit = (formData: EditPlayerFormValues) => {
     setIsSubmitting(true);
-    try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.debug('Form submitted with data:', formData);
-      setPlayer(formData);
-      setIsEditing(false);
-    } catch (submitError) {
-      console.error('Error submitting form:', submitError);
-    } finally {
-      setIsSubmitting(false);
-    }
+
+    // Make sure the baseUser object has the correct ID
+    const updatedFormData = {
+      ...formData,
+      baseUser: {
+        ...formData.baseUser,
+        id: playerId, // Ensure this ID is correct
+      },
+    };
+
+    editPlayerMutation.mutate(updatedFormData, {
+      onSuccess: () => {
+        setPlayer(updatedFormData);
+        setIsSubmitting(false);
+      },
+      onError: (error) => {
+        console.error('Error submitting form:', error);
+        setIsSubmitting(false);
+      },
+    });
   };
 
   const handleEditToggle = () => {
@@ -163,7 +179,7 @@ export default function PlayerDetails() {
   if (isLoading || !player) {
     return (
       <div className="flex h-screen justify-center items-center">
-        <Loader/>
+        <Loader />
       </div>
     );
   }

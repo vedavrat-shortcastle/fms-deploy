@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { redirect } from 'next/navigation'; // Import useRouter
 import Link from 'next/link';
 import { AuthLayout } from '@/components/layouts/AuthLayout';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,7 @@ import {
   signupMemberSchema,
 } from '@/schemas/Player.schema';
 import { PasswordInput } from '@/components/PasswordInput';
+import { signIn } from 'next-auth/react';
 
 // All the imports
 // This component is being used for 1 route as of now - /sign-up
@@ -43,8 +44,6 @@ interface SignupProps {
 
 // The component will accept an image as a prop and will pass that image to AuthLayout.
 export const SignupMember = ({ imageSrc }: SignupProps) => {
-  const router = useRouter(); // Initialize the router
-
   const { mutate, isLoading } = trpc.player.signup.useMutation();
   //React hook form Logic
   const form = useForm<SignupMemberFormValues>({
@@ -62,8 +61,20 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
   // Function to handle submit
   const onSubmit = (values: SignupMemberFormValues) => {
     mutate(values, {
-      onSuccess: () => {
-        router.push('/login');
+      onSuccess: async () => {
+        // Make the onSuccess callback async
+        const signInResult = await signIn('credentials', {
+          email: values.email,
+          password: values.password,
+          domain: values.domain,
+          redirect: false, // Prevent default redirect
+        });
+
+        if (signInResult?.error === null) {
+          redirect('/players/onboard-player');
+        } else {
+          console.error('Sign In Error:', signInResult?.error);
+        }
       },
       onError: (error) => {
         console.error('Error:', error);

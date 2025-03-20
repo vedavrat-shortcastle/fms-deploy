@@ -37,7 +37,7 @@ export default function AddPlayerPage() {
         nameSuffix: '',
       },
       playerDetails: {
-        birthDate: new Date(), // Now using null instead of an empty string
+        birthDate: undefined, // Now using null instead of an empty string
         gender: 'MALE',
         avatarUrl: '',
         ageProof: '',
@@ -53,16 +53,15 @@ export default function AddPlayerPage() {
         schoolName: '',
         graduationYear: undefined,
         gradeInSchool: '',
-        gradeDate: null,
+        gradeDate: undefined,
         clubName: '',
-        clubId: null,
       },
     },
   });
 
   const { handleSubmit, reset, trigger } = form;
 
-  const createPlayerMutation = trpc.player.createPlayer.useMutation({
+  const createPlayerMutation = trpc.federation.createPlayer.useMutation({
     onSuccess: () => {
       reset();
       setActiveTab('personal');

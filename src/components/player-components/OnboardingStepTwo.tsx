@@ -9,6 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import DatePicker from '@/components/player-components/DatePicker';
 
 export const PlayerDetailsStepTwo = () => {
   const { control } = useFormContext();
@@ -67,7 +68,7 @@ export const PlayerDetailsStepTwo = () => {
                 type="number"
                 placeholder="Enter Graduation Year"
                 {...field}
-                value={field.value ? Number(field.value) : ''}
+                value={field.value ? Number(field.value) : undefined}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
@@ -75,6 +76,7 @@ export const PlayerDetailsStepTwo = () => {
           </FormItem>
         )}
       />
+
       <FormField
         control={control}
         name="gradeInSchool"
@@ -96,18 +98,17 @@ export const PlayerDetailsStepTwo = () => {
       />
       <FormField
         control={control}
-        name="gradeDate"
+        name="playerDetails.gradeDate" // Adjust the field name as needed
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm text-gray-900">
-              Grade Date (Optional)
+            <FormLabel className="block text-sm text-gray-900">
+              Grade Date
             </FormLabel>
             <FormControl>
-              <Input
-                type="date"
-                {...field}
-                value={field.value ? field.value : undefined}
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
+              <DatePicker
+                field={field}
+                allowFuture={false} // Example: disallow future dates
+                allowPast={true}
               />
             </FormControl>
             <FormMessage />
@@ -126,25 +127,6 @@ export const PlayerDetailsStepTwo = () => {
             <FormControl>
               <Input
                 placeholder="Enter Club Name"
-                {...field}
-                className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="clubId"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm text-gray-900">
-              Club ID (Optional)
-            </FormLabel>
-            <FormControl>
-              <Input
-                placeholder="Enter Club ID"
                 {...field}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />

@@ -1,9 +1,5 @@
-'use client';
-
-import * as React from 'react';
-import { format } from 'date-fns';
-import { Calendar as CalendarIcon } from 'lucide-react';
-
+import React from 'react';
+import { format, getMonth, getYear, isAfter, isBefore } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -12,67 +8,158 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { CalendarIcon } from 'lucide-react';
 
-interface DatePickerProps {
+interface Field {
   value: Date | undefined;
-  onChange: (date: Date | undefined) => void;
-  onBlur?: () => void; // Added for react-hook-form validation
-  disabled?: (date: Date) => boolean;
-  placeholder?: string;
-  className?: string;
-  error?: boolean;
+  onChange: (date: Date) => void;
 }
 
-export function DatePicker({
-  value,
-  onChange,
-  onBlur,
-  disabled,
-  placeholder = 'Select date',
-  className,
-  error,
-}: DatePickerProps) {
-  const [open, setOpen] = React.useState(false);
+export default function DatePicker({
+  field,
+  allowFuture = true,
+  allowPast = true,
+}: {
+  field: Field;
+  allowFuture?: boolean;
+  allowPast?: boolean;
+}) {
+  // Initialize local state based on field.value
+  const [date, setDate] = React.useState(field.value || undefined);
+  const [month, setMonth] = React.useState(
+    field.value ? getMonth(field.value) + 1 : getMonth(new Date()) + 1
+  );
+  const [year, setYear] = React.useState(
+    field.value ? getYear(field.value) : getYear(new Date())
+  );
 
-  // Handle date selection and trigger validation
-  const handleSelect = (date: Date | undefined) => {
-    onChange(date);
-    setOpen(false);
-
-    // Trigger validation by simulating blur event
-    if (onBlur) {
-      setTimeout(onBlur, 0);
+  // Sync local state with form state when field.value changes
+  React.useEffect(() => {
+    if (field.value) {
+      setDate(field.value);
+      setMonth(getMonth(field.value) + 1);
+      setYear(getYear(field.value));
+    } else {
+      setDate(undefined);
     }
+  }, [field.value]);
+
+  // Generate month and year options
+  const months = Array.from({ length: 12 }, (_, i) => ({
+    value: (i + 1).toString(),
+    label: format(new Date(2023, i, 1), 'MMMM'),
+  }));
+
+  const years = Array.from({ length: 101 }, (_, i) => {
+    const yearValue = getYear(new Date()) - 50 + i;
+    return {
+      value: yearValue.toString(),
+      label: yearValue.toString(),
+    };
+  });
+
+  // Handlers for month and year changes
+  const handleMonthChange = (value: string) => {
+    const newMonth = parseInt(value);
+    setMonth(newMonth);
+    const newDate = date
+      ? new Date(year, newMonth - 1, date.getDate())
+      : new Date(year, newMonth - 1, 1);
+    setDate(newDate);
+    field.onChange(newDate); // Update form state
+  };
+
+  const handleYearChange = (value: string) => {
+    const newYear = parseInt(value);
+    setYear(newYear);
+    const newDate = date
+      ? new Date(newYear, month - 1, date.getDate())
+      : new Date(newYear, month - 1, 1);
+    setDate(newDate);
+    field.onChange(newDate); // Update form state
+  };
+
+  // Determine the displayed month for the calendar
+  const displayedDate = React.useMemo(() => {
+    return new Date(year, month - 1, 1);
+  }, [month, year]);
+
+  // Disable dates based on allowFuture and allowPast
+  const isDateDisabled = (date: Date) => {
+    const today = new Date();
+    if (!allowFuture && isAfter(date, today)) {
+      return true;
+    }
+    if (!allowPast && isBefore(date, today)) {
+      return true;
+    }
+    return false;
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           className={cn(
-            'w-full justify-start text-left font-normal',
-            !value && 'text-muted-foreground',
-            error && 'border-red-500 ring-1 ring-red-500',
-            className
+            'w-full h-[44px] justify-start text-left font-normal',
+            !field.value && 'text-muted-foreground'
           )}
-          onClick={() => {
-            setOpen(true);
-            // Trigger validation when opening the calendar
-            if (onBlur) onBlur();
-          }}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? format(value, 'PPP') : <span>{placeholder}</span>}
+          {date ? format(date, 'PPP') : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent className="w-auto p-0">
+        <div className="p-4 border-b">
+          <div className="flex space-x-2">
+            <Select onValueChange={handleMonthChange} value={month.toString()}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select month" />
+              </SelectTrigger>
+              <SelectContent>
+                {months.map((m) => (
+                  <SelectItem key={m.value} value={m.value}>
+                    {m.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select onValueChange={handleYearChange} value={year.toString()}>
+              <SelectTrigger className="w-[100px]">
+                <SelectValue placeholder="Select year" />
+              </SelectTrigger>
+              <SelectContent>
+                {years.map((y) => (
+                  <SelectItem key={y.value} value={y.value}>
+                    {y.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         <Calendar
           mode="single"
-          selected={value}
-          onSelect={handleSelect}
-          disabled={disabled}
+          selected={field.value}
+          onSelect={(newDate) => {
+            if (newDate) {
+              setDate(newDate);
+              setMonth(getMonth(newDate) + 1);
+              setYear(getYear(newDate));
+              field.onChange(newDate); // Update form state
+            }
+          }}
           initialFocus
+          month={displayedDate}
+          disabled={isDateDisabled}
         />
       </PopoverContent>
     </Popover>
