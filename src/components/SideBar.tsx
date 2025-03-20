@@ -28,6 +28,12 @@ const Sidebar: FC = () => {
 
   const menuItems: SidebarLinkProps[] = [
     {
+      href: '/admin-dashboard',
+      icon: <Users size={20} />,
+      label: 'Dashboard',
+      active: pathname === '/admin-dashboard',
+    },
+    {
       href: '/players',
       icon: <Users size={20} />,
       label: 'Players',
@@ -142,6 +148,7 @@ const Sidebar: FC = () => {
             e.preventDefault();
             signOut();
           }}
+          href="/login"
           icon={<LogOut size={20} />}
           label="Logout Account"
           active={false}

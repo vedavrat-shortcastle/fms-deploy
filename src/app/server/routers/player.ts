@@ -94,6 +94,16 @@ export const playerRouter = router({
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       try {
+        const role = ctx.session.user.role;
+        if (role === Role.PLAYER) {
+          if (ctx.session.user.profileId !== input.id) {
+            throw new TRPCError({
+              code: 'FORBIDDEN',
+              message: 'Player not found',
+            });
+          }
+        }
+
         // Find the base user by filtering on the related user profile's profileId field
         const baseUser = await ctx.db.baseUser.findFirst({
           where: {

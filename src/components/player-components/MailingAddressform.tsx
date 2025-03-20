@@ -40,12 +40,10 @@ export default function MailingAddressForm() {
     { value: string; label: string }[]
   >([]);
   const handleCountrySelect = (country: string) => {
-    console.log(country);
     setValue('playerDetails.countryCode', '+' + country);
   };
 
   const handlePhoneNumberChange = (phoneNumber: string) => {
-    console.log(phoneNumber);
     setValue('playerDetails.phoneNumber', phoneNumber);
   };
 
@@ -251,6 +249,7 @@ export default function MailingAddressForm() {
             <FormControl>
               <Input
                 placeholder="Enter Postal Code"
+                type="number"
                 {...field}
                 value={field.value || ''}
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
