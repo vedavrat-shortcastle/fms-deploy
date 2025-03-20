@@ -2,7 +2,6 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { getPlanSchema } from '@/schemas/Membership.schema';
 
 export type PlanTable = {
   name: string;

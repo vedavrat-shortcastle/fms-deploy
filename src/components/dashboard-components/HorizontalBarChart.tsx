@@ -1,8 +1,6 @@
 'use client';
 
-import Loader from '@/components/Loader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useEffect, useState } from 'react';
 import {
   BarChart,
   Bar,
@@ -11,19 +9,10 @@ import {
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
+  Cell,
 } from 'recharts';
 
 export default function HorizontalBarChart() {
-  const [isLoading, setIsLoading] = useState(false); // Set the state to true while making a api call
-
-  // Just for testing purpose, remove later.
-  useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000); // Simulating API call delay
-  }, []);
-
   // Sample data for now, replace with api call later.
   const data = [
     { name: 'Linux', value: 17000, color: '#8884d8' },
@@ -41,14 +30,6 @@ export default function HorizontalBarChart() {
     if (value === 30000) return '30K';
     return '';
   };
-  // Set the state to true while making a api call
-  if (isLoading) {
-    return (
-      <div className="flex justify-center h-full w-full">
-        <Loader />;
-      </div>
-    );
-  }
 
   return (
     <Card className="w-full bg-gray-50 border-0 shadow-sm">
@@ -88,16 +69,11 @@ export default function HorizontalBarChart() {
                 cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
                 formatter={(value) => [`${value.toLocaleString()}`, 'Traffic']}
               />
-              {data.map((entry, index) => (
-                <Bar
-                  key={`bar-${index}`}
-                  dataKey="value"
-                  fill={entry.color}
-                  radius={[4, 4, 4, 4]}
-                  name={entry.name}
-                  data={[entry]}
-                />
-              ))}
+              <Bar dataKey="value" radius={[4, 4, 4, 4]}>
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
