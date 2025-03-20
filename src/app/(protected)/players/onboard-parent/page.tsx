@@ -71,11 +71,6 @@ export default function OnboardParentPage() {
                       : 'Submit'}
                   </Button>
                 </div>
-                {onboardParentMutation.error && (
-                  <p className="mt-2 text-red-500">
-                    {onboardParentMutation.error.message}
-                  </p>
-                )}
               </div>
             </div>
           </main>

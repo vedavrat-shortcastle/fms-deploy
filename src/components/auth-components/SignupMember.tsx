@@ -201,9 +201,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="PLAYER">Player</SelectItem>
-                          <SelectItem value="CLUB_MANAGER">
-                            Club Manager
-                          </SelectItem>
+
                           <SelectItem value="PARENT">Parent</SelectItem>
                         </SelectContent>
                       </Select>
