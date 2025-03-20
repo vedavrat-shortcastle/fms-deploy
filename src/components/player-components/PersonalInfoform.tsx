@@ -21,10 +21,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { S3Service } from '@/lib/s3service';
 
 export function PersonalInformationForm() {
   const { control, register } = useFormContext<CreatePlayerFormValues>();
   const [isClient, setIsClient] = useState(false);
+
+  const { generatePresignedUploadUrl } = new S3Service();
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    console.log('Uploading file:', file);
+    generatePresignedUploadUrl(file.name, 'avatarUrl').then((url) => {
+      console.log('Presigned URL:', url);
+    });
+  };
+
+  const handleAgeProofUplaod = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    console.log('Uploading file:', file);
+    generatePresignedUploadUrl(file.name, 'avatarUrl').then((url) => {
+      console.log('Presigned URL:', url);
+    });
+  };
 
   useEffect(() => {
     setIsClient(true);
@@ -166,6 +189,7 @@ export function PersonalInformationForm() {
               accept=".jpg,.jpeg,.png"
               {...register('playerDetails.avatarUrl')}
               className="hidden"
+              onChange={handleAvatarUpload}
             />
           </label>
         </FormControl>
@@ -186,6 +210,7 @@ export function PersonalInformationForm() {
               accept=".pdf,.jpg,.jpeg,.png"
               {...register('playerDetails.ageProof')}
               className="hidden"
+              onChange={handleAgeProofUplaod}
             />
           </label>
         </FormControl>

@@ -10,9 +10,20 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import DatePicker from '@/components/player-components/DatePicker';
+import { S3Service } from '@/lib/s3service';
 
 export const PlayerDetailsStepTwo = () => {
-  const { control } = useFormContext();
+  const { control, register } = useFormContext();
+  const { generatePresignedUploadUrl } = new S3Service();
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    console.log('Uploading file:', file);
+    generatePresignedUploadUrl(file.name, 'avatarUrl').then((url) => {
+      console.log('Presigned URL:', url);
+    });
+  };
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
@@ -135,6 +146,24 @@ export const PlayerDetailsStepTwo = () => {
           </FormItem>
         )}
       />
+
+      <div className="space-y-2">
+        <FormLabel className="text-sm text-gray-900">Photo Upload</FormLabel>
+        <FormControl>
+          <label className="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+            <span className="text-base text-gray-900">
+              Click to upload a photo
+            </span>
+            <Input
+              type="file"
+              accept=".jpg,.jpeg,.png"
+              {...register('playerDetails.avatarUrl')}
+              className="hidden"
+              onChange={handleAvatarUpload}
+            />
+          </label>
+        </FormControl>
+      </div>
     </div>
   );
 };
