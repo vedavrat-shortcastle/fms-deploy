@@ -1,5 +1,3 @@
-import Loader from '@/components/Loader';
-import React, { useEffect, useState } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -23,25 +21,6 @@ const sampleData = [
 ];
 
 export function SimpleLineChart() {
-  const [isLoading, setIsLoading] = useState(false); // Set it "true" while making an api call.
-
-  // Just for testing purpose, remove later.
-  useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000); // Simulating API call delay
-  }, []);
-
-  // Set the state to true while making a api call
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-[300px] w-full">
-        <Loader />;
-      </div>
-    );
-  }
-
   return (
     <div className="h-[250px] w-full">
       <ResponsiveContainer width="100%" height="100%">
