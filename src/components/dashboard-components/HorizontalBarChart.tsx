@@ -13,18 +13,6 @@ import {
 } from 'recharts';
 
 export default function HorizontalBarChart() {
-  // Commenting out the Loading logic for now
-
-  // const [isLoading, setIsLoading] = useState(false); // Set the state to true while making a api call
-
-  // Just for testing purpose, remove later.
-  // useEffect(() => {
-  //   setIsLoading(true);
-  //   setTimeout(() => {
-  //     setIsLoading(false);
-  //   }, 1000); // Simulating API call delay
-  // }, []);
-
   // Sample data for now, replace with api call later.
   const data = [
     { name: 'Linux', value: 17000, color: '#8884d8' },
@@ -42,16 +30,6 @@ export default function HorizontalBarChart() {
     if (value === 30000) return '30K';
     return '';
   };
-
-  // Commenting out the loader logic for now.
-  // Set the state to true while making a api call
-  // if (isLoading) {
-  //   return (
-  //     <div className="flex justify-center h-full w-full">
-  //       <Loader />;
-  //     </div>
-  //   );
-  // }
 
   return (
     <Card className="w-full bg-gray-50 border-0 shadow-sm">

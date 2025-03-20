@@ -5,17 +5,6 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 // All the imports
 
 export default function VerticalBarChart() {
-  // Commenting out loader logic for now
-  // const [isLoading, setIsLoading] = useState(false); // Set the state to true while making a api call
-
-  // // Just for testing purpose, remove later.
-  // useEffect(() => {
-  //   setIsLoading(true);
-  //   setTimeout(() => {
-  //     setIsLoading(false);
-  //   }, 1000); // Simulating API call delay
-  // }, []);
-
   // Sample data for now, replace with an api call.
   // https://claude.ai/share/15cad61f-a27d-4ded-8690-5e72a6dc6d55
   const data = [
@@ -26,16 +15,6 @@ export default function VerticalBarChart() {
     { name: 'Facebook', value: 50 },
     { name: 'Twitter', value: 35 },
   ];
-
-  // Commenting out loader logic for now
-  // Set the state to true while making a api call
-  // if (isLoading) {
-  //   return (
-  //     <div className="flex justify-center items-center h-full">
-  //       <Loader />;
-  //     </div>
-  //   );
-  // }
 
   return (
     <Card className="w-full border-0 shadow-sm">
