@@ -21,14 +21,14 @@ const MetricCard: React.FC<MetricCardProps> = ({
   const showPositive = change.startsWith('+') || isPositive;
 
   return (
-    <Card className="odd:bg-blue-100 even:bg-pink-100">
+    <Card className="odd:bg-[#A0A0A0] even:bg-red-300">
       <CardContent className="pt-6">
         <div className="space-y-2">
-          <p className="text-sm text-slate-500 font-medium">{title}</p>
+          <p className="text-sm font-semibold">{title}</p>
           <div className="flex items-baseline justify-between">
             <h2 className="text-3xl font-bold">{value}</h2>
             <div
-              className={`flex items-center text-xs font-medium ${showPositive ? 'text-green-600' : 'text-red-600'}`}
+              className={`flex items-center text-xs font-extrabold ${showPositive ? 'text-green-600' : 'text-red-600'}`}
             >
               <span>{change}</span>
               {showPositive ? (
