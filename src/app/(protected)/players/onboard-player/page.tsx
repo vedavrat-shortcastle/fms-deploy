@@ -11,37 +11,24 @@ import { PlayerDetailsStepOne } from '@/components/player-components/OnboardingS
 import { PlayerDetailsStepTwo } from '@/components/player-components/OnboardingStepTwo';
 import { OnboardingFormContainer } from '@/components/player-components/OnboardingFormContainer';
 import { trpc } from '@/utils/trpc';
+
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import {
   playerOnboardingInput,
   playerOnboardingSchema,
 } from '@/schemas/Player.schema';
 
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-
-// Define the tab order for navigation
-const tabOrder: Array<'stepOne' | 'stepTwo'> = ['stepOne', 'stepTwo'];
-
 export default function PlayerOnboarding() {
-  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<'stepOne' | 'stepTwo'>('stepOne');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: session } = useSession();
-
-  useEffect(() => {
-    console.log(session);
-  }, [session]);
-
-  useEffect(() => {
-    if (session?.user?.profileId !== session?.user?.id) {
-      router.push('/menbership');
-    }
-  }, [session?.user?.profileId, router]);
-
-  const [activeTab, setActiveTab] = useState<'stepOne' | 'stepTwo'>('stepOne');
+  const router = useRouter();
 
   const form = useForm<playerOnboardingInput>({
     resolver: zodResolver(playerOnboardingSchema),
-    mode: 'onChange', // Validate on every change for instant feedback
+    mode: 'onChange',
     defaultValues: {
       birthDate: undefined,
       avatarUrl: '',
@@ -64,10 +51,16 @@ export default function PlayerOnboarding() {
     },
   });
 
-  const { handleSubmit } = form;
+  useEffect(() => {
+    if (session?.user?.profileId !== session?.user?.id) {
+      router.push('/menberships');
+    }
+  }, [session?.user?.profileId, router]);
+
+  const { handleSubmit, trigger } = form;
   const { update } = useSession();
 
-  const { mutate } = trpc.player.onboardPlayer.useMutation({
+  const onboardPlayerMutation = trpc.player.onboardPlayer.useMutation({
     onSuccess: async (data) => {
       if (data?.id) {
         update({ user: { ...session?.user, profileId: data.id } });
@@ -78,23 +71,53 @@ export default function PlayerOnboarding() {
     },
   });
 
-  // When manually switching tabs, validate the current tab if moving forward.
-  const handleTabChange = async (newTab: 'stepOne' | 'stepTwo') => {
-    const currentTabIndex = tabOrder.indexOf(activeTab);
-    const newTabIndex = tabOrder.indexOf(newTab);
-    // Only validate if moving forward
-    if (newTabIndex > currentTabIndex) {
-      // const valid = await trigger(activeTab); //TODO: Update this setup to match new structure
-      // if (!valid) return; // Block navigation if current tab is invalid.
+  const validateTab = async (tab: 'stepOne' | 'stepTwo') => {
+    let isValid = true;
+    if (tab === 'stepOne') {
+      // Validate stepOne fields
+      isValid = await trigger([
+        'gender',
+        'birthDate',
+        'ageProof',
+        'city',
+        'country',
+        'state',
+        'phoneNumber',
+        'streetAddress',
+        'postalCode',
+        'countryCode',
+      ]);
     }
+    if (tab === 'stepTwo') {
+      // Validate stepTwo fields if needed
+      isValid = await trigger([
+        'schoolName',
+        'graduationYear',
+        'clubName',
+        'gradeInSchool',
+      ]);
+    }
+    return isValid;
+  };
+
+  const handleTabChange = async (newTab: 'stepOne' | 'stepTwo') => {
+    const tabOrder = ['stepOne', 'stepTwo'];
+    const currentIndex = tabOrder.indexOf(activeTab);
+    const newIndex = tabOrder.indexOf(newTab);
+
+    if (newIndex > currentIndex) {
+      const isValid = await validateTab(activeTab);
+      if (!isValid) return;
+    }
+
     setActiveTab(newTab);
   };
 
-  // Next button: validate current tab and move forward if valid.
   const handleNext = async () => {
-    // const valid = await trigger(activeTab); //TODO: Update this setup to match new structure
-    // if (!valid) return;
-    if (activeTab === 'stepOne') setActiveTab('stepTwo');
+    if (activeTab === 'stepOne') {
+      const isValid = await validateTab('stepOne');
+      if (isValid) setActiveTab('stepTwo');
+    }
   };
 
   // Allow moving back freely.
@@ -103,9 +126,18 @@ export default function PlayerOnboarding() {
   };
 
   // Final submission of the form.
-  const onSubmit = (data: playerOnboardingInput) => {
-    if (activeTab === 'stepTwo') {
-      mutate(data);
+  const onSubmit = async (data: playerOnboardingInput) => {
+    try {
+      // Check for step-specific validation before submission
+      const isValid = await validateTab(activeTab);
+      if (!isValid) return; // If not valid, return early.
+
+      if (activeTab === 'stepTwo') {
+        await onboardPlayerMutation.mutateAsync(data);
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      setIsSubmitting(false);
     }
   };
 
@@ -117,7 +149,7 @@ export default function PlayerOnboarding() {
           <main className="flex-1 overflow-auto">
             <PageHeader
               icon={<User size={16} color="white" />}
-              title="Players"
+              title="Player Onboarding"
             />
             <OnboardingFormContainer
               title="Tell Us More About Yourself"
@@ -129,6 +161,14 @@ export default function PlayerOnboarding() {
               {activeTab === 'stepOne' && <PlayerDetailsStepOne />}
               {activeTab === 'stepTwo' && <PlayerDetailsStepTwo />}
             </OnboardingFormContainer>
+
+            {isSubmitting && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg">
+                  <p className="text-xl">Creating player...</p>
+                </div>
+              </div>
+            )}
           </main>
         </div>
       </form>
