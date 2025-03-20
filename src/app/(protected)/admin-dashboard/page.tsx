@@ -45,7 +45,7 @@ export default function AdminDashboard() {
           </div>
           {/* Main content row: Large chart on the left, smaller card on the right */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
-            <div className="lg:col-span-2 bg-blue-100 p-4 rounded ">
+            <div className="lg:col-span-2 bg-white rounded ">
               <h1 className="p-2 text-xl"> Member Growth</h1>
               <SimpleLineChart />
             </div>
@@ -58,7 +58,6 @@ export default function AdminDashboard() {
             <div className="rounded">
               <HorizontalBarChart />
             </div>
-            <div className="bg-gray-200 rounded"></div>
           </div>
         </div>
       </div>
