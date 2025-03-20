@@ -4,6 +4,7 @@ import { federationRouter } from '@/app/server/routers/federation';
 import { playerRouter } from '@/app/server/routers/player';
 import { superUserRouter } from '@/app/server/routers/super-user';
 import { router } from '@/app/server/trpc';
+import { membershipRouter } from './membership';
 
 export const appRouter = router({
   superUser: superUserRouter,
@@ -11,6 +12,7 @@ export const appRouter = router({
   // club: clubRouter,
   federation: federationRouter,
   dashboard: dashboardRouter,
+  membership: membershipRouter,
   // Add other routers here
 });
 
