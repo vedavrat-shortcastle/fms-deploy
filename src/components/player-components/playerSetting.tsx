@@ -3,12 +3,14 @@
 import type React from 'react';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, Pencil } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Loader2, Pencil, Lock } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 import PersonalInfoSection from '@/components/player-components/PersonalInfo';
 import AddressSection from '@/components/player-components/AddressInfo';
 import PlayerDetailsSection from '@/components/player-components/PlayerDetails';
@@ -18,27 +20,32 @@ import {
   type EditPlayerFormValues,
   editPlayerSchema,
 } from '@/schemas/Player.schema';
-import { trpc } from '@/utils/trpc'; // Import your tRPC hook
+import { trpc } from '@/utils/trpc';
 import Loader from '@/components/Loader';
 import { useSession } from 'next-auth/react';
 
 import { useToast } from '@/hooks/useToast';
+import { ChangePasswordDialog } from '@/components/changePassword';
 import { DeleteConfirmDialog } from '@/components/deleteConfirmDialog';
 
-export default function PlayerDetails() {
-  const router = useRouter();
-  const { data: playerDetails } = useSession();
-  const { playerId } = useParams<{ playerId: string }>();
-  console.log('this is session', playerDetails?.user);
+type ChangePasswordFormValues = {
+  oldPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+};
 
-  if (!playerId) {
-    console.error('No player id found in the route!');
-  }
+export default function PlayerSettings() {
+  const session = useSession();
+  const router = useRouter();
+  const playerId = session.data?.user.id;
+  const { toast } = useToast();
 
   const [player, setPlayer] = useState<EditPlayerFormValues | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [changePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(
     null
   );
@@ -52,15 +59,17 @@ export default function PlayerDetails() {
     reset,
   } = useForm<EditPlayerFormValues>({
     resolver: zodResolver(editPlayerSchema),
+    defaultValues: player || undefined,
   });
 
   // Use the tRPC query hook to fetch the player details
   const { data, error, isLoading, refetch } =
     trpc.player.getPlayerById.useQuery(
-      { id: playerId },
+      { id: playerId! },
       { enabled: !!playerId }
     );
-  // Add the mutation
+
+  // Mutations
   const deletePlayerMutation = trpc.player.deletePlayerById.useMutation({
     onSuccess: () => {
       router.push('/players');
@@ -71,12 +80,10 @@ export default function PlayerDetails() {
       setShowDeleteConfirm(false);
     },
   });
-  // Add this with your other trpc hooks
-  const { toast } = useToast();
+
   const editPlayerMutation = trpc.player.editPlayerById.useMutation({
     onSuccess: () => {
       setIsEditing(false);
-      // Refetch the player data to get the updated information
       refetch();
       toast({
         title: 'Success',
@@ -90,6 +97,27 @@ export default function PlayerDetails() {
       toast({
         title: 'Error',
         description: `Failed to update player: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const changePassword = trpc.baseUser.updatePassword.useMutation({
+    onSuccess: () => {
+      setChangePasswordModalOpen(false);
+      setIsChangingPassword(false);
+      toast({
+        title: 'Success',
+        description: 'Password changed successfully!',
+        variant: 'default',
+      });
+    },
+    onError: (error) => {
+      console.error('Failed to change password:', error.message);
+      setIsChangingPassword(false);
+      toast({
+        title: 'Error',
+        description: `Failed to change password: ${error.message}`,
         variant: 'destructive',
       });
     },
@@ -130,8 +158,6 @@ export default function PlayerDetails() {
 
   useEffect(() => {
     if (data) {
-      console.debug('Player data fetched:', data);
-      // Map the merged data into the nested structure expected by the form
       const mappedPlayer: EditPlayerFormValues = {
         baseUser: {
           id: data.id,
@@ -171,6 +197,7 @@ export default function PlayerDetails() {
       setPlayer(mappedPlayer);
       reset(mappedPlayer);
     }
+
     if (error) {
       console.error('Error fetching player details:', error);
       toast({
@@ -181,72 +208,52 @@ export default function PlayerDetails() {
     }
   }, [data, error, reset, toast]);
 
-  // Then update your onSubmit function like this:
   const onSubmit = (formData: EditPlayerFormValues) => {
     setIsSubmitting(true);
-
-    // Make sure the baseUser object has the correct ID
+    if (!playerId) {
+      toast({
+        title: 'Error',
+        description: 'Player ID is missing.',
+        variant: 'destructive',
+      });
+      setIsSubmitting(false);
+      return;
+    }
     const updatedFormData = {
       ...formData,
       baseUser: {
-        ...player?.baseUser,
-        id: playerId, // Ensure this ID is correct
+        ...formData.baseUser,
+        id: playerId,
       },
     };
-
-    editPlayerMutation.mutate(updatedFormData, {
-      onSuccess: () => {
-        setPlayer(updatedFormData);
-        setIsSubmitting(false);
-        toast({
-          title: 'Success',
-          description: 'Player details updated successfully!',
-          variant: 'default',
-        });
-      },
-      onError: (error) => {
-        console.error('Error submitting form:', error);
-        setIsSubmitting(false);
-        toast({
-          title: 'Error',
-          description: `Failed to update player: ${error.message}`,
-          variant: 'destructive',
-        });
-      },
-    });
+    editPlayerMutation.mutate(updatedFormData);
   };
 
   const handleEditToggle = () => {
     if (isEditing) {
-      // Submit form
       handleSubmit(onSubmit)();
     } else {
-      console.debug('Entering edit mode');
-      reset({});
       setIsEditing(true);
     }
   };
 
   const handleCancel = () => {
-    console.debug('Cancelling edit mode');
     setIsEditing(false);
-    reset({});
+    reset(player || {});
   };
 
-  // Delete player
   const handleDelete = async () => {
     setIsSubmitting(true);
-    try {
-      console.debug('Deleting player with id:', playerId);
-      deletePlayerMutation.mutate({ id: playerId });
-      // Simulate deletion delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      router.push('/players');
-    } catch (deleteError) {
-      console.error('Error deleting player:', deleteError);
-      setIsSubmitting(false);
-      setShowDeleteConfirm(false);
-    }
+    deletePlayerMutation.mutate({ id: playerId! });
+  };
+
+  const handleOpenChangePasswordModal = () => {
+    setChangePasswordModalOpen(true);
+  };
+
+  const onChangePasswordSubmit = (data: ChangePasswordFormValues) => {
+    setIsChangingPassword(true);
+    changePassword.mutate(data);
   };
 
   const handleProfilePictureChange = (
@@ -270,7 +277,7 @@ export default function PlayerDetails() {
     updateProfilePictureMutation.mutate({
       baseUser: {
         ...player?.baseUser,
-        id: playerId, // Ensure this ID is correct
+        id: playerId!,
       },
       playerDetails: {
         ...player?.playerDetails,
@@ -294,9 +301,11 @@ export default function PlayerDetails() {
           variant="ghost"
           className="mb-6 gap-2"
           onClick={() => router.push('/players')}
-          disabled={isSubmitting || isUploadingProfilePicture}
+          disabled={
+            isSubmitting || isUploadingProfilePicture || isChangingPassword
+          }
         >
-          <ArrowLeft className="h-4 w-4" /> Player
+          <ArrowLeft className="h-4 w-4" /> Players
         </Button>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-1 flex flex-col items-center gap-4">
@@ -352,16 +361,35 @@ export default function PlayerDetails() {
                   variant="outline"
                   className="w-full"
                   onClick={handleEditToggle}
-                  disabled={isSubmitting || isUploadingProfilePicture}
+                  disabled={
+                    isSubmitting ||
+                    isUploadingProfilePicture ||
+                    isChangingPassword
+                  }
                 >
                   <Pencil className="mr-2 h-4 w-4" /> Edit details
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleOpenChangePasswordModal}
+                  disabled={
+                    isSubmitting ||
+                    isUploadingProfilePicture ||
+                    isChangingPassword
+                  }
+                >
+                  <Lock className="mr-2 h-4 w-4" /> Change Password
                 </Button>
                 <Button
                   variant="destructive"
                   className="w-full"
                   onClick={() => setShowDeleteConfirm(true)}
                   disabled={
-                    isSubmitting || isEditing || isUploadingProfilePicture
+                    isSubmitting ||
+                    isEditing ||
+                    isUploadingProfilePicture ||
+                    isChangingPassword
                   }
                 >
                   Delete Player
@@ -374,7 +402,11 @@ export default function PlayerDetails() {
                   variant="default"
                   className="w-full"
                   onClick={handleSubmit(onSubmit)}
-                  disabled={isSubmitting || isUploadingProfilePicture}
+                  disabled={
+                    isSubmitting ||
+                    isUploadingProfilePicture ||
+                    isChangingPassword
+                  }
                 >
                   {isSubmitting ? (
                     <>
@@ -389,7 +421,11 @@ export default function PlayerDetails() {
                   variant="ghost"
                   className="w-full"
                   onClick={handleCancel}
-                  disabled={isSubmitting || isUploadingProfilePicture}
+                  disabled={
+                    isSubmitting ||
+                    isUploadingProfilePicture ||
+                    isChangingPassword
+                  }
                 >
                   Cancel
                 </Button>
@@ -448,6 +484,14 @@ export default function PlayerDetails() {
         onConfirm={handleDelete}
         isSubmitting={isSubmitting}
         playerName={`${player.baseUser?.firstName} ${player.baseUser?.lastName}`}
+      />
+
+      {/* Change Password Dialog */}
+      <ChangePasswordDialog
+        open={changePasswordModalOpen}
+        onOpenChange={setChangePasswordModalOpen}
+        onSubmit={onChangePasswordSubmit}
+        isChangingPassword={isChangingPassword}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 // import { clubRouter } from '@/app/server/routers/club';
+import { baseUserRouter } from '@/app/server/routers/baseuser';
 import { dashboardRouter } from '@/app/server/routers/dashboard';
 import { federationRouter } from '@/app/server/routers/federation';
 import { playerRouter } from '@/app/server/routers/player';
@@ -18,6 +19,7 @@ export const appRouter = router({
   dashboard: dashboardRouter,
   membership: membershipRouter,
   upload: uploadRouter,
+  baseUser: baseUserRouter,
   // Add other routers here
 });
 

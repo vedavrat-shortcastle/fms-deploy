@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import Sidebar from '@/components/SideBar';
 import { DataTable } from '@/components/usages/DataTable';
 import { adminColumns } from './adminColumns';
 
@@ -47,7 +46,6 @@ export default function Memberships() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar />
       <main className="flex-1 flex flex-col overflow-auto p-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <span className="text-red-600">
