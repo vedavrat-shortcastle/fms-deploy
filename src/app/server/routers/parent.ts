@@ -390,50 +390,17 @@ export const parentRouter = router({
 
   // Get specific player details by ID (for parent)
   getPlayerById: protectedProcedure
-    .input(z.object({ playerId: z.string() }))
+    .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       try {
-        // First, get the parent profile for the current user
-        const parentProfile = await ctx.db.userProfile.findFirst({
+        const parentId = ctx.session.user.profileId;
+        const playerBaseUser = await ctx.db.baseUser.findFirst({
           where: {
-            baseUserId: ctx.session.user.id,
-            profileType: ProfileType.PARENT,
-          },
-          select: {
-            profileId: true,
-          },
-        });
-
-        if (!parentProfile) {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Not authorized as parent',
-          });
-        }
-
-        // Check if the player belongs to this parent
-        const playerBelongsToParent = await ctx.db.player.findFirst({
-          where: {
-            id: input.playerId, // Fixed: using playerId directly from input
-            parentId: parentProfile.profileId,
-          },
-        });
-
-        if (!playerBelongsToParent) {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Player not found or not authorized to view this player',
-          });
-        }
-
-        // Find the base user information
-        const baseUser = await ctx.db.baseUser.findFirst({
-          where: {
+            id: input.id,
             role: Role.PLAYER,
             federationId: ctx.session.user.federationId,
             profile: {
               profileType: ProfileType.PLAYER,
-              profileId: input.playerId,
               userStatus: {
                 not: 'DELETED',
               },
@@ -444,8 +411,6 @@ export const parentRouter = router({
             email: true,
             firstName: true,
             lastName: true,
-            middleName: true,
-            nameSuffix: true,
             role: true,
             profile: {
               select: {
@@ -457,16 +422,31 @@ export const parentRouter = router({
           },
         });
 
-        if (!baseUser) {
+        if (!playerBaseUser) {
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'Player not found',
           });
         }
+        const playerId = playerBaseUser.profile?.profileId;
+        // Check if the player belongs to this parent
+        const playerBelongsToParent = await ctx.db.player.findFirst({
+          where: {
+            id: playerId,
+            parentId,
+          },
+        });
+
+        if (!playerBelongsToParent) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Player not found or not authorized to view this player',
+          });
+        }
 
         // Get detailed player information
         const playerDetails = await ctx.db.player.findUnique({
-          where: { id: input.playerId },
+          where: { id: playerId },
         });
 
         if (!playerDetails) {
@@ -477,7 +457,7 @@ export const parentRouter = router({
         }
 
         // Combine the player details with the base user info
-        return { ...baseUser, playerDetails };
+        return { ...playerBaseUser, ...playerDetails };
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to fetch player',
@@ -490,7 +470,7 @@ export const parentRouter = router({
   editPlayerById: protectedProcedure
     .input(
       z.object({
-        playerId: z.string(),
+        id: z.string(),
         baseUser: editPlayerSchema.shape.baseUser,
         playerDetails: editPlayerSchema.shape.playerDetails,
       })
@@ -498,53 +478,33 @@ export const parentRouter = router({
     .mutation(async ({ ctx, input }) => {
       try {
         // Get the parent profile for the current user
-        const parentProfile = await ctx.db.userProfile.findFirst({
-          where: {
-            baseUserId: ctx.session.user.id,
-            profileType: ProfileType.PARENT,
-          },
-          select: {
-            profileId: true,
-          },
-        });
+        const parentId = ctx.session.user.profileId;
 
-        if (!parentProfile) {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Not authorized as parent',
-          });
-        }
-
-        // Check if the player belongs to this parent
-        const playerBelongsToParent = await ctx.db.player.findFirst({
-          where: {
-            id: input.playerId,
-            parentId: parentProfile.profileId,
-          },
-        });
-
-        if (!playerBelongsToParent) {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Not authorized to edit this player',
-          });
-        }
-
-        // Find the baseUser record for this player
         const playerBaseUser = await ctx.db.baseUser.findFirst({
           where: {
+            id: input.id,
             role: Role.PLAYER,
             federationId: ctx.session.user.federationId,
             profile: {
               profileType: ProfileType.PLAYER,
-              profileId: input.playerId,
               userStatus: {
                 not: 'DELETED',
               },
             },
           },
-          include: {
-            profile: true,
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            profile: {
+              select: {
+                profileId: true,
+                profileType: true,
+                userStatus: true,
+              },
+            },
           },
         });
 
@@ -552,6 +512,21 @@ export const parentRouter = router({
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'Player not found',
+          });
+        }
+        const playerId = playerBaseUser.profile?.profileId;
+        // Check if the player belongs to this parent
+        const playerBelongsToParent = await ctx.db.player.findFirst({
+          where: {
+            id: playerId,
+            parentId,
+          },
+        });
+
+        if (!playerBelongsToParent) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Player not found or not authorized to view this player',
           });
         }
 
@@ -588,7 +563,7 @@ export const parentRouter = router({
 
           // Update Player
           ctx.db.player.update({
-            where: { id: input.playerId },
+            where: { id: playerId },
             data: {
               ...input.playerDetails,
             },
@@ -609,32 +584,52 @@ export const parentRouter = router({
 
   // Delete player by ID (for parent)
   deletePlayerById: protectedProcedure
-    .input(z.object({ playerId: z.string() }))
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       try {
-        // Get the parent profile for the current user
-        const parentProfile = await ctx.db.userProfile.findFirst({
+        const parentId = ctx.session.user.profileId;
+
+        const playerBaseUser = await ctx.db.baseUser.findFirst({
           where: {
-            baseUserId: ctx.session.user.id,
-            profileType: ProfileType.PARENT,
+            id: input.id,
+            role: Role.PLAYER,
+            federationId: ctx.session.user.federationId,
+            profile: {
+              profileType: ProfileType.PLAYER,
+              userStatus: {
+                not: 'DELETED',
+              },
+            },
           },
           select: {
-            profileId: true,
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            profile: {
+              select: {
+                profileId: true,
+                profileType: true,
+                userStatus: true,
+              },
+            },
           },
         });
 
-        if (!parentProfile) {
+        if (!playerBaseUser) {
           throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Not authorized as parent',
+            code: 'NOT_FOUND',
+            message: 'Player not found',
           });
         }
 
+        const playerId = playerBaseUser.profile?.profileId;
         // Check if the player belongs to this parent
         const playerBelongsToParent = await ctx.db.player.findFirst({
           where: {
-            id: input.playerId,
-            parentId: parentProfile.profileId,
+            id: playerId,
+            parentId,
           },
         });
 
@@ -649,7 +644,7 @@ export const parentRouter = router({
         const playerUserProfile = await ctx.db.userProfile.findFirst({
           where: {
             profileType: ProfileType.PLAYER,
-            profileId: input.playerId,
+            profileId: playerId,
           },
         });
 
