@@ -10,6 +10,7 @@ import { ProfileType, Role } from '@prisma/client';
 import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { federationOnboardingSchema } from '@/schemas/Federation.schema';
 import { createPlayerSchema } from '@/schemas/Player.schema';
+import { z } from 'zod';
 
 export const federationRouter = router({
   federationOnboarding: publicProcedure
@@ -197,6 +198,91 @@ export const federationRouter = router({
         handleError(error, {
           message: 'Failed to create player',
           cause: error.message,
+        });
+      }
+    }),
+
+  // Create multiple players from CSV file
+  uploadPlayersCSV: permissionProtectedProcedure(PERMISSIONS.PLAYER_CREATE)
+    .input(z.array(createPlayerSchema))
+    .mutation(async ({ ctx, input }) => {
+      console.log('Received input in backend:', input);
+
+      try {
+        const federationId = ctx.session.user.federationId;
+        if (!federationId) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'No federation context found',
+          });
+        }
+
+        // Use a Prisma transaction to ensure atomicity
+        await ctx.db.$transaction(async (prisma) => {
+          for (const player of input) {
+            const hashedCSVPassword = await hashPassword(
+              player.baseUser.password
+            );
+            const newBaseUser = await prisma.baseUser.create({
+              data: {
+                email: player.baseUser.email,
+                password: hashedCSVPassword,
+                firstName: player.baseUser.firstName,
+                lastName: player.baseUser.lastName,
+                middleName: player.baseUser.middleName,
+                nameSuffix: player.baseUser.nameSuffix,
+                role: Role.PLAYER,
+                federation: {
+                  connect: { id: federationId },
+                },
+              },
+            });
+
+            const newPlayer = await prisma.player.create({
+              data: {
+                birthDate: player.playerDetails.birthDate,
+                gender: player.playerDetails.gender,
+                avatarUrl: player.playerDetails.avatarUrl,
+                ageProof: player.playerDetails.ageProof,
+                streetAddress: player.playerDetails.streetAddress,
+                streetAddress2: player.playerDetails.streetAddress2,
+                country: player.playerDetails.country,
+                state: player.playerDetails.state,
+                city: player.playerDetails.city,
+                postalCode: player.playerDetails.postalCode,
+                phoneNumber: player.playerDetails.phoneNumber,
+                countryCode: player.playerDetails.countryCode,
+                fideId: player.playerDetails.fideId,
+                schoolName: player.playerDetails.schoolName,
+                graduationYear: player.playerDetails.graduationYear,
+                gradeInSchool: player.playerDetails.gradeInSchool,
+                gradeDate: player.playerDetails.gradeDate,
+                clubName: player.playerDetails.clubName,
+              },
+            });
+
+            await prisma.userProfile.create({
+              data: {
+                profileType: ProfileType.PLAYER,
+                profileId: newPlayer.id,
+                baseUser: {
+                  connect: { id: newBaseUser.id },
+                },
+              },
+            });
+          }
+        });
+
+        return { success: true, message: 'Players uploaded successfully' };
+      } catch (error: any) {
+        console.error('Error in CSV upload:', error);
+        handleError(error, {
+          message: 'Failed to create players from CSV',
+          cause: error.message,
+        });
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to process CSV upload',
         });
       }
     }),
