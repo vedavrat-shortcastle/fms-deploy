@@ -14,7 +14,9 @@ import { ProtectedRoute } from '@/hooks/protectedRoute';
 import { Input } from '@/components/ui/input';
 import { debounce } from 'lodash';
 
-// Assuming you have dropdown components available:
+// Assuming you have a hook to get session data (including the user's role)
+import { useSession } from 'next-auth/react';
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -24,31 +26,41 @@ import {
 
 export default function Page() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [limit, setLimit] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [debounceSearchTerm, setDebounceSearchTerm] = useState('');
 
-  // Add a ref for the file input element
+  // File input ref for CSV upload
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { data, isLoading, refetch } = trpc.player.getPlayers.useQuery({
-    limit: limit,
-    page: currentPage,
-    searchQuery: debounceSearchTerm,
-  });
+  // Check user role for conditional query
+  const isParent = session?.user?.role === 'PARENT';
 
-  // Set up a query for CSV export; disable automatic fetching
+  // Conditional API call: if parent, use parent's getPlayers route; otherwise, use player's route.
+  const playersQuery = isParent
+    ? trpc.parent.getPlayers.useQuery({
+        limit,
+        page: currentPage,
+        searchQuery: debounceSearchTerm,
+      })
+    : trpc.player.getPlayers.useQuery({
+        limit,
+        page: currentPage,
+        searchQuery: debounceSearchTerm,
+      });
+
+  // CSV export remains unchanged (always using the player endpoint)
   const exportCSVQuery = trpc.player.getPlayersCSV.useQuery(
     { searchQuery: debounceSearchTerm },
     { enabled: false }
   );
 
-  // Add a tRPC mutation for deleting a player
+  // Mutation for deleting a player
   const deletePlayerMutation = trpc.player.deletePlayerById.useMutation({
     onSuccess: () => {
-      // Refetch players to update the list after deletion
-      refetch();
+      playersQuery.refetch();
     },
     onError: (error) => {
       console.error('Failed to delete player:', error.message);
@@ -57,7 +69,7 @@ export default function Page() {
   });
 
   const debouncedSearch = useCallback(
-    debounce((value) => {
+    debounce((value: string) => {
       setDebounceSearchTerm(value);
     }, 300),
     []
@@ -68,7 +80,7 @@ export default function Page() {
     debouncedSearch(e.target.value);
   };
 
-  const players = data?.players || [];
+  const players = playersQuery.data?.players || [];
 
   // Delete player using tRPC mutation
   const handleDelete = (id: string, e: React.MouseEvent) => {
@@ -112,7 +124,6 @@ export default function Page() {
 
   // Handle sample CSV download (CSV with just the header row)
   const handleSampleCSV = () => {
-    // Define a sample CSV header (adjust columns as needed)
     const header =
       'Email,Password,First Name,Last Name,Middle Name,Name Suffix,Birth Date,Gender,AvatarUrl,AgeProof,Street Address,Street Address2,Country,State,City,Postal Code,Phone Number,Country Code,FideId,School Name,Graduation Year,Grade In School,Grade Date,Club Name\n';
     const blob = new Blob([header], {
@@ -128,7 +139,7 @@ export default function Page() {
     URL.revokeObjectURL(url);
   };
 
-  // Export functionality: fetch CSV from the API and trigger download
+  // Export functionality: remains unchanged
   const handleExport = async () => {
     try {
       const result = await exportCSVQuery.refetch();
@@ -225,13 +236,13 @@ export default function Page() {
             onChange={handleFileChange}
           />
 
-          {isLoading ? (
+          {playersQuery.isLoading ? (
             <div className="flex justify-center items-center flex-grow">
               <Loader />
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {players.map((player) => (
+              {players.map((player: any) => (
                 <PlayerCard
                   key={player.id}
                   player={player}
@@ -245,7 +256,7 @@ export default function Page() {
 
           <div className="mt-auto">
             <Pagination
-              totalRecords={data?.total || 0}
+              totalRecords={playersQuery.data?.total || 0}
               currentPage={currentPage}
               onPageChange={handlePageChange}
               itemsPerPage={limit}
