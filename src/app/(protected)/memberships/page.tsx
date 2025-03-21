@@ -1,83 +1,48 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Sidebar from '@/components/SideBar';
 import { DataTable } from '@/components/usages/DataTable';
-import { columns } from './columns';
+import { adminColumns } from './adminColumns';
+
 import { Label } from '@/components/ui/label';
 import { FileText } from 'lucide-react';
-
-const plans = [
-  {
-    name: 'Youth Annual Plan',
-    price: '$100.00',
-    benefits: 'Summarizes key plan benefits',
-    eligibility: 'Under-19',
-  },
-  {
-    name: 'Knight premium pack',
-    price: '$100.00',
-    benefits: '-',
-    eligibility: 'Under-19',
-  },
-  {
-    name: 'Grandmaster plan',
-    price: '$100.00',
-    benefits: '-',
-    eligibility: 'Under-19',
-  },
-  {
-    name: 'Pawn pack',
-    price: '$100.00',
-    benefits: 'Summarizes key plan benefits',
-    eligibility: 'Under-19',
-  },
-  {
-    name: 'Knight premium pack',
-    price: '$100.00',
-    benefits: 'Summarizes key plan benefits',
-    eligibility: '-',
-  },
-  {
-    name: 'Grandmaster plan',
-    price: '$100.00',
-    benefits: '-',
-    eligibility: 'Under-19',
-  },
-  {
-    name: 'Grandmaster plan',
-    price: '$100.00',
-    benefits: 'Summarizes key plan benefits',
-    eligibility: 'Under-19',
-  },
-  {
-    name: 'Knight premium pack',
-    price: '$100.00',
-    benefits: 'Summarizes key plan benefits',
-    eligibility: '-',
-  },
-  {
-    name: 'Grandmaster plan',
-    price: '$100.00',
-    benefits: '-',
-    eligibility: 'Under-19',
-  },
-  {
-    name: 'Grandmaster plan',
-    price: '$100.00',
-    benefits: 'Summarizes key plan benefits',
-    eligibility: '-',
-  },
-];
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import PlanForm from '@/components/subsciptions';
+import { trpc } from '@/utils/trpc';
+import { usePermission } from '@/hooks/usePermission';
+import { usersColumns } from './usersColumns';
+import Loader from '@/components/Loader';
 
 export default function Memberships() {
   const [search, setSearch] = useState('');
+  const [formOpen, setFormOpen] = useState(false);
+  const canCreatePlan = usePermission('PLAN_CREATE');
 
-  // const filteredPlans = plans.filter((plan) =>
-  //   plan.name.toLowerCase().includes(search.toLowerCase())
-  // );
+  // Fetch plans using tRPC query
+  const { data, isLoading, refetch } = trpc.membership.getPlans.useQuery({
+    page: 1,
+    limit: 10,
+    searchQuery: search,
+  });
+
+  // Extract plans from fetched data or fallback to an empty array
+  const plans: any = data?.plans || [];
+
+  // Optionally, refetch on search query change (if you are not debouncing the input)
+  useEffect(() => {
+    refetch();
+  }, [search, refetch, formOpen]);
+
+  // You can also add error handling and loading state if needed
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -106,12 +71,48 @@ export default function Memberships() {
             <Label className="ml-4">Plan Id</Label>
             <Input placeholder="Plan ID" className="w-36 h-8" />
           </div>
-          <Button className="bg-red-600 text-white ml-auto">
-            Create Plans
-          </Button>
+
+          { canCreatePlan && (
+            <div className="flex  mt-6 items-end w-full h-15 justify-end">
+              {/* Modal Pop-up for Adding usage */}
+              <Dialog open={formOpen} onOpenChange={setFormOpen}>
+                <DialogTrigger asChild>
+                  <Button>Add Plan</Button>
+                </DialogTrigger>
+
+                <DialogContent className="max-w-3xl order ">
+                  <DialogHeader className="">
+                    <DialogTitle className="text-2xl font-bold">
+                      {/* <div className=""> */}
+                      <h1 className="text-2xl font-bold">Create Plan</h1>
+                      {/* </div> */}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div
+                    className="overflow-y-auto flex-grow"
+                    style={{ maxHeight: 'calc(100vh - 140px)' }}
+                  >
+                    <PlanForm />
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          )}
         </div>
 
-        <DataTable columns={columns} data={plans} />
+        {isLoading ? (
+          <div className="flex justify-center w-full h-full items-center ">
+            <Loader />
+          </div>
+        ) : (
+          <>
+            {canCreatePlan ? (
+              <DataTable columns={adminColumns} data={plans} />
+            ) : (
+              <DataTable columns={usersColumns} data={plans} />
+            )}
+          </>
+        )}
       </main>
     </div>
   );
