@@ -171,7 +171,7 @@ const CheckoutForm = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="us">United States</SelectItem>
-                    <SelectItem value="ca">Canada</SelectItem>
+                    <SelectItem value="nz">New Zealand</SelectItem>
                     <SelectItem value="uk">United Kingdom</SelectItem>
                   </SelectContent>
                 </Select>
