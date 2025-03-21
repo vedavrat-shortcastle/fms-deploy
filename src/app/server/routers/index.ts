@@ -6,6 +6,7 @@ import { superUserRouter } from '@/app/server/routers/super-user';
 import { uploadRouter } from '@/app/server/routers/upload';
 import { router } from '@/app/server/trpc';
 import { membershipRouter } from './membership';
+import { parentRouter } from '@/app/server/routers/parent';
 
 export const appRouter = router({
   superUser: superUserRouter,
@@ -15,6 +16,7 @@ export const appRouter = router({
   dashboard: dashboardRouter,
   membership: membershipRouter,
   upload: uploadRouter,
+  parent: parentRouter,
   // Add other routers here
 });
 
