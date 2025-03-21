@@ -173,7 +173,6 @@ export const parentRouter = router({
         const hashedPassword = await hashPassword(baseUser.password);
 
         const result = await ctx.db.$transaction(async (tx) => {
-          console.log('flag1', baseUser);
           const newBaseUser = await tx.baseUser.create({
             data: {
               ...baseUser,
