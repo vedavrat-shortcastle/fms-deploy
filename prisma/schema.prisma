@@ -198,7 +198,7 @@ model Subscription {
 
   // Optional relation for membership subscriptions
   plan   MembershipPlan? @relation(fields: [planId], references: [id])
-  planId String?
+  planId String? //TODO: Make this mandatory
 
   // Remove these as they're now in Transaction model
   // paymentStatus PaymentStatus      @default(PENDING)

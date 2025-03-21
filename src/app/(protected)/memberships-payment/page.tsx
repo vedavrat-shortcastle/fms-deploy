@@ -84,7 +84,7 @@ function PaymentContent({ session }: { session: any }) {
 
               <div className="mb-4">
                 <span className="text-red-500 font-medium">
-                  {plan.duration} days
+                  {plan.duration} Months
                 </span>
               </div>
 

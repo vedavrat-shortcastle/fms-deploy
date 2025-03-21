@@ -7,7 +7,7 @@ import {
 import { handleError } from '@/utils/errorHandler';
 import { PERMISSIONS } from '@/config/permissions';
 import { z } from 'zod';
-import { Prisma, PlanStatus } from '@prisma/client';
+import { Prisma, PlanStatus, SubscriptionStatus } from '@prisma/client';
 import {
   createPlanSchema,
   getPlanSchema,
@@ -48,41 +48,61 @@ export const membershipRouter = router({
     .input(getPlanSchema)
     .query(async ({ ctx, input }) => {
       try {
-        const { page, limit, status = 'ACTIVE', searchQuery } = input;
-        const offset = (page - 1) * limit;
-
-        const where: Prisma.MembershipPlanWhereInput = {
-          federationId: ctx.session.user.federationId,
-          status: status,
-          OR: searchQuery
-            ? [
-                { name: { contains: searchQuery, mode: 'insensitive' } },
-                { description: { contains: searchQuery, mode: 'insensitive' } },
-              ]
-            : undefined,
-        };
-
-        const [plans, total] = await ctx.db.$transaction([
-          ctx.db.membershipPlan.findMany({
-            where,
-            skip: offset,
-            take: limit,
-            orderBy: { createdAt: 'desc' },
-            include: {
-              _count: {
-                select: { subscriptions: true },
-              },
-            },
-          }),
-          ctx.db.membershipPlan.count({ where }),
-        ]);
-
-        return {
-          plans,
-          total,
+        const {
           page,
           limit,
-        };
+          status = SubscriptionStatus.ACTIVE,
+          searchQuery,
+        } = input;
+        const offset = (page - 1) * limit;
+
+        const result = ctx.db.$transaction(async (tx) => {
+          const playerSubscriptions = await tx.subscription.findMany({
+            where: {
+              subscriberId: ctx.session.user.profileId,
+              status: SubscriptionStatus.ACTIVE,
+            },
+            select: { planId: true },
+          });
+          const activePlans = await tx.membershipPlan.findMany({
+            where: {
+              id: {
+                in:
+                  playerSubscriptions
+                    .map((sub) => sub.planId)
+                    .filter((id): id is string => id !== null) ?? [],
+              },
+            },
+          });
+
+          const where: Prisma.MembershipPlanWhereInput = {
+            federationId: ctx.session.user.federationId,
+            status: status,
+            id: {
+              notIn: activePlans.map((plan) => plan.id),
+            },
+            OR: searchQuery
+              ? [
+                  { name: { contains: searchQuery, mode: 'insensitive' } },
+                  {
+                    description: { contains: searchQuery, mode: 'insensitive' },
+                  },
+                ]
+              : undefined,
+          };
+
+          const inactivePlans = await tx.membershipPlan.findMany({
+            where,
+            skip: offset,
+            take: limit - activePlans.length,
+            orderBy: { createdAt: 'desc' },
+          });
+          const total = tx.membershipPlan.count({ where });
+
+          return { activePlans, inactivePlans, total };
+        });
+
+        return result;
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to fetch membership plans',
