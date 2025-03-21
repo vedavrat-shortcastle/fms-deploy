@@ -137,6 +137,7 @@ export const parentRouter = router({
             message: 'No federation context found',
           });
         }
+
         const { baseUser, playerDetails } = input;
 
         const existingUser = await ctx.db.baseUser.findUnique({
