@@ -1,9 +1,8 @@
 'use client';
 
-import { SimpleLineChart } from '@/components/dashboard-components/SimpleLineChart';
+import MembersGrowthChart from '@/components/dashboard-components/MemberGrowthChart';
 import MetricCard from '@/components/dashboard-components/MetricCard';
-import VerticalBarChart from '@/components/dashboard-components/VerticalBarChart';
-import HorizontalBarChart from '@/components/dashboard-components/HorizontalBarChart';
+
 import { trpc } from '@/utils/trpc';
 
 export default function AdminDashboard() {
@@ -39,19 +38,10 @@ export default function AdminDashboard() {
             />
           </div>
           {/* Main content row: Large chart on the left, smaller card on the right */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 mt-6">
             <div className="lg:col-span-2 bg-white rounded ">
-              <h1 className="p-2 text-xl"> Member Growth</h1>
-              <SimpleLineChart />
-            </div>
-            <div className="rounded">
-              <VerticalBarChart />
-            </div>
-          </div>
-          {/* Additional row: “Traffic by Website”, “Traffic by Device”, “Traffic by Location” */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            <div className="rounded">
-              <HorizontalBarChart />
+              <h1 className="p-2 text-xl font-bold"> Member Growth</h1>
+              <MembersGrowthChart />
             </div>
           </div>
         </div>
