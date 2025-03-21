@@ -374,38 +374,18 @@ export const parentRouter = router({
         const totalPlayers = await ctx.db.baseUser.count({
           where,
         });
-
-        // For each player, fetch additional details from the Player model
-        const playersWithDetails = await Promise.all(
-          baseUsers.map(async (user) => {
-            const playerDetails = await ctx.db.player.findUnique({
-              where: { id: user.profile?.profileId },
-              select: {
-                birthDate: true,
-                gender: true,
-                fideId: true,
-                schoolName: true,
-              },
-            });
-
-            return {
-              ...user,
-              playerDetails,
-            };
-          })
-        );
-
-        return {
-          players: playersWithDetails,
+ return {
+          players: baseUsers,
           total: totalPlayers,
           page,
           limit,
         };
       } catch (error: any) {
         handleError(error, {
-          message: 'Failed to fetch parent players',
+          message: 'Failed to fetch players',
           cause: error.message,
         });
       }
     }),
 });
+        
