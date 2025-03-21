@@ -1,11 +1,16 @@
 'use client';
 import {
   LogOut,
-  Users,
-  Calendar,
-  LifeBuoy,
   Settings,
-  FileText,
+  Home,
+  User,
+  ClipboardList,
+  HelpCircle,
+  UserCheck,
+  UserPlus,
+  School,
+  Building,
+  Calendar,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -29,19 +34,19 @@ const Sidebar: FC = () => {
   const menuItems: SidebarLinkProps[] = [
     {
       href: '/admin-dashboard',
-      icon: <Users size={20} />,
+      icon: <Home size={20} />,
       label: 'Dashboard',
       active: pathname === '/admin-dashboard',
     },
     {
       href: '/players',
-      icon: <Users size={20} />,
+      icon: <User size={20} />,
       label: 'Players',
       active: pathname === '/players',
     },
     {
       href: '/memberships',
-      icon: <FileText size={20} />,
+      icon: <ClipboardList size={20} />,
       label: 'Memberships',
       active: pathname === '/memberships',
     },
@@ -53,7 +58,7 @@ const Sidebar: FC = () => {
     },
     {
       href: '/support',
-      icon: <LifeBuoy size={20} />,
+      icon: <HelpCircle size={20} />,
       label: 'Support',
       active: pathname === '/support',
     },
@@ -65,25 +70,25 @@ const Sidebar: FC = () => {
     },
     {
       href: '/coaches',
-      icon: <Users size={20} />,
+      icon: <UserCheck size={20} />,
       label: 'Coaches',
       active: pathname === '/coaches',
     },
     {
       href: '/arbiters',
-      icon: <Users size={20} />,
+      icon: <UserPlus size={20} />,
       label: 'Arbiters',
       active: pathname === '/arbiters',
     },
     {
       href: '/schools',
-      icon: <Users size={20} />,
+      icon: <School size={20} />,
       label: 'Schools',
       active: pathname === '/schools',
     },
     {
       href: '/clubs',
-      icon: <Users size={20} />,
+      icon: <Building size={20} />,
       label: 'Clubs',
       active: pathname === '/clubs',
     },
