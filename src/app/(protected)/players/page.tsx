@@ -2,7 +2,6 @@
 
 import React, { useCallback, useState, useRef } from 'react';
 import { Search, Upload, Download } from 'lucide-react';
-import Sidebar from '@/components/SideBar';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { trpc } from '@/utils/trpc';
@@ -163,7 +162,6 @@ export default function Page() {
   return (
     <ProtectedRoute requiredPermission={PERMISSIONS.PLAYER_VIEW}>
       <div className="flex h-screen bg-gray-50">
-        <Sidebar />
         <main className="flex-1 flex flex-col overflow-auto p-6">
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
