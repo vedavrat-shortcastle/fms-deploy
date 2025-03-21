@@ -1,5 +1,6 @@
 'use client';
 
+import MembersByRegionChart from '@/components/dashboard-components/DonutChart';
 import MembersGrowthChart from '@/components/dashboard-components/MemberGrowthChart';
 import MetricCard from '@/components/dashboard-components/MetricCard';
 
@@ -40,6 +41,15 @@ export default function AdminDashboard() {
           {/* Main content row: Large chart on the left, smaller card on the right */}
           <div className="grid grid-cols-1 lg:grid-cols-2 mt-6">
             <div className="lg:col-span-2 bg-white rounded ">
+              <h1 className="p-2 text-xl font-bold"> Member Growth</h1>
+              <MembersGrowthChart />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 mt-6 gap-6">
+            <div className="lg:col-span-1 bg-white rounded mt-10 ">
+              <MembersByRegionChart />
+            </div>
+            <div className="lg:col-span-1 bg-white rounded ">
               <h1 className="p-2 text-xl font-bold"> Member Growth</h1>
               <MembersGrowthChart />
             </div>
