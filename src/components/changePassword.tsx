@@ -1,12 +1,11 @@
 'use client';
-import { Loader } from 'lucide-react';
+import { FormInput, Loader } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+
 import {
   Dialog,
   DialogContent,
@@ -15,6 +14,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 
 // Define schema for change password form
 const changePasswordSchema = z
@@ -49,22 +54,16 @@ export function ChangePasswordDialog({
   onSubmit,
   isChangingPassword,
 }: ChangePasswordDialogProps) {
-  const {
-    handleSubmit,
-    register,
-    formState: { errors },
-    reset,
-  } = useForm<ChangePasswordFormValues>({
+  const { handleSubmit, register } = useForm<ChangePasswordFormValues>({
+    resolver: zodResolver(changePasswordSchema),
+  });
+  const form = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordSchema),
   });
 
-  const handleClose = () => {
-    if (!isChangingPassword) {
-      reset();
-      onOpenChange(false);
-    }
+  const handleClose = (): void => {
+    onOpenChange(false);
   };
-
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -75,67 +74,68 @@ export function ChangePasswordDialog({
             credentials.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="oldPassword">Old Password</Label>
-            <Input
-              id="oldPassword"
-              type="password"
-              {...register('oldPassword')}
-            />
-            {errors.oldPassword && (
-              <p className="text-sm text-destructive mt-1">
-                {errors.oldPassword.message}
-              </p>
-            )}
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="newPassword">New Password</Label>
-            <Input
-              id="newPassword"
-              type="password"
-              {...register('newPassword')}
-            />
-            {errors.newPassword && (
-              <p className="text-sm text-destructive mt-1">
-                {errors.newPassword.message}
-              </p>
-            )}
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="confirmNewPassword">Confirm New Password</Label>
-            <Input
-              id="confirmNewPassword"
-              type="password"
-              {...register('confirmNewPassword')}
-            />
-            {errors.confirmNewPassword && (
-              <p className="text-sm text-destructive mt-1">
-                {errors.confirmNewPassword.message}
-              </p>
-            )}
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleClose}
-              disabled={isChangingPassword}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isChangingPassword}>
-              {isChangingPassword ? (
-                <>
-                  <Loader className="mr-2 h-4 w-4 animate-spin" />
-                  Changing...
-                </>
-              ) : (
-                'Change Password'
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <FormControl>
+                <FormLabel htmlFor="oldPassword">Old Password</FormLabel>
+                <FormInput
+                  id="oldPassword"
+                  type="password"
+                  {...register('oldPassword')}
+                />
+                <FormMessage />
+              </FormControl>
+            </div>
+
+            <div className="grid gap-2">
+              <FormControl>
+                <FormLabel htmlFor="newPassword">New Password</FormLabel>
+                <FormInput
+                  id="newPassword"
+                  type="password"
+                  {...register('newPassword')}
+                />
+                <FormMessage />
+              </FormControl>
+            </div>
+
+            <div className="grid gap-2">
+              <FormControl>
+                <FormLabel htmlFor="confirmNewPassword">
+                  Confirm New Password
+                </FormLabel>
+                <FormInput
+                  id="confirmNewPassword"
+                  type="password"
+                  {...register('confirmNewPassword')}
+                />
+                <FormMessage />
+              </FormControl>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleClose}
+                disabled={isChangingPassword}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isChangingPassword}>
+                {isChangingPassword ? (
+                  <>
+                    <Loader className="mr-2 h-4 w-4 animate-spin" />
+                    Changing...
+                  </>
+                ) : (
+                  'Change Password'
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

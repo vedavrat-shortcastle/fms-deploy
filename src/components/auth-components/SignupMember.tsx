@@ -44,7 +44,7 @@ interface SignupProps {
 
 // The component will accept an image as a prop and will pass that image to AuthLayout.
 export const SignupMember = ({ imageSrc }: SignupProps) => {
-  const { mutate, isLoading } = trpc.player.signup.useMutation();
+  const { mutate, isLoading } = trpc.authRouter.signup.useMutation();
   //React hook form Logic
   const form = useForm<SignupMemberFormValues>({
     resolver: zodResolver(signupMemberSchema),
