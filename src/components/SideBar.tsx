@@ -15,7 +15,7 @@ import {
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FC, ReactElement } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 
 interface SidebarLinkProps {
@@ -28,6 +28,7 @@ interface SidebarLinkProps {
 
 const Sidebar: FC = () => {
   const pathname = usePathname();
+  const router = useRouter();
 
   const { data } = useSession();
 
@@ -149,9 +150,10 @@ const Sidebar: FC = () => {
       {/* Footer */}
       <div className="border-t border-gray-700 p-4">
         <SidebarLink
-          onClick={(e) => {
+          onClick={async (e) => {
             e.preventDefault();
-            signOut();
+            await signOut();
+            router.push('/login');
           }}
           href="/login"
           icon={<LogOut size={20} />}
