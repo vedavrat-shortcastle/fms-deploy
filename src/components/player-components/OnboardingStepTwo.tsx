@@ -25,7 +25,7 @@ export const PlayerDetailsStepTwo = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              {renderLabel('FIDE ID', false)}
+              {renderLabel('FIDE ID')}
             </FormLabel>
             <FormControl>
               <Input
@@ -45,7 +45,7 @@ export const PlayerDetailsStepTwo = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              {renderLabel('School Name', false)}
+              {renderLabel('School Name')}
             </FormLabel>
             <FormControl>
               <Input
@@ -65,7 +65,7 @@ export const PlayerDetailsStepTwo = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              {renderLabel('Graduation Year', false)}
+              {renderLabel('Graduation Year')}
             </FormLabel>
             <FormControl>
               <Input
@@ -87,7 +87,7 @@ export const PlayerDetailsStepTwo = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              {renderLabel('Grade In School', false)}
+              {renderLabel('Grade In School')}
             </FormLabel>
             <FormControl>
               <Input
@@ -107,7 +107,7 @@ export const PlayerDetailsStepTwo = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="block text-sm text-gray-900">
-              {renderLabel('Grade Date', false)}
+              {renderLabel('Grade Date')}
             </FormLabel>
             <FormControl>
               <DatePicker
@@ -127,7 +127,7 @@ export const PlayerDetailsStepTwo = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              {renderLabel('Club Name', false)}
+              {renderLabel('Club Name')}
             </FormLabel>
             <FormControl>
               <Input

@@ -162,7 +162,7 @@ export const PlayerDetailsStepOne = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              {renderLabel('Street Address 2', false)}
+              {renderLabel('Street Address 2')}
             </FormLabel>
             <FormControl>
               <Input
