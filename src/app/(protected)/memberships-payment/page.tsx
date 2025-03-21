@@ -80,14 +80,23 @@ function PaymentContent({ session }: { session: any }) {
           {/* Right section - Plan summary */}
           <Card className="w-1/2 shadow-none border rounded">
             <CardContent className="p-6">
-              <h3 className="text-lg font-medium mb-4">Youth Annual Plan</h3>
+              <h3 className="text-lg font-medium mb-4">{plan.name}</h3>
 
               <div className="mb-4">
-                <span className="text-red-500 font-medium">Year</span>
+                <span className="text-red-500 font-medium">
+                  {plan.duration} days
+                </span>
               </div>
 
               <div className="border-t border-b py-8 mb-6">
-                <h3 className="text-3xl font-bold">$ 29.00</h3>
+                <h3 className="text-3xl font-bold">
+                  {plan.currency} {plan.price * playerIds.length}
+                </h3>
+                {playerIds.length > 1 && (
+                  <p className="text-sm text-gray-500">
+                    ({playerIds.length} players × {plan.currency} {plan.price})
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
