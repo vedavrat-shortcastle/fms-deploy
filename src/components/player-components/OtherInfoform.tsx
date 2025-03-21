@@ -12,13 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { CreatePlayerFormValues } from '@/schemas/Player.schema';
 import DatePicker from '@/components/player-components/DatePicker';
-
-export const renderLabel = (text: string, isRequired: boolean = false) => (
-  <>
-    <span className="text-sm text-gray-900">{text}</span>
-    {isRequired && <span className="text-red-500"> *</span>}
-  </>
-);
+import { renderLabel } from '@/components/RenderLable';
 
 export function OtherInfoForm() {
   const {
