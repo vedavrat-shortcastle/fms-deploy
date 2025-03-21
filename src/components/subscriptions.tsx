@@ -14,7 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 // import { toast } from '@/hooks/use-toast';
 import {
   planFormValues,
-  createPlanSchema,
+  createPlanSchema as originalCreatePlanSchema,
   planFormDefaults,
 } from '@/schemas/Membership.schema';
 import {
@@ -28,27 +28,48 @@ import { Textarea } from './ui/textarea';
 import { Checkbox } from './ui/checkbox';
 import { toast } from '@/hooks/useToast';
 import { trpc } from '@/utils/trpc';
+import * as z from 'zod';
 
-export default function PlanForm() {
+// Modify the schema to accept benefits as a string
+const createPlanSchema = originalCreatePlanSchema.extend({
+  benefits: z.string(),
+});
+
+type CustomPlanFormValues = Omit<planFormValues, 'benefits'> & {
+  benefits: string;
+};
+
+export default function PlanForm({ onClose }: { onClose: () => void }) {
   const createPlan = trpc.membership.createPlan.useMutation();
 
-  const form = useForm<planFormValues>({
+  const form = useForm<CustomPlanFormValues>({
     resolver: zodResolver(createPlanSchema),
     mode: 'onTouched',
-    defaultValues: planFormDefaults,
+    defaultValues: {
+      ...planFormDefaults,
+      benefits: '',
+    },
   });
 
-  const onSubmit = async (data: planFormValues) => {
+  const onSubmit = async (data: CustomPlanFormValues) => {
     try {
+      // Split the benefits string by comma and update the field value as an array
+      const formattedData = {
+        ...data,
+        benefits: data.benefits
+          .split(', ')
+          .map((item) => item.trim())
+          .filter(Boolean),
+      };
       // Call the mutation and wait for the result
-      const result = await createPlan.mutateAsync(data);
+      await createPlan.mutateAsync(formattedData);
       toast({
         title: 'Plan created successfully',
         description: 'Your membership plan has been created',
         variant: 'default',
       });
       form.reset();
-      console.log('Plan created:', result);
+      onClose(); // Close the modal after successful submission
     } catch (error: any) {
       toast({
         title: 'Error creating plan',
@@ -107,7 +128,10 @@ export default function PlanForm() {
                                 {...field}
                                 value={isNaN(field.value) ? '' : field.value}
                                 onChange={(e) => {
-                                  const newValue = e.target.valueAsNumber;
+                                  const newValue = Math.max(
+                                    0,
+                                    e.target.valueAsNumber
+                                  );
                                   field.onChange(
                                     isNaN(newValue) ? '' : newValue
                                   );
@@ -160,6 +184,7 @@ export default function PlanForm() {
                               <SelectContent>
                                 <SelectItem value="usd">USD</SelectItem>
                                 <SelectItem value="eur">EUR</SelectItem>
+                                <SelectItem value="nzd">NZ$</SelectItem>
                               </SelectContent>
                             </Select>
                           </FormControl>
@@ -185,7 +210,10 @@ export default function PlanForm() {
                               {...field}
                               value={isNaN(field.value) ? '' : field.value}
                               onChange={(e) => {
-                                const newValue = e.target.valueAsNumber;
+                                const newValue = Math.max(
+                                  0,
+                                  e.target.valueAsNumber
+                                );
                                 field.onChange(isNaN(newValue) ? '' : newValue);
                               }}
                             />
@@ -200,8 +228,8 @@ export default function PlanForm() {
                     control={form.control}
                     name="benefits"
                     render={({ field }) => {
-                      // Convert the array to a newline-separated string for display
-                      const displayValue = field.value?.join('\n') || '';
+                      // Convert the array to a comma-separated string for display
+                      const displayValue = field.value || '';
 
                       return (
                         <FormItem>
@@ -211,16 +239,8 @@ export default function PlanForm() {
                           <FormControl>
                             <Textarea
                               value={displayValue}
-                              onChange={(e) => {
-                                // Split the string by newline and update the field value as an array
-                                field.onChange(
-                                  e.target.value
-                                    .split('\n')
-                                    .map((item) => item.trim())
-                                    .filter(Boolean)
-                                );
-                              }}
-                              placeholder="Enter each benefit on a new line"
+                              onChange={field.onChange}
+                              placeholder="Enter each benefit separated by a comma"
                               required
                             />
                           </FormControl>
@@ -259,7 +279,10 @@ export default function PlanForm() {
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
-                        <FormLabel className="text-sm font-normal">
+                        <FormLabel
+                          className="text-sm font-normal"
+                          style={{ marginTop: 0 }}
+                        >
                           Auto-Renewal
                         </FormLabel>
                         <FormMessage />
