@@ -23,16 +23,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [session.data?.user.profileId, session.status]);
 
   useEffect(() => {
-    if (
-      session.status === 'authenticated' &&
-      profileOnboarded === false &&
-      pathname !== '/players/onboard-player'
-    ) {
-      router.push('/players/onboard-player');
+    if (session.status === 'authenticated' && profileOnboarded === false) {
+      // Check for parent's role and redirect accordingly
+      if (
+        session.data?.user.role === 'PARENT' &&
+        pathname !== '/players/onboard-parent'
+      ) {
+        router.push('/players/onboard-parent');
+      } else if (
+        session.data?.user.role !== 'PARENT' &&
+        pathname !== '/players/onboard-player'
+      ) {
+        router.push('/players/onboard-player');
+      }
     } else if (session.status === 'unauthenticated') {
       router.push('/login');
     }
-  }, [session.status, profileOnboarded, router, pathname]);
+  }, [
+    session.status,
+    profileOnboarded,
+    router,
+    pathname,
+    session.data?.user.role,
+  ]);
 
   // Handle loading states
   if (session.status === 'loading' || profileOnboarded === null) {
@@ -46,7 +59,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   // Allow rendering children for onboarding page or when user is authenticated and onboarded
   if (
     session.status === 'authenticated' &&
-    (profileOnboarded || pathname === '/players/onboard-player')
+    (profileOnboarded ||
+      pathname === '/players/onboard-player' ||
+      pathname === '/players/onboard-parent')
   ) {
     return <section>{children}</section>;
   }
