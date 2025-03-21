@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import Sidebar from '@/components/SideBar';
 import CheckoutForm from '@/app/(protected)/memberships-payment/CheckoutForm';
 import { Toaster } from '@/components/ui/toaster';
 import { useSession } from 'next-auth/react'; // import useSession from next-auth
@@ -29,8 +28,6 @@ export default function PaymentPage() {
 
   return (
     <div className="flex h-screen">
-      <Sidebar />
-
       <div className="flex-1 bg-white p-8">
         <div className="mb-4 flex items-center">
           <Button variant="ghost" className="p-0 mr-2">
