@@ -187,18 +187,60 @@ model Subscription {
   subscriber   Player @relation(fields: [subscriberId], references: [id])
   subscriberId String @map("subscriber_id")
 
-  type          SubscriptionType
-  status        SubscriptionStatus
-  startDate     DateTime           @map("start_date")
-  endDate       DateTime           @map("end_date")
-  createdAt     DateTime           @default(now()) @map("created_at")
-  plan          MembershipPlan     @relation(fields: [planId], references: [id])
-  planId        String
-  paymentStatus PaymentStatus      @default(PENDING)
-  amount        Float
-  currency      String
+  type      SubscriptionType
+  status    SubscriptionStatus @default(ACTIVE)
+  startDate DateTime           @map("start_date")
+  endDate   DateTime           @map("end_date")
+
+  // Optional relation for event subscriptions
+  event   Event?  @relation(fields: [eventId], references: [id])
+  eventId String? @map("event_id")
+
+  // Optional relation for membership subscriptions
+  plan   MembershipPlan? @relation(fields: [planId], references: [id])
+  planId String? //TODO: Make this mandatory
+
+  // Remove these as they're now in Transaction model
+  // paymentStatus PaymentStatus      @default(PENDING)
+  // amount        Float
+  // currency      String
+
+  transactions Transaction[]
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
 
   @@map("subscription")
+}
+
+model Transaction {
+  id             String       @id @default(uuid())
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String       @map("subscription_id")
+
+  // Payment Gateway Details
+  gatewayTransactionId String @map("gateway_transaction_id")
+  gatewayName          String @map("gateway_name") // e.g., "stripe", "razorpay"
+
+  // Amount Details
+  amount   Float
+  currency String
+  status   PaymentStatus @default(PENDING)
+
+  // Payment Method Details
+  paymentMethod String @map("payment_method")
+
+  // Response from Gateway
+  gatewayResponse Json? @map("gateway_response")
+
+  // Metadata
+  metadata     Json?
+  errorMessage String? @map("error_message")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("transaction")
 }
 
 // Membership Plan Schema
@@ -224,31 +266,32 @@ model MembershipPlan {
 
 // Event Schema
 model Event {
-  id             String      @id @default(uuid())
+  id             String         @id @default(uuid())
   name           String
   description    String?
   image          String?
   video          String?
   mode           EventMode
   venue          String?
-  startDate      DateTime    @map("start_date")
-  startTime      String      @map("start_time")
-  endDate        DateTime    @map("end_date")
-  endTime        String      @map("end_time")
-  contactInfo    ContactInfo @relation(fields: [contactInfoId], references: [id])
-  federation     Federation  @relation(fields: [federationId], references: [id])
-  federationId   String      @map("federation_id")
+  startDate      DateTime       @map("start_date")
+  startTime      String         @map("start_time")
+  endDate        DateTime       @map("end_date")
+  endTime        String         @map("end_time")
+  contactInfo    ContactInfo    @relation(fields: [contactInfoId], references: [id])
+  federation     Federation     @relation(fields: [federationId], references: [id])
+  federationId   String         @map("federation_id")
   format         EventFormat
-  numberOfRounds Int         @map("number_of_rounds")
-  isRated        Boolean     @map("is_rated")
-  timeControl    String?     @map("time_control")
+  numberOfRounds Int            @map("number_of_rounds")
+  isRated        Boolean        @map("is_rated")
+  timeControl    String?        @map("time_control")
   entryFees      EntryFee[]
   brochure       String? // URL to brochure (PDF/Image)
-  aboutEvent     String?     @map("about_event") // Quill formatted content
-  prizesAwards   String?     @map("prizes_awards") // Quill formatted content
+  aboutEvent     String?        @map("about_event") // Quill formatted content
+  prizesAwards   String?        @map("prizes_awards") // Quill formatted content
   faq            String? // Quill formatted content
-  createdAt      DateTime    @default(now()) @map("created_at")
-  contactInfoId  String      @map("contact_info_id")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  contactInfoId  String         @map("contact_info_id")
+  Subscription   Subscription[]
 
   @@map("event")
 }

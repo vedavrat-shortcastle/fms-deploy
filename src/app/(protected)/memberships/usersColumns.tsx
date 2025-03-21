@@ -2,16 +2,23 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
-export type PlanTable = {
+export const usersColumns: ColumnDef<{
+  status: string;
+  currency: string;
   name: string;
-  price: string;
-  benefits: string;
-  duration: number | null;
-  createAt: Date;
-};
-
-export const usersColumns: ColumnDef<PlanTable>[] = [
+  id: string;
+  federationId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  description: string | null;
+  duration: number;
+  price: number;
+  benefits: string[];
+  autoRenewal: boolean;
+}>[] = [
   {
     accessorKey: 'name',
     header: 'Plan Name',
@@ -32,10 +39,26 @@ export const usersColumns: ColumnDef<PlanTable>[] = [
   {
     id: 'actions',
     // header: 'Actions',
-    cell: () => (
-      <div className="flex space-x-2 justify-end">
-        <Button className="bg-red-600 text-white">Purchase Plan</Button>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const router = useRouter();
+      const session = useSession();
+      return (
+        <div className="flex space-x-2 justify-end">
+          <Button
+            variant={row.original.status === 'active' ? 'outline' : 'default'}
+            onClick={() => {
+              if (row.original.status === 'active') {
+                return;
+              }
+              router.push(
+                `/memberships-payment?planId=${row.original.id}&playerIds=${[session.data?.user.profileId]}`
+              );
+            }}
+          >
+            {row.original.status === 'active' ? 'Purchased' : 'Purchase Plan'}
+          </Button>
+        </div>
+      );
+    },
   },
 ];
