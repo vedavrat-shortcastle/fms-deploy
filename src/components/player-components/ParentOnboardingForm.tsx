@@ -21,12 +21,7 @@ import {
 import { PhoneInput } from '@/components/phoneinput';
 
 export const ParentOnboardingForm = () => {
-  const {
-    control,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useFormContext();
+  const { control, setValue, watch } = useFormContext();
 
   // Local state to store options for country, state, and city
   const [countryOptions, setCountryOptions] = useState<
@@ -118,9 +113,7 @@ export const ParentOnboardingForm = () => {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>
-              {errors.streetAddress?.message?.toString()}
-            </FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -139,9 +132,7 @@ export const ParentOnboardingForm = () => {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>
-              {errors.streetAddress2?.message?.toString()}
-            </FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -167,7 +158,7 @@ export const ParentOnboardingForm = () => {
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormMessage>{errors.country?.message?.toString()}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -193,7 +184,7 @@ export const ParentOnboardingForm = () => {
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormMessage>{errors.state?.message?.toString()}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -232,7 +223,7 @@ export const ParentOnboardingForm = () => {
                 />
               </FormControl>
             )}
-            <FormMessage>{errors.city?.message?.toString()}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -251,7 +242,7 @@ export const ParentOnboardingForm = () => {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>{errors.postalCode?.message?.toString()}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
