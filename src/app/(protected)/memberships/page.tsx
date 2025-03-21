@@ -21,11 +21,12 @@ import { trpc } from '@/utils/trpc';
 import { usePermission } from '@/hooks/usePermission';
 import { usersColumns } from './usersColumns';
 import Loader from '@/components/Loader';
+import { PERMISSIONS } from '@/config/permissions';
 
 export default function Memberships() {
   const [search, setSearch] = useState('');
   const [formOpen, setFormOpen] = useState(false);
-  const canCreatePlan = usePermission('PLAN_CREATE');
+  const canCreatePlan = usePermission(PERMISSIONS.PLAN_CREATE);
 
   // Fetch plans using tRPC query
   const { data, isLoading, refetch } = trpc.membership.getPlans.useQuery({
