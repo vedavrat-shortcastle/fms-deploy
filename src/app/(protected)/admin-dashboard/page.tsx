@@ -1,41 +1,66 @@
 'use client';
 
 import MembersGrowthChart from '@/components/dashboard-components/MemberGrowthChart';
-import MetricCard from '@/components/dashboard-components/MetricCard';
+import MetricCard, {
+  MetricCardProps,
+} from '@/components/dashboard-components/MetricCard';
+import {
+  GraduationCap,
+  PersonStanding,
+  Store,
+  UserCheck,
+  UserRound,
+  Users,
+} from 'lucide-react';
 
-import { trpc } from '@/utils/trpc';
-
+const dummyMetricData: MetricCardProps[] = [
+  {
+    title: 'Active Members',
+    value: '80',
+    cardColor: '#E9FBEF',
+    icon: <UserCheck size={32} />,
+  },
+  {
+    title: 'All-time Members',
+    value: '100',
+    cardColor: '#FFE6E9',
+    icon: <Users size={32} />,
+  },
+  {
+    title: 'Active Arbiters',
+    value: '30',
+    cardColor: '#FEF9E6',
+    icon: <PersonStanding size={32} />,
+  },
+  {
+    title: 'All-time Arbiters',
+    value: '50',
+    cardColor: '#F3EBFA',
+    icon: <UserRound size={32} />,
+  },
+  {
+    title: 'Total Schools',
+    value: '20',
+    cardColor: '#FEFFD7',
+    icon: <GraduationCap size={32} />,
+  },
+  {
+    title: 'Total Clubs',
+    value: '8',
+    cardColor: '#E9FFE3',
+    icon: <Store size={32} />,
+  },
+];
 export default function AdminDashboard() {
-  const { data: memberCount, error } = trpc.dashboard.getMemberCount.useQuery();
-
-  if (error) {
-    console.error('Error fetching member count:', error);
-  }
-
   return (
     <>
       <div className="flex min-h-screen">
         <div className="flex-1 overflow-auto p-6">
           <h1 className="text-2xl font-bold mb-6 ml-3">Overview</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <MetricCard
-              title="Total Members"
-              value={String(memberCount)}
-              change="+11.01%"
-              isPositive={true}
-            />
-            <MetricCard
-              title="Total Arbiters"
-              value="3,671"
-              change="-0.03%"
-              isPositive={false}
-            />
-            <MetricCard
-              title="Total Academies"
-              value="156"
-              change="+15.03%"
-              isPositive={true}
-            />
+          <div className="flex flex-wrap gap-4">
+            {dummyMetricData.map((metric) => (
+              <MetricCard key={metric.title} {...metric} />
+            ))}
           </div>
           {/* Main content row: Large chart on the left, smaller card on the right */}
           <div className="grid grid-cols-1 lg:grid-cols-2 mt-6">
