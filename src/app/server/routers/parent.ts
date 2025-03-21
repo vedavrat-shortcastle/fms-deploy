@@ -468,21 +468,15 @@ export const parentRouter = router({
 
   // Edit player by ID (for parent)
   editPlayerById: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        baseUser: editPlayerSchema.shape.baseUser,
-        playerDetails: editPlayerSchema.shape.playerDetails,
-      })
-    )
+    .input(editPlayerSchema)
     .mutation(async ({ ctx, input }) => {
       try {
         // Get the parent profile for the current user
         const parentId = ctx.session.user.profileId;
-
+        const { baseUser } = input;
         const playerBaseUser = await ctx.db.baseUser.findFirst({
           where: {
-            id: input.id,
+            id: baseUser.id,
             role: Role.PLAYER,
             federationId: ctx.session.user.federationId,
             profile: {

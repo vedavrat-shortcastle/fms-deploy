@@ -170,9 +170,7 @@ export default function PlayerSettings() {
         playerDetails: {
           gender: data.gender,
           birthDate:
-            data.birthDate instanceof Date
-              ? data.birthDate.toISOString()
-              : data.birthDate,
+            data.birthDate instanceof Date ? data.birthDate : data.birthDate,
           avatarUrl: data.avatarUrl || undefined,
           ageProof: data.ageProof || undefined,
           streetAddress: data.streetAddress,
@@ -278,10 +276,23 @@ export default function PlayerSettings() {
       baseUser: {
         ...player?.baseUser,
         id: playerId!,
+        email: player?.baseUser?.email || '',
+        firstName: player?.baseUser.firstName || '',
+        lastName: player?.baseUser.lastName || '',
       },
       playerDetails: {
         ...player?.playerDetails,
         avatarUrl: profilePictureFile.name,
+        birthDate:
+          player?.playerDetails.birthDate instanceof Date
+            ? player?.playerDetails.birthDate
+            : new Date(player?.playerDetails?.birthDate || Date.now()),
+        gender: player?.playerDetails?.gender || 'OTHER',
+        streetAddress: player?.playerDetails.streetAddress || '',
+        country: player?.playerDetails.country || '',
+        state: player?.playerDetails.state || '',
+        city: player?.playerDetails.city || '',
+        postalCode: player?.playerDetails.postalCode || '',
       },
     });
   };
@@ -312,7 +323,7 @@ export default function PlayerSettings() {
             <div className="relative">
               <Avatar className="h-40 w-40 rounded-full">
                 <AvatarImage
-                  src={player.playerDetails?.avatarUrl}
+                  src={player.playerDetails?.avatarUrl || ''}
                   alt="Profile"
                   className="object-cover"
                   onError={(e) => (e.currentTarget.src = '/default-avatar.png')}
