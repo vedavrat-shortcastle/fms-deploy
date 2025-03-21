@@ -12,6 +12,19 @@ export const createPlanSchema = z.object({
   criteria: z.object({}).passthrough().optional(),
 });
 
+export type planFormValues = z.infer<typeof createPlanSchema>;
+
+export const planFormDefaults: planFormValues = {
+  name: '',
+  description: '',
+  duration: 0,
+  price: 0,
+  currency: '',
+  benefits: [],
+  autoRenewal: false,
+  criteria: undefined,
+};
+
 export const getPlanSchema = z.object({
   page: z.number().default(1),
   limit: z.number().default(20),

@@ -7,10 +7,11 @@ export type PlanTable = {
   name: string;
   price: string;
   benefits: string;
-  eligibility: string | null;
+  duration: number | null;
+  createAt: Date;
 };
 
-export const columns: ColumnDef<PlanTable>[] = [
+export const usersColumns: ColumnDef<PlanTable>[] = [
   {
     accessorKey: 'name',
     header: 'Plan Name',
@@ -24,8 +25,9 @@ export const columns: ColumnDef<PlanTable>[] = [
     header: 'Benefits',
   },
   {
-    accessorKey: 'eligibility',
-    header: 'Eligibility Criteria',
+    accessorKey: 'duration',
+    header: 'Billing cycle',
+    cell: ({ row }) => `${row.getValue('duration')} months`,
   },
   {
     id: 'actions',
