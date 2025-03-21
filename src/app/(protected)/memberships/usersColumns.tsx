@@ -2,6 +2,8 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 export type PlanTable = {
   name: string;
@@ -9,6 +11,7 @@ export type PlanTable = {
   benefits: string;
   duration: number | null;
   createAt: Date;
+  id: string;
 };
 
 export const usersColumns: ColumnDef<PlanTable>[] = [
@@ -32,10 +35,26 @@ export const usersColumns: ColumnDef<PlanTable>[] = [
   {
     id: 'actions',
     // header: 'Actions',
-    cell: () => (
-      <div className="flex space-x-2 justify-end">
-        <Button className="bg-red-600 text-white">Purchase Plan</Button>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const router = useRouter();
+      const session = useSession();
+      return (
+        <div className="flex space-x-2 justify-end">
+          <Button
+            className="bg-red-600 text-white"
+            onClick={() => {
+              {
+                console.log('row', row);
+              }
+              router.push(
+                `/memberships-payment?planId=${row.original.id}&playerIds=${[session.data?.user.profileId]}`
+              );
+            }}
+          >
+            Purchase Plan
+          </Button>
+        </div>
+      );
+    },
   },
 ];
