@@ -18,7 +18,7 @@ export const PlayerDetailsStepTwo = () => {
   const { control } = useFormContext<playerOnboardingInput>();
 
   return (
-    <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-2 lg:grid-cols-2">
+    <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-2">
       <FormField
         control={control}
         name="fideId"

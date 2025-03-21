@@ -53,7 +53,7 @@ export default function PlayerOnboarding() {
 
   useEffect(() => {
     if (session?.user?.profileId !== session?.user?.id) {
-      router.push('/menberships');
+      router.push('/memberships');
     }
   }, [session?.user?.profileId, router]);
 
@@ -65,6 +65,7 @@ export default function PlayerOnboarding() {
       if (data?.id) {
         update({ user: { ...session?.user, profileId: data.id } });
       }
+      router.push('/memberships');
     },
     onError: (error) => {
       console.error('Error onboarding player:', error);
