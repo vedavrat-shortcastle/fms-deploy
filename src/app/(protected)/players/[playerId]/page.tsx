@@ -55,7 +55,7 @@ export default function PlayerDetails() {
   });
 
   // Check if the logged-in user is a parent.
-  const isParent = (sessionData?.user?.role as string) === 'parent';
+  const isParent = (sessionData?.user?.role as string) === 'PARENT';
 
   // Conditional Query based on user role.
   const { data, error, isLoading, refetch } = isParent
