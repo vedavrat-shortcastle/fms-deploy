@@ -1,31 +1,31 @@
 export const PERMISSIONS = {
   // Federation permissions
   FED_ALL: 'fed:all',
-  FED_VIEW: 'fed.view',
-  FED_CREATE: 'fed.create',
-  FED_UPDATE: 'fed.update',
-  FED_DELETE: 'fed.delete',
+  FED_VIEW: 'fed:view',
+  FED_CREATE: 'fed:create',
+  FED_UPDATE: 'fed:update',
+  FED_DELETE: 'fed:delete',
 
   // Club permissions
   CLUB_ALL: 'club:all',
-  CLUB_VIEW: 'club.view',
-  CLUB_CREATE: 'club.create',
-  CLUB_UPDATE: 'club.update',
-  CLUB_DELETE: 'club.delete',
+  CLUB_VIEW: 'club:view',
+  CLUB_CREATE: 'club:create',
+  CLUB_UPDATE: 'club:update',
+  CLUB_DELETE: 'club:delete',
 
   // Event permissions
   EVENT_ALL: 'event:all',
-  EVENT_VIEW: 'event.view',
-  EVENT_CREATE: 'event.create',
-  EVENT_UPDATE: 'event.update',
-  EVENT_DELETE: 'event.delete',
+  EVENT_VIEW: 'event:view',
+  EVENT_CREATE: 'event:create',
+  EVENT_UPDATE: 'event:update',
+  EVENT_DELETE: 'event:delete',
 
   // Player permissions
   PLAYER_ALL: 'player:all',
-  PLAYER_VIEW: 'player.view',
-  PLAYER_CREATE: 'player.create',
-  PLAYER_UPDATE: 'player.update',
-  PLAYER_DELETE: 'player.delete',
+  PLAYER_VIEW: 'player:view',
+  PLAYER_CREATE: 'player:create',
+  PLAYER_UPDATE: 'player:update',
+  PLAYER_DELETE: 'player:delete',
 
   // Parent permissions
   PARENT_ALL: 'parent:all',
