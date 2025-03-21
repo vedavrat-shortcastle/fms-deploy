@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { User } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { PageHeader } from '@/components/layouts/PageHeader';
-import Sidebar from '@/components/SideBar';
 import { FormContainer } from '@/components/player-components/FormContainer';
 import { PersonalInformationForm } from '@/components/player-components/PersonalInfoform';
 import MailingAddressForm from '@/components/player-components/MailingAddressform';
@@ -155,7 +154,6 @@ export default function AddPlayerPage() {
   return (
     <FormProvider {...form}>
       <div className="flex h-screen bg-gray-50">
-        <Sidebar />
         <main className="flex-1 overflow-auto p-6">
           <PageHeader icon={<User size={16} color="white" />} title="Players" />
           <FormContainer

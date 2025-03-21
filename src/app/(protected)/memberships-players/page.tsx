@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import Sidebar from '@/components/SideBar';
+
 import { PlayerCard } from '@/components/membership-components/PlayerMembershipCard';
 import Image from 'next/image';
 const logo = '/assets/logoPlayersMembership.svg';
@@ -71,8 +71,6 @@ export default function PlayerSelectionPage() {
 
   return (
     <div className="flex h-screen">
-      <Sidebar />
-
       <div className="flex-1 overflow-auto">
         <div className="p-6">
           <div className="flex items-center mb-6">

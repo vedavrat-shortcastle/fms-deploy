@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { User } from 'lucide-react';
 
 import { PageHeader } from '@/components/layouts/PageHeader';
-import Sidebar from '@/components/SideBar';
 
 import { PlayerDetailsStepOne } from '@/components/player-components/OnboardingStepOne';
 import { PlayerDetailsStepTwo } from '@/components/player-components/OnboardingStepTwo';
@@ -144,7 +143,6 @@ export default function PlayerOnboarding() {
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex h-screen bg-gray-50">
-          <Sidebar />
           <main className="flex-1 overflow-auto">
             <PageHeader
               icon={<User size={16} color="white" />}
