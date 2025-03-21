@@ -100,7 +100,7 @@ export const authRouter = router({
             },
           });
 
-          const playerPermissions = await tx.permission.findMany({
+          const userPermissions = await tx.permission.findMany({
             where: {
               code: {
                 in: roleMap[data.role],
@@ -110,9 +110,8 @@ export const authRouter = router({
               id: true,
             },
           });
-
           await tx.userPermission.createMany({
-            data: playerPermissions.map((permission) => ({
+            data: userPermissions.map((permission) => ({
               permissionId: permission.id,
               userId: newUserProfile.id,
             })),
