@@ -24,10 +24,25 @@ type FormData = {
   address: string;
 };
 
-const CheckoutForm = () => {
+interface CheckoutFormProps {
+  membershipPlanId: string;
+  playerIds: string[];
+  parentId?: string;
+}
+
+const CheckoutForm = ({
+  membershipPlanId,
+  playerIds,
+  parentId,
+}: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
-  const { mutateAsync } = trpc.payment.createPaymentIntent.useMutation();
+
+  const { mutateAsync: createPaymentIntent } =
+    trpc.payment.createMembershipPayment.useMutation();
+  const { mutateAsync: confirmPayment } =
+    trpc.payment.confirmMembershipPayment.useMutation();
+
   const {
     control,
     register,
@@ -58,13 +73,17 @@ const CheckoutForm = () => {
     setIsProcessing(true);
 
     try {
-      // Call tRPC mutation to create PaymentIntent
-      const { clientSecret } = await mutateAsync({ amount: 2900 });
+      // Create payment intent
+      const { clientSecret } = await createPaymentIntent({
+        membershipPlanId,
+        playerIds,
+        parentId,
+      });
       if (!clientSecret) {
         throw new Error('Missing clientSecret from PaymentIntent');
       }
 
-      // Get CardElement instance.
+      // Get CardElement instance
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) return;
 
@@ -77,7 +96,10 @@ const CheckoutForm = () => {
             billing_details: {
               email: data.email,
               name: data.name,
-              address: { line1: data.address },
+              address: {
+                line1: data.address,
+                country: data.country,
+              },
             },
           },
         }
@@ -88,6 +110,12 @@ const CheckoutForm = () => {
         showToast(error.message || 'Payment failed', 'error');
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         console.log('Payment succeeded:', paymentIntent);
+        await confirmPayment({
+          paymentIntentId: paymentIntent.id,
+          membershipPlanId,
+          playerIds,
+          parentId,
+        });
         showToast('Payment succeeded!', 'success');
       }
     } catch (err) {

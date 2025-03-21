@@ -108,7 +108,6 @@ export const membershipRouter = router({
             subscriptions: {
               select: {
                 status: true,
-                paymentStatus: true,
                 createdAt: true,
                 subscriber: {
                   select: {

@@ -1,16 +1,17 @@
-// app/payment/page.tsx
 'use client';
 
 import { ChevronLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-
 import { Button } from '@/components/ui/button';
-
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import CheckoutForm from '@/app/(protected)/memberships-payment/CheckoutForm';
 import { Toaster } from '@/components/ui/toaster';
-import { useSession } from 'next-auth/react'; // import useSession from next-auth
+import { useSearchParams } from 'next/navigation';
+import { trpc } from '@/hooks/trpcProvider';
+import Loader from '@/components/Loader';
+import { useSession } from 'next-auth/react';
+import { Suspense } from 'react';
 
 // Replace with your publishable key
 const stripePromise = loadStripe(
@@ -21,10 +22,30 @@ export default function PaymentPage() {
   // Get session data using next-auth hook
   const { data: session } = useSession();
 
-  // Optionally, define default/fallback values if session is not available
-  const firstName = session?.user.firstName || 'Unknown';
-  const lastName = session?.user.lastName || '';
-  const userEmail = session?.user?.email || 'unknown@example.com';
+  return (
+    <Suspense fallback={<Loader />}>
+      <PaymentContent session={session} />
+    </Suspense>
+  );
+}
+
+function PaymentContent({ session }: { session: any }) {
+  const searchParams = useSearchParams();
+  const membershipPlanId = searchParams.get('planId');
+  const playerIds = searchParams.get('playerIds')?.split(',') || [];
+
+  const { data: plan, isLoading } = trpc.membership.getPlanById.useQuery(
+    { id: membershipPlanId! },
+    { enabled: !!membershipPlanId }
+  );
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (!plan || !membershipPlanId) {
+    return <div>Plan not found</div>;
+  }
 
   return (
     <div className="flex h-screen">
@@ -43,7 +64,15 @@ export default function PaymentPage() {
               <h3 className="text-lg font-medium mb-6">Payment</h3>
 
               <Elements stripe={stripePromise}>
-                <CheckoutForm />
+                <CheckoutForm
+                  membershipPlanId={membershipPlanId}
+                  playerIds={playerIds}
+                  parentId={
+                    session?.user.role === 'PARENT'
+                      ? session?.user?.profileId
+                      : undefined
+                  }
+                />
               </Elements>
             </CardContent>
           </Card>
@@ -59,27 +88,6 @@ export default function PaymentPage() {
 
               <div className="border-t border-b py-8 mb-6">
                 <h3 className="text-3xl font-bold">$ 29.00</h3>
-              </div>
-
-              <div>
-                <h4 className="text-lg font-medium mb-4">Player details</h4>
-
-                <div className="bg-gray-50 p-6 rounded">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-gray-500">FirstName</p>
-                      <p className="font-medium">{firstName}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">LastName</p>
-                      <p className="font-medium">{lastName}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Email ID</p>
-                      <p className="font-medium">{userEmail}</p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </CardContent>
           </Card>
