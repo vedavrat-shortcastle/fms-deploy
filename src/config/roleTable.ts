@@ -4,8 +4,9 @@ export const getProfileByRole = (role: string) => {
   switch (role) {
     case Role.PLAYER:
       return ProfileType.PLAYER;
-    case Role.CLUB_MANAGER:
-      return ProfileType.CLUB_MANAGER;
+    case Role.PARENT:
+      return ProfileType.PARENT;
+    //TODO: Add other roles here
     default:
       return ProfileType.PLAYER;
   }
