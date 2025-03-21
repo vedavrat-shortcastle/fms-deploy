@@ -37,12 +37,7 @@ export const PlayerDetailsStepOne = () => {
     { value: string; label: string }[]
   >([]);
 
-  const {
-    control,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useFormContext<playerOnboardingInput>();
+  const { control, setValue, watch } = useFormContext<playerOnboardingInput>();
 
   const selectedCountry = watch('country');
   const selectedState = watch('state');
@@ -157,7 +152,7 @@ export const PlayerDetailsStepOne = () => {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>{errors.streetAddress?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -202,7 +197,7 @@ export const PlayerDetailsStepOne = () => {
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormMessage>{errors.country?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -228,7 +223,7 @@ export const PlayerDetailsStepOne = () => {
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormMessage>{errors.state?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -268,7 +263,7 @@ export const PlayerDetailsStepOne = () => {
                 />
               </FormControl>
             )}
-            <FormMessage>{errors.city?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />

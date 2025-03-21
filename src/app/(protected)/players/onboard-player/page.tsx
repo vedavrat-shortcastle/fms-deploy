@@ -129,10 +129,8 @@ export default function PlayerOnboarding() {
   // Final submission of the form.
   const onSubmit = async (data: playerOnboardingInput) => {
     try {
-      // Check for step-specific validation before submission
       const isValid = await validateTab(activeTab);
-      if (!isValid) return; // If not valid, return early.
-
+      if (!isValid) return;
       if (activeTab === 'stepTwo') {
         await onboardPlayerMutation.mutateAsync(data);
       }
