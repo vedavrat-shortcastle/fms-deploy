@@ -100,7 +100,7 @@ export default function PlanForm() {
                           <FormItem>
                             <FormControl>
                               <Input
-                                placeholder='months'
+                                placeholder="months"
                                 type="number"
                                 {...field}
                                 className="w-16"
@@ -118,7 +118,7 @@ export default function PlanForm() {
                           </FormItem>
                         )}
                       />
-                    {/* it might usefull  */}
+                      {/* it might usefull  */}
                       {/* <FormField
                         control={form.control}
                         name=""
@@ -173,7 +173,9 @@ export default function PlanForm() {
                       name="price"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Price <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel>
+                            Price <span className="text-red-500">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -203,7 +205,9 @@ export default function PlanForm() {
 
                       return (
                         <FormItem>
-                          <FormLabel>Benefits <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel>
+                            Benefits <span className="text-red-500">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Textarea
                               value={displayValue}

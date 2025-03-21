@@ -72,7 +72,7 @@ export default function Memberships() {
             <Input placeholder="Plan ID" className="w-36 h-8" />
           </div>
 
-          { canCreatePlan && (
+          {canCreatePlan && (
             <div className="flex  mt-6 items-end w-full h-15 justify-end">
               {/* Modal Pop-up for Adding usage */}
               <Dialog open={formOpen} onOpenChange={setFormOpen}>
