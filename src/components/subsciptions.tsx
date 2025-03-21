@@ -90,7 +90,7 @@ export default function PlanForm() {
 
                   <div>
                     <label className="block mb-1 text-sm">
-                      duration(montths) <span className="text-red-500">*</span>
+                      duration(months) <span className="text-red-500">*</span>
                     </label>
                     <div className="flex gap-2">
                       <FormField
