@@ -1,44 +1,34 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 // All the imports
 
-interface MetricCardProps {
+export interface MetricCardProps {
   title: string;
   value: string;
-  change: string;
-  isPositive?: boolean;
+  cardColor: string;
+  icon: React.ReactNode;
 }
 // Props for the component
 
 const MetricCard: React.FC<MetricCardProps> = ({
   title,
   value,
-  change,
-  isPositive = true,
+  cardColor,
+  icon,
 }) => {
-  // Determine if the change is positive or negative
-  const showPositive = change.startsWith('+') || isPositive;
-
   return (
-    <Card className="odd:bg-[#A0A0A0] even:bg-red-300">
-      <CardContent className="pt-6">
-        <div className="space-y-2">
-          <p className="text-sm font-semibold">{title}</p>
-          <div className="flex items-baseline justify-between">
-            <h2 className="text-3xl font-bold">{value}</h2>
-            <div
-              className={`flex items-center text-xs font-extrabold ${showPositive ? 'text-green-600' : 'text-red-600'}`}
-            >
-              <span>{change}</span>
-              {showPositive ? (
-                <ArrowUpRight className="h-3 w-3 ml-1" />
-              ) : (
-                <ArrowDownRight className="h-3 w-3 ml-1" />
-              )}
-            </div>
+    <Card
+      className="h-40 w-44 rounded-lg shadow-none outline-none border-none"
+      style={{ backgroundColor: cardColor }}
+    >
+      <CardContent className="flex flex-col items-start p-4 space-y-2">
+        <div className="bg-white rounded-full h-14 w-14 flex items-center justify-center">
+          <div className="flex items-center justify-center">
+            {icon} {/* Render the icon */}
           </div>
         </div>
+        <p className="text-sm font-semibold">{title}</p>
+        <h2 className="text-3xl font-bold">{value}</h2>
       </CardContent>
     </Card>
   );
