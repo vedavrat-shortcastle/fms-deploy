@@ -137,6 +137,7 @@ export const parentRouter = router({
             message: 'No federation context found',
           });
         }
+
         const { baseUser, playerDetails } = input;
 
         const existingUser = await ctx.db.baseUser.findUnique({
@@ -172,6 +173,7 @@ export const parentRouter = router({
         const hashedPassword = await hashPassword(baseUser.password);
 
         const result = await ctx.db.$transaction(async (tx) => {
+          console.log('flag1', baseUser);
           const newBaseUser = await tx.baseUser.create({
             data: {
               ...baseUser,
