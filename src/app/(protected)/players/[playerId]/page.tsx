@@ -18,7 +18,7 @@ import {
   type EditPlayerFormValues,
   editPlayerSchema,
 } from '@/schemas/Player.schema';
-import { trpc } from '@/utils/trpc'; // Import your tRPC hook
+import { trpc } from '@/utils/trpc';
 import Loader from '@/components/Loader';
 import { useSession } from 'next-auth/react';
 
@@ -27,10 +27,10 @@ import { DeleteConfirmDialog } from '@/components/deleteConfirmDialog';
 
 export default function PlayerDetails() {
   const router = useRouter();
-  const { data: playerDetails } = useSession();
-  const { playerId } = useParams<{ playerId: string }>();
-  console.log('this is session', playerDetails?.user);
+  const { data: sessionData } = useSession();
+  console.log('this is session', sessionData?.user);
 
+  const { playerId } = useParams<{ playerId: string }>();
   if (!playerId) {
     console.error('No player id found in the route!');
   }
@@ -54,47 +54,89 @@ export default function PlayerDetails() {
     resolver: zodResolver(editPlayerSchema),
   });
 
-  // Use the tRPC query hook to fetch the player details
-  const { data, error, isLoading, refetch } =
-    trpc.player.getPlayerById.useQuery(
-      { id: playerId },
-      { enabled: !!playerId }
-    );
-  // Add the mutation
-  const deletePlayerMutation = trpc.player.deletePlayerById.useMutation({
-    onSuccess: () => {
-      router.push('/players');
-    },
-    onError: (error) => {
-      console.error('Failed to delete player:', error.message);
-      setIsSubmitting(false);
-      setShowDeleteConfirm(false);
-    },
-  });
-  // Add this with your other trpc hooks
-  const { toast } = useToast();
-  const editPlayerMutation = trpc.player.editPlayerById.useMutation({
-    onSuccess: () => {
-      setIsEditing(false);
-      // Refetch the player data to get the updated information
-      refetch();
-      toast({
-        title: 'Success',
-        description: 'Player details updated successfully!',
-        variant: 'default',
-      });
-    },
-    onError: (error) => {
-      console.error('Failed to update player:', error.message);
-      setIsSubmitting(false);
-      toast({
-        title: 'Error',
-        description: `Failed to update player: ${error.message}`,
-        variant: 'destructive',
-      });
-    },
-  });
+  // Check if the logged-in user is a parent.
+  const isParent = (sessionData?.user?.role as string) === 'PARENT';
 
+  // Conditional Query based on user role.
+  const { data, error, isLoading, refetch } = isParent
+    ? trpc.parent.getPlayerById.useQuery(
+        { id: playerId },
+        { enabled: !!playerId }
+      )
+    : trpc.player.getPlayerById.useQuery(
+        { id: playerId },
+        { enabled: !!playerId }
+      );
+
+  const { toast } = useToast();
+
+  // Conditional Edit Mutation based on user role.
+  const editPlayerMutation = isParent
+    ? trpc.parent.editPlayerById.useMutation({
+        onSuccess: () => {
+          setIsEditing(false);
+          refetch();
+          toast({
+            title: 'Success',
+            description: 'Player details updated successfully!',
+            variant: 'default',
+          });
+        },
+        onError: (error) => {
+          console.error('Failed to update player:', error.message);
+          setIsSubmitting(false);
+          toast({
+            title: 'Error',
+            description: `Failed to update player: ${error.message}`,
+            variant: 'destructive',
+          });
+        },
+      })
+    : trpc.player.editPlayerById.useMutation({
+        onSuccess: () => {
+          setIsEditing(false);
+          refetch();
+          toast({
+            title: 'Success',
+            description: 'Player details updated successfully!',
+            variant: 'default',
+          });
+        },
+        onError: (error) => {
+          console.error('Failed to update player:', error.message);
+          setIsSubmitting(false);
+          toast({
+            title: 'Error',
+            description: `Failed to update player: ${error.message}`,
+            variant: 'destructive',
+          });
+        },
+      });
+
+  // Conditional Delete Mutation based on user role.
+  const deletePlayerMutation = isParent
+    ? trpc.parent.deletePlayerById.useMutation({
+        onSuccess: () => {
+          router.push('/players');
+        },
+        onError: (error) => {
+          console.error('Failed to delete player:', error.message);
+          setIsSubmitting(false);
+          setShowDeleteConfirm(false);
+        },
+      })
+    : trpc.player.deletePlayerById.useMutation({
+        onSuccess: () => {
+          router.push('/players');
+        },
+        onError: (error) => {
+          console.error('Failed to delete player:', error.message);
+          setIsSubmitting(false);
+          setShowDeleteConfirm(false);
+        },
+      });
+
+  // Mutation for updating the profile picture remains the same (using player mutation).
   const updateProfilePictureMutation = trpc.player.editPlayerById.useMutation({
     onSuccess: (data) => {
       setPlayer((prevPlayer) =>
@@ -131,7 +173,7 @@ export default function PlayerDetails() {
   useEffect(() => {
     if (data) {
       console.debug('Player data fetched:', data);
-      // Map the merged data into the nested structure expected by the form
+      // Map the fetched data into the structure expected by the form.
       const mappedPlayer: EditPlayerFormValues = {
         baseUser: {
           id: data.id,
@@ -181,16 +223,16 @@ export default function PlayerDetails() {
     }
   }, [data, error, reset, toast]);
 
-  // Then update your onSubmit function like this:
   const onSubmit = (formData: EditPlayerFormValues) => {
     setIsSubmitting(true);
 
-    // Make sure the baseUser object has the correct ID
+    // Ensure the baseUser object has the correct id.
     const updatedFormData = {
       ...formData,
+      id: playerId,
       baseUser: {
         ...player?.baseUser,
-        id: playerId, // Ensure this ID is correct
+        id: playerId,
       },
     };
 
@@ -218,7 +260,6 @@ export default function PlayerDetails() {
 
   const handleEditToggle = () => {
     if (isEditing) {
-      // Submit form
       handleSubmit(onSubmit)();
     } else {
       console.debug('Entering edit mode');
@@ -233,13 +274,13 @@ export default function PlayerDetails() {
     reset({});
   };
 
-  // Delete player
+  // Delete player based on the proper mutation.
   const handleDelete = async () => {
     setIsSubmitting(true);
     try {
       console.debug('Deleting player with id:', playerId);
       deletePlayerMutation.mutate({ id: playerId });
-      // Simulate deletion delay
+      // Simulate deletion delay.
       await new Promise((resolve) => setTimeout(resolve, 1000));
       router.push('/players');
     } catch (deleteError) {
@@ -270,7 +311,7 @@ export default function PlayerDetails() {
     updateProfilePictureMutation.mutate({
       baseUser: {
         ...player?.baseUser,
-        id: playerId, // Ensure this ID is correct
+        id: playerId,
       },
       playerDetails: {
         ...player?.playerDetails,
