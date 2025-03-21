@@ -16,6 +16,7 @@ import {
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { trpc } from '@/utils/trpc';
 import Toast from '@/app/(protected)/memberships-payment/Toast';
+import { useRouter } from 'next/navigation';
 
 type FormData = {
   email: string;
@@ -37,6 +38,7 @@ const CheckoutForm = ({
 }: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
+  const router = useRouter();
 
   const { mutateAsync: createPaymentIntent } =
     trpc.payment.createMembershipPayment.useMutation();
@@ -117,6 +119,7 @@ const CheckoutForm = ({
           parentId,
         });
         showToast('Payment succeeded!', 'success');
+        router.push('/memberships');
       }
     } catch (err) {
       console.error('Error creating PaymentIntent:', err);

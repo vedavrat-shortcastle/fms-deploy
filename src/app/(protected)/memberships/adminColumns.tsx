@@ -3,11 +3,18 @@
 import { ColumnDef } from '@tanstack/react-table';
 
 export type PlanTable = {
+  status: string;
+  currency: string;
   name: string;
-  price: string;
-  benefits: string;
-  duration: number | null;
-  createAt: Date;
+  id: string;
+  federationId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  description: string | null;
+  duration: number;
+  price: number;
+  benefits: string[];
+  autoRenewal: boolean;
 };
 
 export const adminColumns: ColumnDef<PlanTable>[] = [
