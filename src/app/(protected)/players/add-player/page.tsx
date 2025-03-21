@@ -15,6 +15,7 @@ import {
   createPlayerSchema,
 } from '@/schemas/Player.schema';
 import { trpc } from '@/utils/trpc';
+import { Country, State } from 'country-state-city';
 
 export default function AddPlayerPage() {
   const [activeTab, setActiveTab] = useState<'personal' | 'mailing' | 'other'>(
@@ -141,10 +142,19 @@ export default function AddPlayerPage() {
     setIsSubmitting(true);
     try {
       // Check if the current user's role is "PARENT"
+      const updadtedData = {
+        ...data,
+        playerDetails: {
+          ...data.playerDetails,
+          country:
+            Country.getCountryByCode(data.playerDetails.country)?.name || '',
+          state: State.getStateByCode(data.playerDetails.state)?.name || '',
+        },
+      };
       if (session?.user?.role === 'PARENT') {
-        await addPlayerMutation.mutateAsync(data);
+        await addPlayerMutation.mutateAsync(updadtedData);
       } else {
-        await createPlayerMutation.mutateAsync(data);
+        await createPlayerMutation.mutateAsync(updadtedData);
       }
     } catch (error) {
       console.error('Submission error:', error);
