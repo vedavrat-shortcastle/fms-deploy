@@ -96,7 +96,7 @@ export const playerRouter = router({
       try {
         const role = ctx.session.user.role;
         if (role === Role.PLAYER) {
-          if (ctx.session.user.profileId !== input.id) {
+          if (ctx.session.user.id !== input.id) {
             throw new TRPCError({
               code: 'FORBIDDEN',
               message: 'Player not found',
