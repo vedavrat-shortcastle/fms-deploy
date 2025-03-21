@@ -13,9 +13,8 @@ import { PERMISSIONS } from '@/config/permissions';
 import { ProtectedRoute } from '@/hooks/protectedRoute';
 import { Input } from '@/components/ui/input';
 import { debounce } from 'lodash';
-
-// Assuming you have a hook to get session data (including the user's role)
 import { useSession } from 'next-auth/react';
+import Papa from 'papaparse';
 
 import {
   DropdownMenu,
@@ -23,6 +22,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/hooks/useToast';
 
 export default function Page() {
   const router = useRouter();
@@ -31,6 +31,8 @@ export default function Page() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [debounceSearchTerm, setDebounceSearchTerm] = useState('');
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null); // State for upload status
+  const { toast } = useToast();
 
   // File input ref for CSV upload
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -71,6 +73,7 @@ export default function Page() {
   const debouncedSearch = useCallback(
     debounce((value: string) => {
       setDebounceSearchTerm(value);
+      setCurrentPage(1); // Reset to first page on new search
     }, 300),
     []
   );
@@ -106,26 +109,107 @@ export default function Page() {
     router.push(`/players/${playerId}`);
   };
 
+  const uploadPlayersCSV = trpc.federation.uploadPlayersCSV.useMutation();
+
   // Handle CSV upload: trigger file picker by clicking hidden file input
-  const handleUploadCSV = () => {
+  const triggerFileUpload = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  // Handle file selection from file picker
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      console.log('Selected CSV file:', file.name);
-      // TODO: Process the CSV file here (e.g., read content, send to API, etc.)
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadStatus('Uploading...');
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results: { data: any[] }) => {
+        try {
+          // Format CSV data to match the schema
+          const players = results.data.map((player: any) => ({
+            baseUser: {
+              email: player.Email?.trim() || '',
+              password: player.Password?.trim() || 'arunsrinivaas',
+              firstName: player.FirstName?.trim() || '',
+              lastName: player.LastName?.trim() || '',
+              middleName: player.MiddleName?.trim() || null,
+              nameSuffix: player.NameSuffix?.trim() || null,
+            },
+            playerDetails: {
+              birthDate: player.BirthDate
+                ? new Date(player.BirthDate)
+                : new Date(),
+              gender: player.Gender?.trim() || '',
+              avatarUrl: player.AvatarUrl?.trim() || null,
+              ageProof: player.AgeProof?.trim() || null,
+              streetAddress: player.StreetAddress?.trim() || '',
+              streetAddress2: player.StreetAddress2?.trim() || null,
+              country: player.Country?.trim() || '',
+              state: player.State?.trim() || '',
+              city: player.City?.trim() || '',
+              postalCode: player.PostalCode?.trim() || '',
+              phoneNumber: player.PhoneNumber?.trim() || null,
+              countryCode: player.CountryCode?.trim() || null,
+              fideId: player.FideId?.trim() || null,
+              schoolName: player.SchoolName?.trim() || null,
+              graduationYear: player.GraduationYear
+                ? parseInt(player.GraduationYear, 10)
+                : null,
+              gradeInSchool: player.GradeInSchool?.trim() || null,
+              gradeDate: player.GradeDate
+                ? new Date(player.GradeDate)
+                : new Date(),
+              clubName: player.ClubName?.trim() || null,
+            },
+          }));
+
+          // Call the mutation with formatted players' data
+          const response = await uploadPlayersCSV.mutateAsync(players);
+
+          if (response.success) {
+            setUploadStatus(null);
+            toast({
+              title: 'Success',
+              description: 'Players uploaded successfully!',
+              variant: 'default',
+            });
+            playersQuery.refetch(); // Refresh player list
+          } else {
+            toast({
+              title: 'Failed',
+              description: 'Failed to Upload!',
+              variant: 'destructive',
+            });
+          }
+        } catch (error) {
+          console.error('Upload error:', error);
+          toast({
+            title: 'Failed',
+            description: 'Failed to Upload! Try Again',
+            variant: 'destructive',
+          });
+        }
+      },
+      error: (error: any) => {
+        console.error('CSV Parsing Error:', error);
+        setUploadStatus('Error parsing CSV file.');
+      },
+    });
+
+    // Clear the file input value so the same file can be uploaded again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
   // Handle sample CSV download (CSV with just the header row)
   const handleSampleCSV = () => {
     const header =
-      'Email,Password,First Name,Last Name,Middle Name,Name Suffix,Birth Date,Gender,AvatarUrl,AgeProof,Street Address,Street Address2,Country,State,City,Postal Code,Phone Number,Country Code,FideId,School Name,Graduation Year,Grade In School,Grade Date,Club Name\n';
+      'Email,Password,FirstName,LastName,MiddleName,NameSuffix,BirthDate,Gender,AvatarUrl,AgeProof,StreetAddress,StreetAddress2,Country,State,City,PostalCode,PhoneNumber,CountryCode,FideId,SchoolName,GraduationYear,GradeInSchool,GradeDate,ClubName\n';
     const blob = new Blob([header], {
       type: 'text/csv;charset=utf-8;',
     });
@@ -209,7 +293,7 @@ export default function Page() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={handleUploadCSV}>
+                <DropdownMenuItem onClick={triggerFileUpload}>
                   Upload CSV
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSampleCSV}>
@@ -233,8 +317,14 @@ export default function Page() {
             ref={fileInputRef}
             accept=".csv"
             style={{ display: 'none' }}
-            onChange={handleFileChange}
+            onChange={handleFileUpload}
           />
+
+          {uploadStatus && (
+            <div className="mb-4 rounded-md bg-blue-100 p-3 text-sm text-blue-700">
+              {uploadStatus}
+            </div>
+          )}
 
           {playersQuery.isLoading ? (
             <div className="flex justify-center items-center flex-grow">
@@ -242,7 +332,7 @@ export default function Page() {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {players.map((player: any) => (
+              {players?.map((player: any) => (
                 <PlayerCard
                   key={player.id}
                   player={player}
