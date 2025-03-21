@@ -11,6 +11,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import Sidebar from '@/components/SideBar';
 import CheckoutForm from '@/app/(protected)/memberships-payment/CheckoutForm';
 import { Toaster } from '@/components/ui/toaster';
+import { useSession } from 'next-auth/react'; // import useSession from next-auth
 
 // Replace with your publishable key
 const stripePromise = loadStripe(
@@ -18,6 +19,15 @@ const stripePromise = loadStripe(
 );
 
 export default function PaymentPage() {
+  // Get session data using next-auth hook
+  const { data: session } = useSession();
+
+  // Optionally, define default/fallback values if session is not available
+  const userName = session
+    ? `${session.user.firstName} ${session.user.lastName}`
+    : 'Unknown';
+  const userEmail = session?.user?.email || 'unknown@example.com';
+
   return (
     <div className="flex h-screen">
       <Sidebar />
@@ -62,20 +72,11 @@ export default function PaymentPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-gray-500">Name</p>
-                      <p className="font-medium">Spencer Jhon</p>
+                      <p className="font-medium">{userName}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Email ID</p>
-                      <p className="font-medium">spencer@yahoomail.com</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Phone number</p>
-                      <p className="font-medium">9532410845</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Gender</p>
-                      <p className="font-medium">Male</p>
-                      <Toaster />
+                      <p className="font-medium">{userEmail}</p>
                     </div>
                   </div>
                 </div>
