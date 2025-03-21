@@ -10,7 +10,7 @@ import { ProfileType, Role, Prisma } from '@prisma/client';
 import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { z } from 'zod';
 import { createParentSchema } from '@/schemas/Parent.schema';
-import { createPlayerSchema } from '@/schemas/Player.schema';
+import { createPlayerSchema, editPlayerSchema } from '@/schemas/Player.schema';
 
 export const parentRouter = router({
   // Create a new parent
@@ -374,7 +374,7 @@ export const parentRouter = router({
         const totalPlayers = await ctx.db.baseUser.count({
           where,
         });
- return {
+        return {
           players: baseUsers,
           total: totalPlayers,
           page,
@@ -387,5 +387,289 @@ export const parentRouter = router({
         });
       }
     }),
+
+  // Get specific player details by ID (for parent)
+  getPlayerById: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const parentId = ctx.session.user.profileId;
+        const playerBaseUser = await ctx.db.baseUser.findFirst({
+          where: {
+            id: input.id,
+            role: Role.PLAYER,
+            federationId: ctx.session.user.federationId,
+            profile: {
+              profileType: ProfileType.PLAYER,
+              userStatus: {
+                not: 'DELETED',
+              },
+            },
+          },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            profile: {
+              select: {
+                profileId: true,
+                profileType: true,
+                userStatus: true,
+              },
+            },
+          },
+        });
+
+        if (!playerBaseUser) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player not found',
+          });
+        }
+        const playerId = playerBaseUser.profile?.profileId;
+        // Check if the player belongs to this parent
+        const playerBelongsToParent = await ctx.db.player.findFirst({
+          where: {
+            id: playerId,
+            parentId,
+          },
+        });
+
+        if (!playerBelongsToParent) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Player not found or not authorized to view this player',
+          });
+        }
+
+        // Get detailed player information
+        const playerDetails = await ctx.db.player.findUnique({
+          where: { id: playerId },
+        });
+
+        if (!playerDetails) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player details not found',
+          });
+        }
+
+        // Combine the player details with the base user info
+        return { ...playerBaseUser, ...playerDetails };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to fetch player',
+          cause: error.message,
+        });
+      }
+    }),
+
+  // Edit player by ID (for parent)
+  editPlayerById: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        baseUser: editPlayerSchema.shape.baseUser,
+        playerDetails: editPlayerSchema.shape.playerDetails,
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // Get the parent profile for the current user
+        const parentId = ctx.session.user.profileId;
+
+        const playerBaseUser = await ctx.db.baseUser.findFirst({
+          where: {
+            id: input.id,
+            role: Role.PLAYER,
+            federationId: ctx.session.user.federationId,
+            profile: {
+              profileType: ProfileType.PLAYER,
+              userStatus: {
+                not: 'DELETED',
+              },
+            },
+          },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            profile: {
+              select: {
+                profileId: true,
+                profileType: true,
+                userStatus: true,
+              },
+            },
+          },
+        });
+
+        if (!playerBaseUser) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player not found',
+          });
+        }
+        const playerId = playerBaseUser.profile?.profileId;
+        // Check if the player belongs to this parent
+        const playerBelongsToParent = await ctx.db.player.findFirst({
+          where: {
+            id: playerId,
+            parentId,
+          },
+        });
+
+        if (!playerBelongsToParent) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Player not found or not authorized to view this player',
+          });
+        }
+
+        // Check email uniqueness if email is being updated
+        if (
+          input.baseUser.email &&
+          input.baseUser.email !== playerBaseUser.email
+        ) {
+          const emailExists = await ctx.db.baseUser.findUnique({
+            where: {
+              email_federationId: {
+                email: input.baseUser.email,
+                federationId: ctx.session.user.federationId,
+              },
+            },
+          });
+
+          if (emailExists) {
+            throw new TRPCError({
+              code: 'CONFLICT',
+              message: 'Email already exists',
+            });
+          }
+        }
+
+        const [updatedBaseUser, updatedPlayer] = await ctx.db.$transaction([
+          // Update BaseUser
+          ctx.db.baseUser.update({
+            where: { id: playerBaseUser.id },
+            data: {
+              ...input.baseUser,
+            },
+          }),
+
+          // Update Player
+          ctx.db.player.update({
+            where: { id: playerId },
+            data: {
+              ...input.playerDetails,
+            },
+          }),
+        ]);
+
+        return {
+          ...updatedBaseUser,
+          playerDetails: updatedPlayer,
+        };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to edit player',
+          cause: error.message,
+        });
+      }
+    }),
+
+  // Delete player by ID (for parent)
+  deletePlayerById: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const parentId = ctx.session.user.profileId;
+
+        const playerBaseUser = await ctx.db.baseUser.findFirst({
+          where: {
+            id: input.id,
+            role: Role.PLAYER,
+            federationId: ctx.session.user.federationId,
+            profile: {
+              profileType: ProfileType.PLAYER,
+              userStatus: {
+                not: 'DELETED',
+              },
+            },
+          },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            profile: {
+              select: {
+                profileId: true,
+                profileType: true,
+                userStatus: true,
+              },
+            },
+          },
+        });
+
+        if (!playerBaseUser) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player not found',
+          });
+        }
+
+        const playerId = playerBaseUser.profile?.profileId;
+        // Check if the player belongs to this parent
+        const playerBelongsToParent = await ctx.db.player.findFirst({
+          where: {
+            id: playerId,
+            parentId,
+          },
+        });
+
+        if (!playerBelongsToParent) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Not authorized to delete this player',
+          });
+        }
+
+        // Find the userProfile record for this player
+        const playerUserProfile = await ctx.db.userProfile.findFirst({
+          where: {
+            profileType: ProfileType.PLAYER,
+            profileId: playerId,
+          },
+        });
+
+        if (!playerUserProfile) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player profile not found',
+          });
+        }
+
+        // Mark the player as deleted (soft delete)
+        await ctx.db.userProfile.update({
+          where: { id: playerUserProfile.id },
+          data: {
+            userStatus: 'DELETED',
+            deletedAt: new Date(),
+          },
+        });
+
+        return { success: true };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to delete player',
+          cause: error.message,
+        });
+      }
+    }),
 });
-        
