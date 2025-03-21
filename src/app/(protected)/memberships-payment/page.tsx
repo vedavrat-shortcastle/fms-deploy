@@ -23,9 +23,8 @@ export default function PaymentPage() {
   const { data: session } = useSession();
 
   // Optionally, define default/fallback values if session is not available
-  const userName = session
-    ? `${session.user.firstName} ${session.user.lastName}`
-    : 'Unknown';
+  const firstName = session?.user.firstName || 'Unknown';
+  const lastName = session?.user.lastName || '';
   const userEmail = session?.user?.email || 'unknown@example.com';
 
   return (
@@ -71,8 +70,12 @@ export default function PaymentPage() {
                 <div className="bg-gray-50 p-6 rounded">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm text-gray-500">Name</p>
-                      <p className="font-medium">{userName}</p>
+                      <p className="text-sm text-gray-500">FirstName</p>
+                      <p className="font-medium">{firstName}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">LastName</p>
+                      <p className="font-medium">{lastName}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Email ID</p>
