@@ -4,7 +4,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createParentSchema } from '@/schemas/Parent.schema';
 import { ParentOnboardingForm } from '@/components/player-components/ParentOnboardingForm';
-import Sidebar from '@/components/SideBar';
 import { PageHeader } from '@/components/layouts/PageHeader';
 import { User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -63,7 +62,6 @@ export default function OnboardParentPage() {
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex h-screen bg-gray-50">
-          <Sidebar />
           <main className="flex-1 overflow-auto">
             <PageHeader
               icon={<User size={16} color="white" />}

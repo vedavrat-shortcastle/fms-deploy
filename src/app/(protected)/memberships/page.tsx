@@ -3,11 +3,9 @@
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import Sidebar from '@/components/SideBar';
 import { DataTable } from '@/components/usages/DataTable';
 import { adminColumns } from './adminColumns';
 
-import { Label } from '@/components/ui/label';
 import { FileText } from 'lucide-react';
 import {
   Dialog,
@@ -16,16 +14,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import PlanForm from '@/components/subsciptions';
+import PlanForm from '@/components/subscriptions';
 import { trpc } from '@/utils/trpc';
 import { usePermission } from '@/hooks/usePermission';
-import { usersColumns } from './usersColumns';
 import Loader from '@/components/Loader';
+import { PERMISSIONS } from '@/config/permissions';
+import { usersColumns } from '@/app/(protected)/memberships/usersColumns';
 
 export default function Memberships() {
   const [search, setSearch] = useState('');
   const [formOpen, setFormOpen] = useState(false);
-  const canCreatePlan = usePermission('PLAN_CREATE');
+  const canCreatePlan = usePermission(PERMISSIONS.PLAN_CREATE);
 
   // Fetch plans using tRPC query
   const { data, isLoading, refetch } = trpc.membership.getPlans.useQuery({
@@ -46,7 +45,6 @@ export default function Memberships() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar />
       <main className="flex-1 flex flex-col overflow-auto p-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <span className="text-red-600">
@@ -67,11 +65,6 @@ export default function Memberships() {
             onChange={(e) => setSearch(e.target.value)}
             className="w-64"
           />
-          <div className="w-36">
-            <Label className="ml-4">Plan Id</Label>
-            <Input placeholder="Plan ID" className="w-36 h-8" />
-          </div>
-
           {canCreatePlan && (
             <div className="flex  mt-6 items-end w-full h-15 justify-end">
               {/* Modal Pop-up for Adding usage */}
@@ -92,7 +85,7 @@ export default function Memberships() {
                     className="overflow-y-auto flex-grow"
                     style={{ maxHeight: 'calc(100vh - 140px)' }}
                   >
-                    <PlanForm />
+                    <PlanForm onClose={() => setFormOpen(false)} />
                   </div>
                 </DialogContent>
               </Dialog>

@@ -1,6 +1,5 @@
 'use client';
 
-import Sidebar from '@/components/SideBar';
 import { SimpleLineChart } from '@/components/dashboard-components/SimpleLineChart';
 import MetricCard from '@/components/dashboard-components/MetricCard';
 import VerticalBarChart from '@/components/dashboard-components/VerticalBarChart';
@@ -17,10 +16,6 @@ export default function AdminDashboard() {
   return (
     <>
       <div className="flex min-h-screen">
-        <div className="sticky top-0 h-screen">
-          <Sidebar />
-        </div>
-
         <div className="flex-1 overflow-auto p-6">
           <h1 className="text-2xl font-bold mb-6 ml-3">Overview</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
