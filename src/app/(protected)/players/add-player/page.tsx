@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { User } from 'lucide-react';
-
+import { useSession } from 'next-auth/react';
 import { PageHeader } from '@/components/layouts/PageHeader';
 import Sidebar from '@/components/SideBar';
 import { FormContainer } from '@/components/player-components/FormContainer';
@@ -22,6 +22,7 @@ export default function AddPlayerPage() {
     'personal'
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: session } = useSession();
 
   // Use nested default values with proper Date objects
   const form = useForm<CreatePlayerFormValues>({
@@ -69,6 +70,19 @@ export default function AddPlayerPage() {
     },
     onError: (error) => {
       console.error('Error creating player:', error);
+      setIsSubmitting(false);
+    },
+  });
+
+  // Mutation for adding a player for a parent user
+  const addPlayerMutation = trpc.parent.addPlayer.useMutation({
+    onSuccess: () => {
+      reset();
+      setActiveTab('personal');
+      setIsSubmitting(false);
+    },
+    onError: (error) => {
+      console.error('Error adding player for parent:', error);
       setIsSubmitting(false);
     },
   });
@@ -124,16 +138,21 @@ export default function AddPlayerPage() {
     if (activeTab === 'other') setActiveTab('mailing');
     else if (activeTab === 'mailing') setActiveTab('personal');
   };
+
   const onSubmit = async (data: CreatePlayerFormValues) => {
     setIsSubmitting(true);
     try {
-      await createPlayerMutation.mutateAsync(data);
+      // Check if the current user's role is "PARENT"
+      if (session?.user?.role === 'PARENT') {
+        await addPlayerMutation.mutateAsync(data);
+      } else {
+        await createPlayerMutation.mutateAsync(data);
+      }
     } catch (error) {
       console.error('Submission error:', error);
       setIsSubmitting(false);
     }
   };
-
   return (
     <FormProvider {...form}>
       <div className="flex h-screen bg-gray-50">
