@@ -11,7 +11,6 @@ import { parentRouter } from '@/app/server/routers/parent';
 import { paymentRouter } from '@/app/server/routers/payment';
 import { authRouter } from '@/app/server/routers/auth';
 
-
 export const appRouter = router({
   superUser: superUserRouter,
   player: playerRouter,

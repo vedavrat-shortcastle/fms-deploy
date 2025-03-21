@@ -34,8 +34,13 @@ export default function Memberships() {
   });
 
   // Extract plans from fetched data or fallback to an empty array
-  const plans: any = data?.plans || [];
+  const activePlans = data?.activePlans || [];
+  const inactivePlans = data?.inactivePlans || [];
 
+  const plans = [
+    ...activePlans.map((plan) => ({ ...plan, status: 'active' })),
+    ...inactivePlans.map((plan) => ({ ...plan, status: 'inactive' })),
+  ];
   // Optionally, refetch on search query change (if you are not debouncing the input)
   useEffect(() => {
     refetch();
