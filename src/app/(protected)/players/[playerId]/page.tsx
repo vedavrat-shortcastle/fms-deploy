@@ -177,36 +177,38 @@ export default function PlayerDetails() {
       const mappedPlayer: EditPlayerFormValues = {
         baseUser: {
           id: data.id,
-          email: data.email,
-          firstName: data.firstName,
-          lastName: data.lastName,
+          email: data.email || '', // Ensure required fields are not undefined
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
           middleName: (data as any).middleName || '',
           nameSuffix: (data as any).nameSuffix || '',
         },
         playerDetails: {
           gender: data.gender,
+          // Ensure birthDate is a Date object
           birthDate:
             data.birthDate instanceof Date
-              ? data.birthDate.toISOString()
-              : data.birthDate,
+              ? data.birthDate
+              : new Date(data.birthDate),
           avatarUrl: data.avatarUrl || undefined,
           ageProof: data.ageProof || undefined,
-          streetAddress: data.streetAddress,
+          streetAddress: data.streetAddress || '',
           streetAddress2: data.streetAddress2 || undefined,
-          country: data.country,
-          state: data.state,
-          city: data.city,
-          postalCode: data.postalCode,
+          country: data.country || '',
+          state: data.state || '',
+          city: data.city || '',
+          postalCode: data.postalCode || '',
           phoneNumber: data.phoneNumber || undefined,
           countryCode: data.countryCode || undefined,
           fideId: data.fideId || undefined,
           schoolName: data.schoolName || undefined,
           graduationYear: data.graduationYear || undefined,
           gradeInSchool: data.gradeInSchool || undefined,
-          gradeDate:
-            data.gradeDate && typeof data.gradeDate === 'string'
+          gradeDate: data.gradeDate
+            ? typeof data.gradeDate === 'string'
               ? new Date(data.gradeDate)
-              : data.gradeDate || undefined,
+              : data.gradeDate
+            : undefined,
           clubName: data.clubName || undefined,
         },
       };
@@ -226,13 +228,30 @@ export default function PlayerDetails() {
   const onSubmit = (formData: EditPlayerFormValues) => {
     setIsSubmitting(true);
 
-    // Ensure the baseUser object has the correct id.
-    const updatedFormData = {
+    // Ensure all required fields are present and properly typed
+    const updatedFormData: EditPlayerFormValues = {
       ...formData,
-      id: playerId,
       baseUser: {
-        ...player?.baseUser,
+        ...formData.baseUser,
         id: playerId,
+        // Ensure required fields have string values
+        email: formData.baseUser.email || '',
+        firstName: formData.baseUser.firstName || '',
+        lastName: formData.baseUser.lastName || '',
+      },
+      playerDetails: {
+        ...formData.playerDetails,
+        // Ensure birthDate is a Date object
+        birthDate:
+          formData.playerDetails.birthDate instanceof Date
+            ? formData.playerDetails.birthDate
+            : new Date(formData.playerDetails.birthDate),
+        // Ensure required fields have string values
+        streetAddress: formData.playerDetails.streetAddress || '',
+        country: formData.playerDetails.country || '',
+        state: formData.playerDetails.state || '',
+        city: formData.playerDetails.city || '',
+        postalCode: formData.playerDetails.postalCode || '',
       },
     };
 
@@ -263,7 +282,7 @@ export default function PlayerDetails() {
       handleSubmit(onSubmit)();
     } else {
       console.debug('Entering edit mode');
-      reset({});
+      if (player) reset(player);
       setIsEditing(true);
     }
   };
@@ -271,7 +290,7 @@ export default function PlayerDetails() {
   const handleCancel = () => {
     console.debug('Cancelling edit mode');
     setIsEditing(false);
-    reset({});
+    if (player) reset(player);
   };
 
   // Delete player based on the proper mutation.
@@ -299,25 +318,44 @@ export default function PlayerDetails() {
   };
 
   const handleUpdateProfilePicture = async () => {
-    if (!profilePictureFile) {
+    if (!profilePictureFile || !player) {
       toast({
         title: 'Error',
-        description: 'Please select a profile picture.',
+        description: 'Please select a profile picture or player not loaded.',
         variant: 'destructive',
       });
       return;
     }
+
     setIsUploadingProfilePicture(true);
-    updateProfilePictureMutation.mutate({
+
+    // Ensure all required fields are present
+    const updateData: EditPlayerFormValues = {
       baseUser: {
-        ...player?.baseUser,
+        ...player.baseUser,
         id: playerId,
+        email: player.baseUser.email || '',
+        firstName: player.baseUser.firstName || '',
+        lastName: player.baseUser.lastName || '',
       },
       playerDetails: {
-        ...player?.playerDetails,
+        ...player.playerDetails,
         avatarUrl: profilePictureFile.name,
+        // Ensure required fields are present
+        birthDate:
+          player.playerDetails.birthDate instanceof Date
+            ? player.playerDetails.birthDate
+            : new Date(player.playerDetails.birthDate),
+        gender: player.playerDetails.gender,
+        streetAddress: player.playerDetails.streetAddress || '',
+        country: player.playerDetails.country || '',
+        state: player.playerDetails.state || '',
+        city: player.playerDetails.city || '',
+        postalCode: player.playerDetails.postalCode || '',
       },
-    });
+    };
+
+    updateProfilePictureMutation.mutate(updateData);
   };
 
   if (isLoading || !player) {
@@ -344,14 +382,14 @@ export default function PlayerDetails() {
             <div className="relative">
               <Avatar className="h-40 w-40 rounded-full">
                 <AvatarImage
-                  src={player.playerDetails?.avatarUrl}
+                  src={player.playerDetails.avatarUrl || ''}
                   alt="Profile"
                   className="object-cover"
                   onError={(e) => (e.currentTarget.src = '/default-avatar.png')}
                 />
                 <AvatarFallback>
-                  {player.baseUser?.firstName?.[0]}
-                  {player.baseUser?.lastName?.[0]}
+                  {player.baseUser.firstName?.[0]}
+                  {player.baseUser.lastName?.[0]}
                 </AvatarFallback>
               </Avatar>
               {isEditing && (
@@ -488,7 +526,7 @@ export default function PlayerDetails() {
         onOpenChange={setShowDeleteConfirm}
         onConfirm={handleDelete}
         isSubmitting={isSubmitting}
-        playerName={`${player.baseUser?.firstName} ${player.baseUser?.lastName}`}
+        playerName={`${player.baseUser.firstName} ${player.baseUser.lastName}`}
       />
     </div>
   );
