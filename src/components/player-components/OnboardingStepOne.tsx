@@ -96,7 +96,7 @@ export const PlayerDetailsStepOne = () => {
   }, [selectedState, setValue]);
 
   return (
-    <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-2 lg:grid-cols-2">
+    <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-2">
       <FormField
         control={control}
         name="birthDate" // Adjust the field name as needed
@@ -310,7 +310,7 @@ export const PlayerDetailsStepOne = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm text-gray-900">
-                Age Proof Upload
+                {renderLabel('Age Proof')}
               </FormLabel>
               <FormControl>
                 <FileUploader
