@@ -16,6 +16,7 @@ import {
 } from '@/schemas/Player.schema';
 import { trpc } from '@/utils/trpc';
 import { Country, State } from 'country-state-city';
+import { useRouter } from 'next/navigation';
 
 export default function AddPlayerPage() {
   const [activeTab, setActiveTab] = useState<'personal' | 'mailing' | 'other'>(
@@ -60,11 +61,11 @@ export default function AddPlayerPage() {
   });
 
   const { handleSubmit, reset, trigger } = form;
-
+  const router = useRouter();
   const createPlayerMutation = trpc.federation.createPlayer.useMutation({
     onSuccess: () => {
       reset();
-      setActiveTab('personal');
+      router.push('/players');
       setIsSubmitting(false);
     },
     onError: (error) => {
@@ -77,7 +78,7 @@ export default function AddPlayerPage() {
   const addPlayerMutation = trpc.parent.addPlayer.useMutation({
     onSuccess: () => {
       reset();
-      setActiveTab('personal');
+      router.push('/players');
       setIsSubmitting(false);
     },
     onError: (error) => {
@@ -142,7 +143,7 @@ export default function AddPlayerPage() {
     setIsSubmitting(true);
     try {
       // Check if the current user's role is "PARENT"
-      const updadtedData = {
+      const updatedData = {
         ...data,
         playerDetails: {
           ...data.playerDetails,
@@ -152,9 +153,9 @@ export default function AddPlayerPage() {
         },
       };
       if (session?.user?.role === 'PARENT') {
-        await addPlayerMutation.mutateAsync(updadtedData);
+        await addPlayerMutation.mutateAsync(updatedData);
       } else {
-        await createPlayerMutation.mutateAsync(updadtedData);
+        await createPlayerMutation.mutateAsync(updatedData);
       }
     } catch (error) {
       console.error('Submission error:', error);
