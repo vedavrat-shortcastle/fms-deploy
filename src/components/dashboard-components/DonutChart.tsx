@@ -2,7 +2,7 @@ import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const MembersByRegionChart = () => {
+const DonutChart = () => {
   // Data for the donut chart (regions)
   const regionData = [
     { name: 'Auckland', value: 30, color: '#FF7A7A' },
@@ -47,7 +47,7 @@ const MembersByRegionChart = () => {
       </CardHeader>
       <CardContent className="px-4 pb-4">
         <div className="flex items-center">
-          <div className="w-50 h-50">
+          <div className="w-60 h-52">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -55,7 +55,7 @@ const MembersByRegionChart = () => {
                   cx="50%"
                   cy="50%"
                   innerRadius={35}
-                  outerRadius={65}
+                  outerRadius={75}
                   dataKey="value"
                   paddingAngle={0}
                 >
@@ -96,4 +96,4 @@ const MembersByRegionChart = () => {
   );
 };
 
-export default MembersByRegionChart;
+export default DonutChart;
