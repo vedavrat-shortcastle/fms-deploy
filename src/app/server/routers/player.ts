@@ -2,22 +2,18 @@ import { TRPCError } from '@trpc/server';
 import {
   permissionProtectedProcedure,
   router,
-  publicProcedure,
   protectedProcedure,
 } from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
-import { hashPassword } from '@/utils/encoder';
 import { ProfileType, Role } from '@prisma/client';
-import { PERMISSIONS, roleMap } from '@/config/permissions';
+import { PERMISSIONS } from '@/config/permissions';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
-import { getProfileByRole } from '@/config/roleTable';
 import {
   deletePlayerSchema,
   editPlayerSchema,
   playerOnboardingSchema,
-  signupMemberSchema,
 } from '@/schemas/Player.schema';
 
 export const playerRouter = router({
@@ -298,96 +294,6 @@ export const playerRouter = router({
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to delete player',
-          cause: error.message,
-        });
-      }
-    }),
-  // Signup a new player
-  signup: publicProcedure
-    .input(signupMemberSchema)
-    .mutation(async ({ ctx, input }) => {
-      try {
-        const { domain, ...data } = input;
-        const currentFederation = await ctx.db.federation.findFirst({
-          where: { domain },
-          select: { id: true },
-        });
-
-        if (!currentFederation) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Federation not found',
-          });
-        }
-
-        const existingUser = await ctx.db.baseUser.findUnique({
-          where: {
-            email_federationId: {
-              email: input.email,
-              federationId: currentFederation.id,
-            },
-          },
-        });
-
-        if (existingUser) {
-          throw new TRPCError({
-            code: 'CONFLICT',
-            message: 'User already exists',
-          });
-        }
-
-        const hashedPassword = await hashPassword(input.password);
-
-        // Wrap creation operations in a transaction
-        const result = await ctx.db.$transaction(async (tx) => {
-          const newBaseUser = await tx.baseUser.create({
-            data: {
-              ...data,
-              password: hashedPassword,
-              federation: {
-                connect: { id: currentFederation.id },
-              },
-            },
-          });
-
-          const profileType = getProfileByRole(data.role);
-
-          const newUserProfile = await tx.userProfile.create({
-            data: {
-              profileType,
-              profileId: newBaseUser.id,
-              baseUser: {
-                connect: { id: newBaseUser.id },
-              },
-              userStatus: 'INACTIVE',
-            },
-          });
-
-          const playerPermissions = await tx.permission.findMany({
-            where: {
-              code: {
-                in: roleMap[data.role],
-              },
-            },
-            select: {
-              id: true,
-            },
-          });
-
-          await tx.userPermission.createMany({
-            data: playerPermissions.map((permission) => ({
-              permissionId: permission.id,
-              userId: newUserProfile.id,
-            })),
-          });
-
-          return { ...newBaseUser, newUserProfile };
-        });
-
-        return { ...result, password: undefined };
-      } catch (error: any) {
-        handleError(error, {
-          message: 'Failed to sign up player',
           cause: error.message,
         });
       }

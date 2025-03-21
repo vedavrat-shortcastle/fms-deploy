@@ -58,10 +58,10 @@ const Sidebar: FC = () => {
       active: pathname === '/support',
     },
     {
-      href: '/profile',
+      href: '/profile-setting',
       icon: <Settings size={20} />,
       label: 'Profile & Settings',
-      active: pathname === '/profile',
+      active: pathname === '/profile-setting',
     },
     {
       href: '/coaches',
