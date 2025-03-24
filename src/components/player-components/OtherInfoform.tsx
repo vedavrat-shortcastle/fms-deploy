@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { CreatePlayerFormValues } from '@/schemas/Player.schema';
 import DatePicker from '@/components/player-components/DatePicker';
-import { renderLabel } from '@/components/RenderLable';
+import { renderLabel } from '@/components/RenderLabel';
 
 export function OtherInfoForm() {
   const {

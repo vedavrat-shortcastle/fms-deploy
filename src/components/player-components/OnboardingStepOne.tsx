@@ -22,7 +22,7 @@ import {
 
 import { City, Country, State } from 'country-state-city';
 import { playerOnboardingInput } from '@/schemas/Player.schema';
-import { renderLabel } from '@/components/RenderLable';
+import { renderLabel } from '@/components/RenderLabel';
 import { FileUploader } from '@/components/FileUploader';
 
 export const PlayerDetailsStepOne = () => {
