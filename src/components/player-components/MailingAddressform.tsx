@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { CreatePlayerFormValues } from '@/schemas/Player.schema';
 import { PhoneInput } from '@/components/phoneinput';
-import { renderLabel } from '@/components/RenderLable';
+import { renderLabel } from '@/components/RenderLabel';
 
 export default function MailingAddressForm() {
   const {

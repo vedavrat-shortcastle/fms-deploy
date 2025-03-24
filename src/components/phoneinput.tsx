@@ -24,7 +24,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
-import { renderLabel } from '@/components/RenderLable';
+import { renderLabel } from '@/components/RenderLabel';
 
 // Updated PhoneInputProps type with new callback props
 type PhoneInputProps = {
@@ -84,7 +84,7 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
 
     return (
       <div className={cn('flex flex-col gap-4', className)}>
-        <Label> {renderLabel('Phone Number', true)}</Label>
+        <Label>{renderLabel('Phone Number', true)}</Label>
         {/* Changed from <form> to <div> */}
         <div className="flex items-center gap-2">
           {/* Country Selector */}

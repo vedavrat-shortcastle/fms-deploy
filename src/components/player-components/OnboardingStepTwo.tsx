@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import DatePicker from '@/components/player-components/DatePicker';
 import { FileUploader } from '@/components/FileUploader';
 import { playerOnboardingInput } from '@/schemas/Player.schema';
-import { renderLabel } from '@/components/RenderLable';
+import { renderLabel } from '@/components/RenderLabel';
 
 export const PlayerDetailsStepTwo = () => {
   const { control } = useFormContext<playerOnboardingInput>();
