@@ -312,7 +312,7 @@ export default function Page() {
           </div>
 
           {/* Hidden file input for CSV upload */}
-          <input
+          <Input
             type="file"
             ref={fileInputRef}
             accept=".csv"

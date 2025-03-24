@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Country, State, City } from 'country-state-city';
-
+import { renderLabel } from '@/components/RenderLabel';
 import {
   FormField,
   FormItem,
@@ -89,13 +89,6 @@ export const ParentOnboardingForm = () => {
   const handlePhoneNumberChange = (phoneNumber: string) => {
     setValue('phoneNumber', phoneNumber);
   };
-
-  const renderLabel = (text: string, isRequired: boolean = false) => (
-    <>
-      <span className="text-sm text-gray-900">{text}</span>
-      {isRequired && <span className="text-red-500"> *</span>}
-    </>
-  );
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">

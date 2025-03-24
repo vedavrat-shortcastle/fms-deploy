@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-
+import { renderLabel } from '@/components/RenderLabel';
 import {
   FormField,
   FormItem,
@@ -46,7 +46,7 @@ export function PersonalInformationForm() {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              First Name <span className="text-red-500">*</span>
+              {renderLabel('First Name', true)}
             </FormLabel>
             <FormControl>
               <Input
@@ -68,7 +68,7 @@ export function PersonalInformationForm() {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              Last Name <span className="text-red-500">*</span>
+              {renderLabel('Last Name', true)}
             </FormLabel>
             <FormControl>
               <Input
@@ -107,7 +107,7 @@ export function PersonalInformationForm() {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              Gender <span className="text-red-500">*</span>
+              {renderLabel('Gender', true)}
             </FormLabel>
             <FormControl>
               <Select
@@ -138,7 +138,7 @@ export function PersonalInformationForm() {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm text-gray-900">
-              Email <span className="text-red-500">*</span>
+              {renderLabel('Email', true)}
             </FormLabel>
             <FormControl>
               <Input

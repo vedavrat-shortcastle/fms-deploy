@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { type EditPlayerFormValues } from '@/schemas/Player.schema';
 import { trpc } from '@/utils/trpc';
 import { useToast } from '@/hooks/useToast';
+import { Input } from '@/components/ui/input';
 
 interface PlayerProfilePictureProps {
   player: EditPlayerFormValues;
@@ -124,7 +125,7 @@ export default function PlayerProfilePicture({
             className="absolute bottom-0 right-0 bg-primary rounded-full p-2 cursor-pointer shadow-md"
           >
             <Pencil className="h-4 w-4 text-white" />
-            <input
+            <Input
               id="profile-picture-upload"
               type="file"
               className="hidden"
