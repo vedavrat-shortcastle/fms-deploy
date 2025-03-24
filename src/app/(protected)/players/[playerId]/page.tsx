@@ -36,6 +36,8 @@ export default function PlayerDetails() {
   const {
     register,
     handleSubmit,
+    control,
+    setValue,
     formState: { errors },
     reset,
   } = useForm<EditPlayerFormValues>({
@@ -260,6 +262,8 @@ export default function PlayerDetails() {
               errors={errors}
               handleSubmit={handleSubmit}
               onSubmit={onSubmit}
+              control={control}
+              setValue={setValue}
             />
           </div>
         </div>
