@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
+import { Input } from '@/components/ui/input';
 import PersonalInfoSection from '@/components/player-components/PersonalInfo';
 import AddressSection from '@/components/player-components/AddressInfo';
 import PlayerDetailsSection from '@/components/player-components/PlayerDetails';
@@ -339,7 +339,7 @@ export default function PlayerSettings() {
                   className="absolute bottom-0 right-0 bg-primary rounded-full p-2 cursor-pointer shadow-md"
                 >
                   <Pencil className="h-4 w-4 text-white" />
-                  <input
+                  <Input
                     id="profile-picture-upload"
                     type="file"
                     className="hidden"

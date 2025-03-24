@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { ControllerRenderProps } from 'react-hook-form';
 import { trpc } from '@/hooks/trpcProvider';
+import { Input } from '@/components/ui/input';
 
 interface FileUploaderProps {
   field: ControllerRenderProps<any, any>;
@@ -86,7 +87,7 @@ export function FileUploader({
           className
         )}
       >
-        <input {...getInputProps()} disabled={isUploading} />
+        <Input {...getInputProps()} disabled={isUploading} />
         <div className="flex items-center gap-2">
           {isUploading && <Loader2 className="w-4 h-4 animate-spin" />}
           <span className="text-base text-gray-900">

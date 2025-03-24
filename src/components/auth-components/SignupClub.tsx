@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
+import { renderLabel } from '@/components/RenderLabel';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Select,
@@ -73,7 +74,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-input-grey">
-                    Club Name <span className="text-primary">*</span>
+                    {renderLabel('Club Name', true)}
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -93,7 +94,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-input-grey">
-                    Club Location <span className="text-primary">*</span>
+                    {renderLabel('Club Location ', true)}
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -113,7 +114,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-input-grey">
-                    Club Address <span className="text-primary">*</span>
+                    {renderLabel('Club Address', true)}
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -133,7 +134,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-input-grey">
-                    Contact Person <span className="text-primary">*</span>
+                    {renderLabel('Contact Person', true)}
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -153,7 +154,7 @@ export const SignupClub = ({ imageSrc }: SignupProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-input-grey">
-                    Phone Number <span className="text-primary">*</span>
+                    {renderLabel('Phone Number', true)}
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-center space-x-2">
