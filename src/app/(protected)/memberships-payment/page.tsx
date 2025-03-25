@@ -48,7 +48,7 @@ function PaymentContent({ session }: { session: any }) {
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex min-h-svh">
       <div className="flex-1 bg-white p-8">
         <div className="mb-4 flex items-center">
           <Button variant="ghost" className="p-0 mr-2">

@@ -164,8 +164,8 @@ export default function AddPlayerPage() {
   };
   return (
     <FormProvider {...form}>
-      <div className="flex h-screen bg-gray-50">
-        <main className="flex-1 overflow-auto p-6">
+      <div className="flex min-h-svh bg-gray-50">
+        <main className="flex-1 p-6">
           <PageHeader icon={<User size={16} color="white" />} title="Players" />
           <FormContainer
             title="Add Player"

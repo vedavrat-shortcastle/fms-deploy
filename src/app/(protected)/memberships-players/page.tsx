@@ -71,8 +71,8 @@ export default function PlayerSelectionPage() {
   const totalPages = data ? Math.ceil(data.total / limit) : 1;
 
   return (
-    <div className="flex h-screen">
-      <div className="flex-1 overflow-auto">
+    <div className="flex min-h-svh">
+      <div className="flex-1">
         <div className="p-6">
           <div className="flex items-center mb-6">
             <Image

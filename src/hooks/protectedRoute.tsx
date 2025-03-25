@@ -69,7 +69,7 @@ export const ProtectedRoute = ({
 
   if (status === 'loading' || profileOnboarded === null) {
     return (
-      <div className="w-full h-screen flex items-center justify-center">
+      <div className="w-full min-h-svh flex items-center justify-center">
         <Loader />
       </div>
     );

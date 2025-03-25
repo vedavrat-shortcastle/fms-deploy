@@ -49,8 +49,8 @@ export default function Memberships() {
   // You can also add error handling and loading state if needed
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <main className="flex-1 flex flex-col overflow-auto p-6">
+    <div className="flex min-h-svh bg-gray-50">
+      <main className="flex-1 flex flex-col p-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <span className="text-red-600">
             <FileText size={20} />

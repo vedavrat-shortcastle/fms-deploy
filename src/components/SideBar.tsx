@@ -121,7 +121,15 @@ const Sidebar: FC = () => {
     <aside className="flex h-full w-64 flex-col bg-[#595959] text-white">
       {/* Header */}
       <div className="p-6">
-        <h1 className="text-2xl font-bold text-red-600">FedChess</h1>
+        <a
+          href={
+            data?.user.role === 'FED_ADMIN'
+              ? '/admin-dashboard'
+              : '/memberships'
+          }
+        >
+          <h1 className="text-2xl font-bold text-red-600">FedChess</h1>
+        </a>
       </div>
 
       {/* User Section */}
