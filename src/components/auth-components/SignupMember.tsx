@@ -96,7 +96,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
   return (
     // Pass the image you accepted as prop to AuthLayout.
     <AuthLayout imageSrc={imageSrc}>
-      <Logo />
+      <Logo path="/login" />
       {/* Global Logo component */}
 
       <div className="m-auto max-w-xl w-full">

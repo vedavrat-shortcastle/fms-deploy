@@ -8,9 +8,9 @@ import { Logo } from '@/components/Logo';
 export default function Home() {
   return (
     //  Main container Div
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-svh flex flex-col">
       {/* Global Logo component */}
-      <Logo />
+      <Logo path="/admin-login" />
 
       {/* Rocket Image is stored in public/assets/onboardingRocket.svg for now */}
       <div className="flex-1 flex flex-col items-center justify-center px-4">

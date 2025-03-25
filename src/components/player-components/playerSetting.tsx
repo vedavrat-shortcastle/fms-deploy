@@ -299,15 +299,15 @@ export default function PlayerSettings() {
 
   if (isLoading || !player) {
     return (
-      <div className="flex h-screen justify-center items-center">
+      <div className="flex min-h-svh justify-center items-center">
         <Loader />
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-[#f6f6f6]">
-      <div className="flex-1 overflow-auto p-8">
+    <div className="flex min-h-svh bg-[#f6f6f6]">
+      <div className="flex-1 p-8">
         <Button
           variant="ghost"
           className="mb-6 gap-2"

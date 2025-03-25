@@ -5,9 +5,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute>
       <section>
-        <div className="flex h-screen">
+        <div className="flex min-h-svh">
           <Sidebar />
-          <main className="flex-1 h-full overflow-auto">{children}</main>
+          <main className="flex-1 min-h-svh">{children}</main>
         </div>
       </section>
     </ProtectedRoute>

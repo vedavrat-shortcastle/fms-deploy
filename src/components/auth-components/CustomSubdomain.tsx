@@ -46,7 +46,7 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
   return (
     // Pass the image you accepted as prop to AuthLayout.
     <AuthLayout imageSrc={imageSrc}>
-      <Logo />
+      <Logo path="/onboarding-federation" />
       {/* Global Logo component */}
 
       <div className="mx-auto mt-16 p-10 max-w-xl w-full">

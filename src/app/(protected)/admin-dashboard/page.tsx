@@ -54,8 +54,8 @@ const dummyMetricData: MetricCardProps[] = [
 export default function AdminDashboard() {
   return (
     <>
-      <div className="flex min-h-screen">
-        <div className="flex-1 overflow-auto p-6">
+      <div className="flex min-h-svh">
+        <div className="flex-1 p-6">
           <h1 className="text-2xl font-bold mb-6 ml-3">Overview</h1>
           <div className="flex flex-wrap gap-4">
             {dummyMetricData.map((metric) => (

@@ -61,8 +61,8 @@ export default function OnboardParentPage() {
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex h-screen bg-gray-50">
-          <main className="flex-1 overflow-auto">
+        <div className="flex min-h-svh bg-gray-50">
+          <main className="flex-1">
             <PageHeader
               icon={<User size={16} color="white" />}
               title="Parents"

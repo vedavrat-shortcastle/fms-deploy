@@ -256,8 +256,8 @@ export default function Page() {
 
   return (
     <ProtectedRoute requiredPermission={PERMISSIONS.PLAYER_VIEW}>
-      <div className="flex h-screen bg-gray-50">
-        <main className="flex-1 flex flex-col overflow-auto p-6">
+      <div className="flex min-h-svh bg-gray-50">
+        <main className="flex-1 flex flex-col p-6">
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-medium text-gray-700">Players</h1>
