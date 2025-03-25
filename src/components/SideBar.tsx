@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FC, ReactElement } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
+import { Role } from '@prisma/client';
 
 interface SidebarLinkProps {
   href?: string;
@@ -26,74 +27,97 @@ interface SidebarLinkProps {
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
+interface MenuItems {
+  href?: string;
+  icon: ReactElement;
+  label: string;
+  active?: boolean;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  roles: Role[];
+}
+
 const Sidebar: FC = () => {
   const pathname = usePathname();
   const router = useRouter();
 
   const { data } = useSession();
 
-  const menuItems: SidebarLinkProps[] = [
+  const menuItems: MenuItems[] = [
     {
       href: '/admin-dashboard',
       icon: <Home size={20} />,
       label: 'Dashboard',
       active: pathname === '/admin-dashboard',
+      roles: ['FED_ADMIN'],
     },
     {
       href: '/players',
       icon: <User size={20} />,
       label: 'Players',
       active: pathname === '/players',
+      roles: ['FED_ADMIN', 'PARENT'],
     },
     {
       href: '/memberships',
       icon: <ClipboardList size={20} />,
       label: 'Memberships',
       active: pathname === '/memberships',
+      roles: ['FED_ADMIN', 'PARENT', 'PLAYER'],
     },
     {
       href: '/events',
       icon: <Calendar size={20} />,
       label: 'Events',
       active: pathname === '/events',
+      roles: ['FED_ADMIN', 'PARENT', 'PLAYER'],
     },
     {
       href: '/support',
       icon: <HelpCircle size={20} />,
       label: 'Support',
       active: pathname === '/support',
+      roles: ['FED_ADMIN', 'PARENT', 'PLAYER'],
     },
     {
       href: '/profile-setting',
       icon: <Settings size={20} />,
       label: 'Profile & Settings',
       active: pathname === '/profile-setting',
+      roles: ['FED_ADMIN', 'PARENT', 'PLAYER'],
     },
     {
       href: '/coaches',
       icon: <UserCheck size={20} />,
       label: 'Coaches',
       active: pathname === '/coaches',
+      roles: ['FED_ADMIN', 'PARENT'],
     },
     {
       href: '/arbiters',
       icon: <UserPlus size={20} />,
       label: 'Arbiters',
       active: pathname === '/arbiters',
+      roles: ['FED_ADMIN'],
     },
     {
       href: '/schools',
       icon: <School size={20} />,
       label: 'Schools',
       active: pathname === '/schools',
+      roles: ['FED_ADMIN'],
     },
     {
       href: '/clubs',
       icon: <Building size={20} />,
       label: 'Clubs',
       active: pathname === '/clubs',
+      roles: ['FED_ADMIN'],
     },
   ];
+
+  const filteredMenuItems = menuItems.filter(
+    (item) => data?.user.role && item.roles.includes(data.user.role)
+  );
 
   // SidebarLink component defined within the main component
   const SidebarLink = ({
@@ -150,7 +174,7 @@ const Sidebar: FC = () => {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
-        {menuItems.map((item, index) => (
+        {filteredMenuItems.map((item, index) => (
           <SidebarLink key={index} {...item} />
         ))}
       </nav>
