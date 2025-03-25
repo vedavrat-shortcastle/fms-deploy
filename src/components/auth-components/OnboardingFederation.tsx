@@ -80,7 +80,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
       {/* Global Logo component */}
 
       {/* Container Div */}
-      <div className="px-4 sm:px-20 md:px-12 lg:px-20">
+      <div className="sm:px-20 md:px-20 md:py-20">
         <h1 className="text-xl md:text-2xl font-bold mt-10">
           Tell us a bit about yourself.
         </h1>
@@ -218,7 +218,10 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               />
             </div>
 
-            <Button type="submit" className="w-full bg-primary text-black">
+            <Button
+              type="submit"
+              className="w-full bg-primary text-white font-extrabold"
+            >
               Next →
             </Button>
           </form>

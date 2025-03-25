@@ -63,7 +63,7 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
       });
 
       if (result?.error) {
-        setError('Invalid credentials');
+        setError('Invalid credentials - No Account found');
         return;
       }
 
@@ -91,13 +91,13 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
       <Logo path="/login" />
       {/* Global Logo component */}
 
-      <div className="m-20">
+      <div className="mt-40">
         {/* Container Div */}
         {error && (
           <div className="text-primary text-md text-center mt-2">{error}</div>
         )}
 
-        <h1 className="flex justify-center text-2xl m-5 ">{heading} Login</h1>
+        <h1 className="flex justify-center text-2xl">{heading} Login</h1>
         {/* Pass the heading string you accepted as a prop above */}
 
         <h1 className="flex justify-center text-3xl m-5 font-bold">
