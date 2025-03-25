@@ -3,30 +3,23 @@
 import { Input } from '@/components/ui/input';
 import type { UseFormRegister, FieldErrors } from 'react-hook-form';
 import type { EditPlayerFormValues } from '@/schemas/Player.schema';
-import { type ReactNode, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Download, Eye } from 'lucide-react';
+import { type ReactNode } from 'react';
+import AgeProofUpload from './AgeProofUpload'; // Import the previously created component
 
 interface PersonalInfoSectionProps {
   register: UseFormRegister<EditPlayerFormValues>;
   errors: FieldErrors<EditPlayerFormValues>;
   isEditing: boolean;
   player: EditPlayerFormValues | null;
+  onNextTab?: () => void;
 }
 
 interface PersonalInfoField {
   label: string;
-  fieldPath: string; // Using string to handle both baseUser and playerDetails paths
+  fieldPath: string;
   required?: boolean;
   inputType?: string;
-  editable?: boolean; // For fields that should be read-only even in edit mode
+  editable?: boolean;
 }
 
 export default function PersonalInfoSection({
@@ -34,9 +27,8 @@ export default function PersonalInfoSection({
   errors,
   isEditing,
   player,
+  onNextTab,
 }: PersonalInfoSectionProps) {
-  const [isAgeProofOpen, setIsAgeProofOpen] = useState(false);
-
   // Define all personal info fields in an array for easy mapping
   const personalInfoFields: PersonalInfoField[] = [
     { label: 'First Name', fieldPath: 'baseUser.firstName', required: true },
@@ -55,11 +47,6 @@ export default function PersonalInfoSection({
       inputType: 'email',
     },
     { label: 'Name Suffix', fieldPath: 'baseUser.nameSuffix' },
-    {
-      label: 'Age Proof',
-      fieldPath: 'playerDetails.ageProof',
-      editable: false,
-    },
   ];
 
   // Helper function to get the value from nested path
@@ -105,66 +92,6 @@ export default function PersonalInfoSection({
     return String(value);
   };
 
-  // Helper to render the Age Proof field differently
-  const renderAgeProofField = (fieldPath: string) => {
-    const ageProofUrl = getNestedValue(player, fieldPath);
-
-    if (!ageProofUrl) return '—';
-
-    // Determine file type for preview (basic detection)
-    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(ageProofUrl);
-    const isPdf = /\.pdf$/i.test(ageProofUrl);
-
-    return (
-      <Dialog open={isAgeProofOpen} onOpenChange={setIsAgeProofOpen}>
-        <DialogTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Eye className="h-4 w-4" /> View Document
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[800px] max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>Age Proof Document</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-full h-[500px] overflow-auto border rounded-md">
-              {isImage ? (
-                <img
-                  src={ageProofUrl || '/placeholder.svg'}
-                  alt="Age Proof Document"
-                  className="w-full h-auto object-contain"
-                />
-              ) : isPdf ? (
-                <iframe
-                  src={`${ageProofUrl}#toolbar=0`}
-                  className="w-full h-full"
-                  title="Age Proof Document"
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <p>Preview not available for this file type</p>
-                </div>
-              )}
-            </div>
-            <Button
-              variant="default"
-              onClick={() => {
-                window.open(ageProofUrl, '_blank');
-              }}
-              className="flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" /> Download Document
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  };
-
   return (
     <section className="mb-8">
       <h2 className="text-xl font-semibold mb-4">
@@ -179,7 +106,7 @@ export default function PersonalInfoSection({
               {field.label}
             </label>
 
-            {isEditing && !field.editable ? (
+            {isEditing ? (
               <>
                 <Input
                   type={field.inputType || 'text'}
@@ -198,13 +125,19 @@ export default function PersonalInfoSection({
               </>
             ) : (
               <p className="text-gray-700">
-                {field.fieldPath === 'playerDetails.ageProof'
-                  ? renderAgeProofField(field.fieldPath)
-                  : formatFieldValue(getNestedValue(player, field.fieldPath))}
+                {formatFieldValue(getNestedValue(player, field.fieldPath))}
               </p>
             )}
           </div>
         ))}
+        {/* Age Proof Section */}
+        <AgeProofUpload
+          register={register}
+          errors={errors}
+          isEditing={isEditing}
+          player={player}
+          onNextTab={onNextTab}
+        />
       </div>
     </section>
   );
