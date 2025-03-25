@@ -1,10 +1,14 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
-import type { UseFormRegister, FieldErrors } from 'react-hook-form';
+import type {
+  UseFormRegister,
+  FieldErrors,
+  RegisterOptions,
+} from 'react-hook-form';
 import type { EditPlayerFormValues } from '@/schemas/Player.schema';
 import { type ReactNode } from 'react';
-import AgeProofUpload from './AgeProofUpload'; // Import the previously created component
+import AgeProofUpload from './AgeProofUpload';
 
 interface PersonalInfoSectionProps {
   register: UseFormRegister<EditPlayerFormValues>;
@@ -29,13 +33,14 @@ export default function PersonalInfoSection({
   player,
   onNextTab,
 }: PersonalInfoSectionProps) {
-  // Define all personal info fields in an array for easy mapping
+  // Define all personal info fields in an array for easy mapping.
   const personalInfoFields: PersonalInfoField[] = [
     { label: 'First Name', fieldPath: 'baseUser.firstName', required: true },
     {
       label: 'Birth Date',
       fieldPath: 'playerDetails.birthDate',
       required: true,
+      inputType: 'date',
     },
     { label: 'Middle Name', fieldPath: 'baseUser.middleName' },
     { label: 'Gender', fieldPath: 'playerDetails.gender', required: true },
@@ -49,47 +54,66 @@ export default function PersonalInfoSection({
     { label: 'Name Suffix', fieldPath: 'baseUser.nameSuffix' },
   ];
 
-  // Helper function to get the value from nested path
+  // Helper to get nested value from an object based on a dot-delimited path.
   const getNestedValue = (obj: any, path: string): any => {
     if (!obj) return undefined;
-
     const parts = path.split('.');
     let value = obj;
-
     for (const part of parts) {
       if (value === null || value === undefined) return undefined;
       value = value[part];
     }
-
     return value;
   };
 
-  // Helper function to get error from nested path
+  // Helper to get nested error from an object based on a dot-delimited path.
   const getNestedError = (errors: any, path: string): any => {
     if (!errors) return undefined;
-
     const parts = path.split('.');
     let error = errors;
-
     for (const part of parts) {
       if (error === null || error === undefined) return undefined;
       error = error[part];
     }
-
     return error;
   };
 
-  // Helper function to safely convert any value to ReactNode
+  // Helper to safely format any value for display.
   const formatFieldValue = (value: any): ReactNode => {
-    if (value === null || value === undefined) {
-      return '—';
-    }
-
-    if (value instanceof Date) {
-      return value.toLocaleDateString();
-    }
-
+    if (value === null || value === undefined) return '—';
+    if (value instanceof Date) return value.toLocaleDateString();
     return String(value);
+  };
+
+  // Helper to get the default value for an input.
+  // For date inputs, format as yyyy-MM-dd.
+  const getDefaultValue = (fieldPath: string): string | number => {
+    const value = getNestedValue(player, fieldPath);
+    if (fieldPath.includes('Date')) {
+      return value ? new Date(value).toISOString().split('T')[0] : '';
+    }
+    return value ?? '';
+  };
+
+  // Helper to generate register options based on the field type.
+  const getRegisterOptions = (
+    field: PersonalInfoField
+  ): RegisterOptions<EditPlayerFormValues, any> => {
+    const options: RegisterOptions<EditPlayerFormValues, any> = {
+      required: field.required,
+    };
+
+    if (field.inputType === 'date') {
+      options.valueAsDate = true as any;
+      options.validate = (value: any) => {
+        if (value && new Date(value) > new Date()) {
+          return `${field.label} cannot be in the future`;
+        }
+        return true;
+      };
+    }
+
+    return options;
   };
 
   return (
@@ -105,12 +129,20 @@ export default function PersonalInfoSection({
             >
               {field.label}
             </label>
-
             {isEditing ? (
               <>
                 <Input
                   type={field.inputType || 'text'}
-                  {...register(field.fieldPath as any)}
+                  defaultValue={getDefaultValue(field.fieldPath)}
+                  max={
+                    field.inputType === 'date'
+                      ? new Date().toISOString().split('T')[0]
+                      : undefined
+                  }
+                  {...register(
+                    field.fieldPath as any,
+                    getRegisterOptions(field)
+                  )}
                   className={`w-full p-1 border rounded ${
                     getNestedError(errors, field.fieldPath)
                       ? 'border-red-500'
