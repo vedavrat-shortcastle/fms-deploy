@@ -23,12 +23,7 @@ import { PhoneInput } from '@/components/phoneinput';
 import { renderLabel } from '@/components/RenderLabel';
 
 export default function MailingAddressForm() {
-  const {
-    control,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useFormContext<CreatePlayerFormValues>();
+  const { control, setValue, watch } = useFormContext<CreatePlayerFormValues>();
 
   // Local state to store countries, states, and cities options
   const [countryOptions, setCountryOptions] = useState<
@@ -113,9 +108,7 @@ export default function MailingAddressForm() {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>
-              {errors.playerDetails?.streetAddress?.message}
-            </FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -135,9 +128,7 @@ export default function MailingAddressForm() {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>
-              {errors.playerDetails?.streetAddress2?.message}
-            </FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -163,7 +154,7 @@ export default function MailingAddressForm() {
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormMessage>{errors.playerDetails?.country?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -189,7 +180,7 @@ export default function MailingAddressForm() {
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormMessage>{errors.playerDetails?.state?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -229,7 +220,7 @@ export default function MailingAddressForm() {
                 />
               </FormControl>
             )}
-            <FormMessage>{errors.playerDetails?.city?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -250,9 +241,7 @@ export default function MailingAddressForm() {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>
-              {errors.playerDetails?.postalCode?.message}
-            </FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />

@@ -15,10 +15,7 @@ import DatePicker from '@/components/player-components/DatePicker';
 import { renderLabel } from '@/components/RenderLabel';
 
 export function OtherInfoForm() {
-  const {
-    control,
-    formState: { errors },
-  } = useFormContext<CreatePlayerFormValues>();
+  const { control } = useFormContext<CreatePlayerFormValues>();
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto bg-white p-6 rounded-lg">
@@ -41,7 +38,7 @@ export function OtherInfoForm() {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>{errors.playerDetails?.fideId?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -65,9 +62,7 @@ export function OtherInfoForm() {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>
-              {errors.playerDetails?.schoolName?.message}
-            </FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -93,9 +88,7 @@ export function OtherInfoForm() {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>
-              {errors.playerDetails?.graduationYear?.message}
-            </FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -115,9 +108,7 @@ export function OtherInfoForm() {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>
-              {errors.playerDetails?.gradeInSchool?.message}
-            </FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -160,7 +151,7 @@ export function OtherInfoForm() {
                 className="w-full p-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </FormControl>
-            <FormMessage>{errors.playerDetails?.clubName?.message}</FormMessage>
+            <FormMessage />
           </FormItem>
         )}
       />
