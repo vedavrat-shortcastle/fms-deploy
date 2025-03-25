@@ -56,7 +56,9 @@ export default function PlayerSettings() {
     register,
     handleSubmit,
     formState: { errors },
+    control,
     reset,
+    setValue,
   } = useForm<EditPlayerFormValues>({
     resolver: zodResolver(editPlayerSchema),
     defaultValues: player || undefined,
@@ -459,6 +461,8 @@ export default function PlayerSettings() {
                 errors={errors}
                 isEditing={isEditing}
                 player={player}
+                control={control}
+                setValue={setValue}
               />
               <PlayerDetailsSection
                 register={register}
