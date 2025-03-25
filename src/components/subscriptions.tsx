@@ -11,6 +11,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { renderLabel } from '@/components/RenderLabel';
 // import { toast } from '@/hooks/use-toast';
 import {
   planFormValues,
@@ -29,6 +30,7 @@ import { Checkbox } from './ui/checkbox';
 import { toast } from '@/hooks/useToast';
 import { trpc } from '@/utils/trpc';
 import * as z from 'zod';
+import { Label } from '@/components/ui/label';
 
 // Modify the schema to accept benefits as a string
 const createPlanSchema = originalCreatePlanSchema.extend({
@@ -98,9 +100,7 @@ export default function PlanForm({ onClose }: { onClose: () => void }) {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
-                          Plan name <span className="text-red-500">*</span>
-                        </FormLabel>
+                        <FormLabel>{renderLabel('Plan name', true)}</FormLabel>
                         <FormControl>
                           <Input {...field} placeholder="Plan name" required />
                         </FormControl>
@@ -110,9 +110,9 @@ export default function PlanForm({ onClose }: { onClose: () => void }) {
                   />
 
                   <div>
-                    <label className="block mb-1 text-sm">
-                      duration(months) <span className="text-red-500">*</span>
-                    </label>
+                    <Label className="block mb-1 text-sm">
+                      {renderLabel('duration(months)', true)}
+                    </Label>
                     <div className="flex gap-2">
                       <FormField
                         control={form.control}
@@ -173,7 +173,7 @@ export default function PlanForm({ onClose }: { onClose: () => void }) {
                       render={({ field }) => (
                         <FormItem className="w-full">
                           <FormLabel className="font-medium">
-                            Currency <span className="text-red-500">*</span>
+                            {renderLabel('Currency', true)}
                           </FormLabel>
                           <FormControl>
                             <Select onValueChange={field.onChange}>
@@ -198,9 +198,7 @@ export default function PlanForm({ onClose }: { onClose: () => void }) {
                       name="price"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>
-                            Price <span className="text-red-500">*</span>
-                          </FormLabel>
+                          <FormLabel>{renderLabel('Price ', true)}</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -233,9 +231,7 @@ export default function PlanForm({ onClose }: { onClose: () => void }) {
 
                       return (
                         <FormItem>
-                          <FormLabel>
-                            Benefits <span className="text-red-500">*</span>
-                          </FormLabel>
+                          <FormLabel>{renderLabel('Benefits', true)}</FormLabel>
                           <FormControl>
                             <Textarea
                               value={displayValue}
