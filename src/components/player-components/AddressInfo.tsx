@@ -1,23 +1,17 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Input } from '@/components/ui/input';
+import React from 'react';
 import {
-  UseFormRegister,
   FieldErrors,
   Control,
   useWatch,
+  UseFormRegister,
 } from 'react-hook-form';
 import { EditPlayerFormValues } from '@/schemas/Player.schema';
-import { ReactNode } from 'react';
-import { Country, State, City } from 'country-state-city';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Country, State } from 'country-state-city';
+import LocationSelect from '@/components/player-components/LocationSelect';
+import { useLocationData } from '@/hooks/useLocation';
 import { PhoneInput } from '@/components/phoneinput';
 import * as RPNInput from 'react-phone-number-input';
 
@@ -38,100 +32,35 @@ export default function AddressSection({
   control,
   setValue,
 }: AddressSectionProps) {
-  // Local state to store countries, states, and cities options
-  const [countryOptions, setCountryOptions] = useState<
-    { value: string; label: string }[]
-  >([]);
-  const [stateOptions, setStateOptions] = useState<
-    { value: string; label: string }[]
-  >([]);
-  const [cityOptions, setCityOptions] = useState<
-    { value: string; label: string }[]
-  >([]);
-
-  // Watch for changes in country and state
   const selectedCountry = useWatch({
-    control: control!,
+    control,
     name: 'playerDetails.country',
     defaultValue: player?.playerDetails.country || '',
   });
-  // At the beginning of your component, add a debug log
-  console.log('isEditing:', isEditing, typeof isEditing);
   const selectedState = useWatch({
-    control: control!,
+    control,
     name: 'playerDetails.state',
     defaultValue: player?.playerDetails.state || '',
   });
   const selectedCity = useWatch({
-    control: control!,
+    control,
     name: 'playerDetails.city',
     defaultValue: player?.playerDetails.city || '',
   });
+
+  const { countryOptions, stateOptions, cityOptions } = useLocationData(
+    selectedCountry,
+    selectedState
+  );
+
   const handlePhoneNumberChange = (phoneNumber: string) => {
     setValue('playerDetails.phoneNumber', phoneNumber);
   };
 
-  // Load all countries on mount
-  useEffect(() => {
-    const countries = Country.getAllCountries().map((country) => ({
-      value: country.isoCode,
-      label: country.name,
-    }));
-    setCountryOptions(countries);
-  }, []);
-
-  // Update states when selected country changes
-  useEffect(() => {
-    if (selectedCountry) {
-      const states = State.getStatesOfCountry(selectedCountry).map((state) => ({
-        value: state.isoCode,
-        label: state.name,
-      }));
-      setStateOptions(states);
-
-      // Reset dependent fields only if country changes and we're in edit mode
-      if (isEditing && selectedCountry !== player?.playerDetails.country) {
-        setValue('playerDetails.state', '');
-        setValue('playerDetails.city', '');
-        setCityOptions([]);
-      }
-    }
-  }, [selectedCountry, setValue, isEditing, player?.playerDetails.country]);
-
-  // Update cities when selected state changes
-  useEffect(() => {
-    if (selectedCountry && selectedState) {
-      const cities = City.getCitiesOfState(selectedCountry, selectedState).map(
-        (city) => ({
-          value: city.name,
-          label: city.name,
-        })
-      );
-      setCityOptions(cities);
-
-      // Reset city if state changes and we're in edit mode
-      if (isEditing && selectedState !== player?.playerDetails.state) {
-        setValue('playerDetails.city', '');
-      }
-    }
-  }, [
-    selectedState,
-    selectedCountry,
-    setValue,
-    isEditing,
-    player?.playerDetails.state,
-  ]);
-
-  // Helper function to safely convert any value to ReactNode
-  const formatFieldValue = (value: any): ReactNode => {
-    if (value === null || value === undefined) {
-      return '—';
-    }
-
-    if (value instanceof Date) {
-      return value.toLocaleDateString();
-    }
-
+  // Helper function for formatting fields in view mode
+  const formatFieldValue = (value: any): React.ReactNode => {
+    if (value === null || value === undefined) return '—';
+    if (value instanceof Date) return value.toLocaleDateString();
     return String(value);
   };
 
@@ -141,11 +70,7 @@ export default function AddressSection({
       <div className="rounded-lg border border-gray-200 bg-white p-4 grid grid-cols-2 gap-4">
         {/* Street Address */}
         <div>
-          <label
-            className={`block text-sm font-medium ${!isEditing ? 'mb-2' : ''}`}
-          >
-            Street Address
-          </label>
+          <label className="block text-sm font-medium">Street Address</label>
           {isEditing ? (
             <>
               <Input
@@ -169,16 +94,11 @@ export default function AddressSection({
 
         {/* Postal Code */}
         <div>
-          <label
-            className={`block text-sm font-medium ${!isEditing ? 'mb-2' : ''}`}
-          >
-            Postal Code
-          </label>
+          <label className="block text-sm font-medium">Postal Code</label>
           {isEditing ? (
             <>
               <Input
                 {...register('playerDetails.postalCode')}
-                type="text"
                 className={`w-full p-1 border rounded ${
                   errors?.playerDetails?.postalCode ? 'border-red-500' : ''
                 }`}
@@ -198,9 +118,7 @@ export default function AddressSection({
 
         {/* Street Address Line 2 */}
         <div>
-          <label
-            className={`block text-sm font-medium ${!isEditing ? 'mb-2' : ''}`}
-          >
+          <label className="block text-sm font-medium">
             Street Address Line 2
           </label>
           {isEditing ? (
@@ -224,41 +142,18 @@ export default function AddressSection({
           )}
         </div>
 
-        {/* Country */}
+        {/* Country Selector */}
         <div>
-          <label
-            className={`block text-sm font-medium ${!isEditing ? 'mb-2' : ''}`}
-          >
-            Country
-          </label>
+          <label className="block text-sm font-medium">Country</label>
           {isEditing ? (
             <>
-              <Select
+              <LocationSelect
                 value={selectedCountry}
-                onValueChange={(value) =>
-                  setValue('playerDetails.country', value)
-                }
-              >
-                <SelectTrigger
-                  className={`w-full p-1 border rounded ${
-                    errors?.playerDetails?.country ? 'border-red-500' : ''
-                  }`}
-                >
-                  <SelectValue placeholder="Select Country" />
-                </SelectTrigger>
-                <SelectContent>
-                  {countryOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors?.playerDetails?.country && (
-                <p className="text-red-500 text-sm">
-                  {errors.playerDetails.country?.message as string}
-                </p>
-              )}
+                onChange={(value) => setValue('playerDetails.country', value)}
+                options={countryOptions}
+                placeholder="Select Country"
+                error={errors?.playerDetails?.country?.message as string}
+              />
             </>
           ) : (
             <p className="text-gray-700">
@@ -270,42 +165,19 @@ export default function AddressSection({
           )}
         </div>
 
-        {/* State/Province */}
+        {/* State/Province Selector */}
         <div>
-          <label
-            className={`block text-sm font-medium ${!isEditing ? 'mb-2' : ''}`}
-          >
-            State/Province
-          </label>
+          <label className="block text-sm font-medium">State/Province</label>
           {isEditing ? (
             <>
-              <Select
+              <LocationSelect
                 value={selectedState}
-                onValueChange={(value) =>
-                  setValue('playerDetails.state', value)
-                }
+                onChange={(value) => setValue('playerDetails.state', value)}
+                options={stateOptions}
+                placeholder="Select State/Province"
+                error={errors?.playerDetails?.state?.message as string}
                 disabled={!selectedCountry}
-              >
-                <SelectTrigger
-                  className={`w-full p-1 border rounded ${
-                    errors?.playerDetails?.state ? 'border-red-500' : ''
-                  }`}
-                >
-                  <SelectValue placeholder="Select State/Province" />
-                </SelectTrigger>
-                <SelectContent>
-                  {stateOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors?.playerDetails?.state && (
-                <p className="text-red-500 text-sm">
-                  {errors.playerDetails.state?.message as string}
-                </p>
-              )}
+              />
             </>
           ) : (
             <p className="text-gray-700">
@@ -319,38 +191,20 @@ export default function AddressSection({
           )}
         </div>
 
-        {/* City */}
+        {/* City Selector */}
         <div>
-          <label
-            className={`block text-sm font-medium ${!isEditing ? 'mb-2' : ''}`}
-          >
-            City
-          </label>
+          <label className="block text-sm font-medium">City</label>
           {isEditing ? (
             <>
               {cityOptions.length > 0 ? (
-                <Select
+                <LocationSelect
                   value={selectedCity}
-                  onValueChange={(value) =>
-                    setValue('playerDetails.city', value)
-                  }
+                  onChange={(value) => setValue('playerDetails.city', value)}
+                  options={cityOptions}
+                  placeholder="Select City"
+                  error={errors?.playerDetails?.city?.message as string}
                   disabled={!selectedState}
-                >
-                  <SelectTrigger
-                    className={`w-full p-1 border rounded ${
-                      errors?.playerDetails?.city ? 'border-red-500' : ''
-                    }`}
-                  >
-                    <SelectValue placeholder="Select City" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {cityOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                />
               ) : (
                 <Input
                   {...register('playerDetails.city')}
@@ -372,7 +226,6 @@ export default function AddressSection({
             </p>
           )}
         </div>
-
         {/* Phone Number */}
         <div>
           {isEditing ? (
@@ -385,6 +238,7 @@ export default function AddressSection({
                     ''
                   ) as RPNInput.Country) || 'US'
                 }
+                defaultValue={player?.playerDetails.phoneNumber || ''}
                 onPhoneNumberChange={handlePhoneNumberChange}
                 className={`w-full ${
                   errors?.playerDetails?.phoneNumber ? 'border-red-500' : ''
@@ -398,11 +252,7 @@ export default function AddressSection({
             </>
           ) : (
             <>
-              <label
-                className={`block text-sm font-medium ${!isEditing ? 'mb-2' : ''}`}
-              >
-                Phone Number
-              </label>
+              <label className="block text-sm font-medium">Phone Number</label>
               <p className="text-gray-700">
                 {formatFieldValue(
                   `${player?.playerDetails.countryCode || ''} ${player?.playerDetails.phoneNumber || ''}`
