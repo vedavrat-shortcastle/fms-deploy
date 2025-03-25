@@ -2,12 +2,23 @@ import { PlanStatus } from '@prisma/client';
 import { z } from 'zod';
 
 export const createPlanSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
+  name: z
+    .string()
+    .min(1, { message: 'Name is required' })
+    .max(50, { message: 'Name cannot exceed 255 characters' }),
+  description: z
+    .string()
+    .max(1000, { message: 'Description cannot exceed 1000 characters' })
+    .optional(),
   duration: z.number(),
   price: z.number(),
-  currency: z.string(),
-  benefits: z.array(z.string()),
+  currency: z
+    .string()
+    .min(1, { message: 'Currency is required' })
+    .max(10, { message: 'Currency cannot exceed 10 characters' }),
+  benefits: z.array(
+    z.string().max(255, { message: 'Benefit cannot exceed 255 characters' })
+  ),
   autoRenewal: z.boolean().default(false),
   criteria: z.object({}).passthrough().optional(),
 });
@@ -34,12 +45,27 @@ export const getPlanSchema = z.object({
 
 export const updatePlanSchema = z.object({
   id: z.string(),
-  name: z.string().optional(),
-  description: z.string().optional(),
+  name: z
+    .string()
+    .min(1, { message: 'Name is required' })
+    .max(50, { message: 'Name cannot exceed 255 characters' })
+    .optional(),
+  description: z
+    .string()
+    .max(1000, { message: 'Description cannot exceed 1000 characters' })
+    .optional(),
   price: z.number().optional(),
-  currency: z.string().optional(),
-  benefits: z.array(z.string()).optional(),
+  currency: z
+    .string()
+    .min(1, { message: 'Currency is required' })
+    .max(10, { message: 'Currency cannot exceed 10 characters' })
+    .optional(),
+  benefits: z
+    .array(
+      z.string().max(255, { message: 'Benefit cannot exceed 255 characters' })
+    )
+    .optional(),
   autoRenewal: z.boolean().optional(),
-  status: z.enum(['ACTIVE', 'INACTIVE', 'ARCHIVED']).optional(),
+  status: z.nativeEnum(PlanStatus).optional(),
   criteria: z.object({}).passthrough().optional(),
 });
