@@ -24,16 +24,13 @@ export const AuthLayout = ({ children, imageSrc }: AuthLayoutProps) => {
       </div>
 
       {/* Right Section with Grey Background , This is where the Image will go */}
-      <div className="hidden lg:flex w-0 md:w-1/2 h-48 md:h-full bg-gray-100 flex justify-center items-center relative ">
+      <div className="hidden lg:flex w-1/2 min-h-screen bg-gray-100 justify-center items-center">
         <Image
           src={imageSrc} // Pass the imageSrc recieved from props
           alt="Signup Illustration"
           width={400}
           height={400}
-          className="absolute"
-          style={{
-            top: '230px',
-          }}
+          className="object-contain"
         />
       </div>
     </div>
