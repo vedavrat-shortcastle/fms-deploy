@@ -45,7 +45,7 @@ export const useLocationData = (
       );
       setCityOptions(cities);
     }
-  }, [selectedCountry, selectedState]);
+  }, [selectedState]);
 
   return { countryOptions, stateOptions, cityOptions };
 };
