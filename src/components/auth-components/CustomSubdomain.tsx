@@ -1,7 +1,7 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation'; // Import useRouter
-import { Suspense } from 'react'; // Import Suspense
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState, useEffect } from 'react';
 import { AuthLayout } from '@/components/layouts/AuthLayout';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,8 +23,7 @@ import { Input } from '@/components/ui/input';
 import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-
-import { trpc } from '@/utils/trpc'; /// import trpc
+import { trpc } from '@/utils/trpc';
 import {
   FederationOnboardingFormValues,
   federationOnboardingSchema,
@@ -32,26 +31,20 @@ import {
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import Loader from '../Loader';
 
-// This component is currently being used by 1 route - /onboarding-federation-subdomain
+// Import Country from the country-state-city library
+import { Country } from 'country-state-city';
 
 interface CustomSubdomainProps {
   imageSrc: string;
 }
-//Props for this component
 
-// The component will accept an image as a prop and will pass that image to AuthLayout.
 export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
-  const router = useRouter(); // Initialize the router
+  const router = useRouter();
 
   return (
-    // Pass the image you accepted as prop to AuthLayout.
     <AuthLayout imageSrc={imageSrc}>
       <Logo path="/onboarding-federation" />
-      {/* Global Logo component */}
-
       <div className="mx-auto mt-16 p-10 max-w-xl w-full">
-        {/* Container Div */}
-
         <Suspense fallback={<Loader />}>
           <CustomSubdomainForm router={router} />
         </Suspense>
@@ -61,10 +54,10 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
 };
 
 const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
-  const searchParams = useSearchParams(); // Get query parameters
-  const mutation = trpc.federation.federationOnboarding.useMutation(); // initialisation
+  const searchParams = useSearchParams();
+  const mutation = trpc.federation.federationOnboarding.useMutation();
 
-  // Read the "data" query parameter from the URL and decode it
+  // Retrieve and parse query data
   const queryData = searchParams.get('data');
   let onboardingData: any = {};
   if (queryData) {
@@ -77,7 +70,21 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
     router.push('/onboarding-federation');
   }
 
-  //React hook form Logic
+  // Local state to store country options
+  const [countryOptions, setCountryOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
+
+  // Load country options on component mount
+  useEffect(() => {
+    const countries = Country.getAllCountries().map((country) => ({
+      value: country.isoCode, // Use ISO code as value
+      label: country.name,
+    }));
+    setCountryOptions(countries);
+  }, []);
+
+  // React Hook Form setup
   const form = useForm<FederationOnboardingFormValues>({
     resolver: zodResolver(
       federationOnboardingSchema.pick({
@@ -95,10 +102,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
     },
   });
 
-  //Function to handle submit
   const onSubmit = async (values: FederationOnboardingFormValues) => {
-    // Destructure subdomain and collect the rest of the form values
-    // Combine all values with onboardingData and rename subdomain to domain
     const finalData = { ...onboardingData, ...values };
 
     try {
@@ -115,8 +119,9 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-        {/* Subdomain Input */}
         <h2 className="text-2xl font-semibold pt-2">Federation details</h2>
+
+        {/* Type Field */}
         <FormField
           control={form.control}
           name="type"
@@ -143,6 +148,8 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
             </FormItem>
           )}
         />
+
+        {/* Federation Name Field */}
         <FormField
           control={form.control}
           name="name"
@@ -162,6 +169,8 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
             </FormItem>
           )}
         />
+
+        {/* Federation Country Field - Dynamic Country Selection */}
         <FormField
           control={form.control}
           name="country"
@@ -173,22 +182,26 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
               </FormLabel>
               <FormControl>
                 <Select
+                  value={field.value || ''}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select" />
+                    <SelectValue placeholder="Select Country" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="india">India</SelectItem>
-                    <SelectItem value="usa">USA</SelectItem>
-                    <SelectItem value="nz">New Zealand</SelectItem>
+                    {countryOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </FormControl>
             </FormItem>
           )}
         />
+
+        {/* Domain Field */}
         <FormField
           control={form.control}
           name="domain"
@@ -208,6 +221,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
             </FormItem>
           )}
         />
+
         <div>
           <FormLabel className="text-input-grey">URL</FormLabel>
           <div className="flex items-center border rounded px-2 py-1">
@@ -219,7 +233,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
             />
           </div>
         </div>
-        {/* Submit Button */}
+
         <Button type="submit" className="w-full bg-primary text-black">
           Next →
         </Button>
