@@ -118,7 +118,6 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
                 <FormItem>
                   <FormLabel className="text-input-grey">
                     Email Address
-                    <FormMessage />
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -128,6 +127,7 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
                       className="w-full"
                     />
                   </FormControl>
+                  <FormMessage /> {/* Error message should go here */}
                 </FormItem>
               )}
             />
@@ -136,11 +136,9 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-input-grey">
-                    Password
-                    <FormMessage />
-                  </FormLabel>
+                  <FormLabel className="text-input-grey">Password</FormLabel>
                   <PasswordInput field={field} />
+                  <FormMessage /> {/* Error message should go here */}
                 </FormItem>
               )}
             />
