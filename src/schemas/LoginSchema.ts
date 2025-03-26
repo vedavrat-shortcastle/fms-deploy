@@ -5,10 +5,11 @@ export const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
   password: z
     .string()
-    .min(8, { message: 'Password must be at least 8 characters' }),
+    .min(6, { message: 'Password must be at least 6 characters' }),
   domain: z
     .string()
-    .min(3, { message: 'Domain must be at least 3 characters' }),
+    .min(3, { message: 'Domain must be at least 3 characters' })
+    .max(50, { message: 'Domain cannot exceed 50 characters' }),
 });
 
 // Type inference for form values

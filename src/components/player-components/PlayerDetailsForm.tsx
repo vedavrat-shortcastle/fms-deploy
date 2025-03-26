@@ -17,6 +17,8 @@ interface PlayerDetailsFormProps {
   isEditing: boolean;
   register: UseFormRegister<EditPlayerFormValues>;
   errors: FieldErrors<EditPlayerFormValues>;
+  control: any;
+  setValue: any;
   handleSubmit: UseFormHandleSubmit<EditPlayerFormValues>;
   onSubmit: (data: EditPlayerFormValues) => void;
 }
@@ -26,6 +28,8 @@ export default function PlayerDetailsForm({
   isEditing,
   register,
   errors,
+  control,
+  setValue,
   handleSubmit,
   onSubmit,
 }: PlayerDetailsFormProps) {
@@ -39,6 +43,8 @@ export default function PlayerDetailsForm({
       />
       <AddressSection
         register={register}
+        control={control} // Pass control
+        setValue={setValue} // Pass setValue
         errors={errors}
         isEditing={isEditing}
         player={player}

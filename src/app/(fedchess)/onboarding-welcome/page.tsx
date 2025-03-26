@@ -19,8 +19,8 @@ export default function Home() {
           <Image
             src="/assets/onboardingRocket.svg"
             alt="Rocket icon"
-            width={80}
-            height={80}
+            width={120}
+            height={120}
             priority
           />
         </div>
@@ -44,9 +44,7 @@ export default function Home() {
           asChild
           className="bg-primary hover:bg-red-300 text-white font-bold px-10 py-2 h-auto w-60"
         >
-          <Link href="#" className="text-lg">
-            Get Started
-          </Link>
+          <Link href="/players">Get Started</Link>
         </Button>
       </div>
 

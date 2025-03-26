@@ -26,10 +26,11 @@ import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { renderLabel } from '@/components/RenderLabel';
 
-// Updated PhoneInputProps type with new callback props
+// Updated PhoneInputProps type with new defaultValue prop
 type PhoneInputProps = {
   placeholder?: string;
   defaultCountry?: RPNInput.Country | undefined;
+  defaultValue?: string; // <-- Added defaultValue prop
   className?: string;
   onCountrySelect?: (countryCode: string) => void;
   onPhoneNumberChange?: (phoneNumber: string) => void;
@@ -40,6 +41,7 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
     {
       placeholder,
       defaultCountry = 'US',
+      defaultValue = '', // <-- Use defaultValue prop
       className,
       onCountrySelect,
       onPhoneNumberChange,
@@ -49,7 +51,7 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
     const [countryCode, setCountryCode] = React.useState(
       getCountryCallingCode(defaultCountry)
     );
-    const [phoneNumber, setPhoneNumber] = React.useState('');
+    const [phoneNumber, setPhoneNumber] = React.useState(defaultValue); // <-- Initialize with defaultValue
     const [selectedCountry, setSelectedCountry] =
       React.useState<RPNInput.Country>(defaultCountry);
 
@@ -84,7 +86,7 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
 
     return (
       <div className={cn('flex flex-col gap-4', className)}>
-        <Label>{renderLabel('Phone Number', true)}</Label>
+        <Label>{renderLabel('Phone Number')}</Label>
         {/* Changed from <form> to <div> */}
         <div className="flex items-center gap-2">
           {/* Country Selector */}
@@ -212,7 +214,9 @@ const CountrySelectOption = ({
       <span className="flex-1 text-sm">{countryName}</span>
       <span className="text-sm text-foreground/50">{`+${getCountryCallingCode(country)}`}</span>
       <CheckIcon
-        className={`ml-auto size-4 ${country === selectedCountry ? 'opacity-100' : 'opacity-0'}`}
+        className={`ml-auto size-4 ${
+          country === selectedCountry ? 'opacity-100' : 'opacity-0'
+        }`}
       />
     </CommandItem>
   );
