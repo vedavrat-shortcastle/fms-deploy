@@ -100,65 +100,74 @@ export const playerRouter = router({
           }
         }
 
-        // Find the base user by filtering on the related user profile's profileId field
-        const baseUser = await ctx.db.baseUser.findFirst({
-          where: {
-            role: Role.PLAYER,
-            federationId: ctx.session.user.federationId,
-            id: input.id,
-          },
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-            role: true,
-            federation: true,
-            profile: {
-              select: {
-                profileId: true,
-                profileType: true,
-                userStatus: true,
+        const result = await ctx.db.$transaction(async (tx) => {
+          // Find the base user by filtering on the related user profile's profileId field
+          const baseUser = await tx.baseUser.findFirst({
+            where: {
+              role: Role.PLAYER,
+              federationId: ctx.session.user.federationId,
+              id: input.id,
+            },
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              role: true,
+              federation: true,
+              profile: {
+                select: {
+                  profileId: true,
+                  profileType: true,
+                  userStatus: true,
+                },
               },
             },
-          },
+          });
+
+          if (!baseUser) {
+            throw new TRPCError({
+              code: 'NOT_FOUND',
+              message: 'Player not found',
+            });
+          }
+
+          if (baseUser.profile?.userStatus !== 'ACTIVE') {
+            throw new TRPCError({
+              code: 'FORBIDDEN',
+              message: `Player profile is ${baseUser.profile?.userStatus}`,
+            });
+          }
+
+          if (baseUser.profile.profileType !== ProfileType.PLAYER) {
+            throw new TRPCError({
+              code: 'FORBIDDEN',
+              message: 'Player profile is not a player',
+            });
+          }
+
+          // Fetch the player details using the profileId from the base user profile
+          const player = await tx.player.findUnique({
+            where: { id: baseUser.profile.profileId },
+          });
+
+          if (!player) {
+            throw new TRPCError({
+              code: 'NOT_FOUND',
+              message: 'Player details not found',
+            });
+          }
+
+          const subscriptions = await tx.subscription.findMany({
+            where: {
+              subscriberId: player.id,
+            },
+          });
+          // Combine the player details with the base user info
+          return { ...baseUser, ...player, subscriptions };
         });
 
-        if (!baseUser) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Player not found',
-          });
-        }
-
-        if (baseUser.profile?.userStatus !== 'ACTIVE') {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: `Player profile is ${baseUser.profile?.userStatus}`,
-          });
-        }
-
-        if (baseUser.profile.profileType !== ProfileType.PLAYER) {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Player profile is not a player',
-          });
-        }
-
-        // Fetch the player details using the profileId from the base user profile
-        const player = await ctx.db.player.findUnique({
-          where: { id: baseUser.profile.profileId },
-        });
-
-        if (!player) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Player details not found',
-          });
-        }
-
-        // Combine the player details with the base user info
-        return { ...baseUser, ...player };
+        return result;
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to fetch player',
