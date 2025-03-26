@@ -5,12 +5,12 @@ export const createFederationSchema = z.object({
   name: z
     .string()
     .min(1, 'Name is required')
-    .max(255, { message: 'Name cannot exceed 255 characters' }),
+    .max(100, { message: 'Name cannot exceed 255 characters' }),
   type: z.nativeEnum(FedType),
   country: z
     .string()
     .min(1, 'Country is required')
-    .max(100, { message: 'Country cannot exceed 100 characters' }),
+    .max(25, { message: 'Country cannot exceed 100 characters' }),
   domain: z
     .string()
     .min(3, { message: 'Domain must be at least 3 characters' })
@@ -34,23 +34,23 @@ export const federationOnboardingSchema = createFederationSchema.extend({
   firstName: z
     .string()
     .min(1, 'First name is required')
-    .max(100, { message: 'First name cannot exceed 100 characters' }),
+    .max(25, { message: 'First name cannot exceed 100 characters' }),
   lastName: z
     .string()
     .min(1, 'Last name is required')
-    .max(100, { message: 'Last name cannot exceed 100 characters' }),
+    .max(25, { message: 'Last name cannot exceed 100 characters' }),
   middleName: z
     .string()
-    .max(100, { message: 'Middle name cannot exceed 100 characters' })
+    .max(25, { message: 'Middle name cannot exceed 100 characters' })
     .optional(),
   nameSuffix: z
     .string()
-    .max(50, { message: 'Name suffix cannot exceed 50 characters' })
+    .max(25, { message: 'Name suffix cannot exceed 50 characters' })
     .optional(),
   phoneNumber: z
     .string()
     .min(1, 'Phone number is required')
-    .max(20, { message: 'Phone number cannot exceed 20 characters' }),
+    .max(15, { message: 'Phone number cannot exceed 20 characters' }),
   countryCode: z
     .string()
     .min(1, 'Country code is required')
