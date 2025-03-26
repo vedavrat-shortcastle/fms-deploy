@@ -46,26 +46,25 @@ export const ProtectedRoute = ({
   }, [session, status, requiredPermission, router]);
 
   useEffect(() => {
+    if (status === 'loading' || !session || profileOnboarded === null) return;
+
+    const isParent = session.user.role === 'PARENT';
+    const isOnParentOnboarding = pathname === '/players/onboard-parent';
+    const isOnPlayerOnboarding = pathname === '/players/onboard-player';
+
     if (profileOnboarded === false) {
-      if (
-        session?.user.role === 'PARENT' &&
-        pathname !== '/players/onboard-parent'
-      ) {
+      if (isParent && !isOnParentOnboarding) {
         router.push('/players/onboard-parent');
-      } else if (
-        session?.user.role !== 'PARENT' &&
-        pathname !== '/players/onboard-player'
-      ) {
+      } else if (!isParent && !isOnPlayerOnboarding) {
         router.push('/players/onboard-player');
       }
-    }
-  }, [profileOnboarded, router, pathname, session?.user.role]);
-
-  useEffect(() => {
-    if (session?.user.role !== 'FED_ADMIN' && pathname == '/admin-dashboard') {
+    } else if (
+      session.user.role !== 'FED_ADMIN' &&
+      pathname === '/admin-dashboard'
+    ) {
       router.push('/'); //TODO : add a common page
     }
-  });
+  }, [session, status, pathname, router, profileOnboarded]);
 
   if (status === 'loading' || profileOnboarded === null) {
     return (
@@ -75,6 +74,7 @@ export const ProtectedRoute = ({
     );
   }
 
+  // Render children if onboarded or on onboarding pages
   if (
     profileOnboarded ||
     pathname === '/players/onboard-player' ||
@@ -83,5 +83,6 @@ export const ProtectedRoute = ({
     return <>{children}</>;
   }
 
+  // Fallback to loader if not onboarded and not on onboarding pages (should ideally not happen due to redirects)
   return <Loader />;
 };
