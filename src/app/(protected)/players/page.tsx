@@ -305,6 +305,7 @@ export default function Page() {
               variant="outline"
               className="border-gray-200 text-gray-600 rounded-md"
               onClick={handleExport}
+              disabled={players.length === 0}
             >
               <Download className="h-4 w-4 mr-2" />
               Export
