@@ -122,10 +122,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
           name="type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-input-grey">
-                Type
-                <FormMessage />
-              </FormLabel>
+              <FormLabel className="text-input-grey">Type</FormLabel>
               <FormControl>
                 <Select
                   onValueChange={field.onChange}
@@ -140,6 +137,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
                   </SelectContent>
                 </Select>
               </FormControl>
+              <FormMessage /> {/* Error message should go here */}
             </FormItem>
           )}
         />
@@ -148,10 +146,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-input-grey">
-                Federation Name
-                <FormMessage />
-              </FormLabel>
+              <FormLabel className="text-input-grey">Federation Name</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Federation name"
@@ -159,6 +154,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
                   {...field}
                 />
               </FormControl>
+              <FormMessage /> {/* Error message should go here */}
             </FormItem>
           )}
         />
@@ -169,7 +165,6 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
             <FormItem>
               <FormLabel className="text-input-grey">
                 Federation Country
-                <FormMessage />
               </FormLabel>
               <FormControl>
                 <Select
@@ -186,6 +181,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
                   </SelectContent>
                 </Select>
               </FormControl>
+              <FormMessage /> {/* Error message should go here */}
             </FormItem>
           )}
         />
@@ -194,10 +190,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
           name="domain"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-input-grey">
-                Domain
-                <FormMessage />
-              </FormLabel>
+              <FormLabel className="text-input-grey">Domain</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Enter Domain"
@@ -205,6 +198,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
                   {...field}
                 />
               </FormControl>
+              <FormMessage /> {/* Error message should go here */}
             </FormItem>
           )}
         />

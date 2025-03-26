@@ -115,7 +115,6 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                   <FormItem>
                     <FormLabel className="text-input-grey">
                       First name
-                      <FormMessage />
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -125,6 +124,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                         className="w-full"
                       />
                     </FormControl>
+                    <FormMessage /> {/* Error message should go here */}
                   </FormItem>
                 )}
               />
@@ -133,10 +133,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-input-grey">
-                      Last name
-                      <FormMessage />
-                    </FormLabel>
+                    <FormLabel className="text-input-grey">Last name</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter your last name"
@@ -145,6 +142,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                         className="w-full"
                       />
                     </FormControl>
+                    <FormMessage /> {/* Error message should go here */}
                   </FormItem>
                 )}
               />
@@ -153,10 +151,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-input-grey">
-                      Email
-                      <FormMessage />
-                    </FormLabel>
+                    <FormLabel className="text-input-grey">Email</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
@@ -166,6 +161,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                         className="w-full"
                       />
                     </FormControl>
+                    <FormMessage /> {/* Error message should go here */}
                   </FormItem>
                 )}
               />
@@ -174,11 +170,9 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-input-grey">
-                      Password
-                      <FormMessage />
-                    </FormLabel>
+                    <FormLabel className="text-input-grey">Password</FormLabel>
                     <PasswordInput field={field} />
+                    <FormMessage /> {/* Error message should go here */}
                   </FormItem>
                 )}
               />
@@ -187,10 +181,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                 name="role"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-input-grey">
-                      Role
-                      <FormMessage />
-                    </FormLabel>
+                    <FormLabel className="text-input-grey">Role</FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
@@ -206,6 +197,7 @@ export const SignupMember = ({ imageSrc }: SignupProps) => {
                         </SelectContent>
                       </Select>
                     </FormControl>
+                    <FormMessage /> {/* Error message should go here */}
                   </FormItem>
                 )}
               />
