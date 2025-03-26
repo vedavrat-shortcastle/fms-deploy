@@ -12,13 +12,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Logo } from '@/components/Logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,6 +20,7 @@ import {
   federationOnboardingSchema,
 } from '@/schemas/Federation.schema';
 import { PasswordInput } from '@/components/PasswordInput'; // Custom Password component.
+import { PhoneInput } from '@/components/phoneinput';
 
 // All the imports
 
@@ -60,6 +54,16 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
       countryCode: '',
     },
   });
+
+  const { setValue } = form;
+
+  const handleCountryCodeSelect = (country: string) => {
+    setValue('countryCode', '+' + country);
+  };
+
+  const handlePhoneNumberChange = (phoneNumber: string) => {
+    setValue('phoneNumber', phoneNumber);
+  };
 
   // Function to handle submit
   const onSubmit = (values: any) => {
@@ -168,55 +172,14 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
             />
 
             {/* Country Code Field */}
-            <div className="flex flex-col sm:flex-row gap-y-2 sm:gap-x-5 w-full">
-              <FormField
-                control={form.control}
-                name="countryCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-input-grey">
-                      Country Code
-                      <FormMessage />
-                    </FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger className="w-[125px] h-[42px]">
-                          <SelectValue placeholder="Code" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="+91">+91 (India)</SelectItem>
-                          <SelectItem value="+64">+64 (NZ)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
 
-              {/* Phone Number Field */}
-              <FormField
-                control={form.control}
-                name="phoneNumber"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel className="text-input-grey">
-                      Phone Number
-                      <FormMessage />
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="55555-55555"
-                        {...field}
-                        className="w-full h-[42px]"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
+            <PhoneInput
+              className="w-full"
+              placeholder="Your phone number"
+              defaultCountry="US"
+              onCountrySelect={handleCountryCodeSelect}
+              onPhoneNumberChange={handlePhoneNumberChange}
+            />
 
             <Button
               type="submit"
