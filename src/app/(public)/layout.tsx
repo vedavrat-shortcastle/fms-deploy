@@ -20,7 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   if (status === 'loading') {
     return (
-      <div>
+      <div className="flex items-center justify-center min-h-screen ">
         <Loader />
       </div>
     ); // or any loading indicator
