@@ -142,7 +142,7 @@ const Sidebar: FC = () => {
   );
 
   return (
-    <aside className="flex h-full w-64 flex-col bg-[#595959] text-white">
+    <aside className="flex min-h-svh w-64 flex-col bg-[#595959] text-white">
       {/* Header */}
       <div className="p-6">
         <a
