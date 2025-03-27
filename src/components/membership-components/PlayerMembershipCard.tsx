@@ -11,7 +11,6 @@ interface PlayerCardProps {
     id: string;
     name: string;
     initials: string;
-    gender: 'Male' | 'Female';
     email: string;
     fideId: string;
     price: number;
@@ -76,8 +75,7 @@ export function PlayerCard({
       <div className="flex-1 p-4">
         <div className="font-medium text-lg">{player.name}</div>
         <div className="text-sm text-gray-600 mt-1">
-          <span>Gender: {player.gender}</span>
-          <span className="ml-4">Email: {player.email}</span>
+          <span>Email: {player.email}</span>
           <span className="ml-4">FIDE ID: {player.fideId}</span>
         </div>
       </div>
