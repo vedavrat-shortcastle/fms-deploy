@@ -6,6 +6,7 @@ import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { trpc } from '@/utils/trpc'; // Adjust the import if needed
 import { PlayerCard } from '@/components/membership-components/PlayerMembershipCard';
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 
 const logo = '/assets/logoPlayersMembership.svg';
 
@@ -15,14 +16,35 @@ export default function PlayerSelectionPage() {
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   const router = useRouter();
   const limit = 20;
+  const { status } = useSession();
 
-  // Access the getPlayers procedure from the player router
-  const { data, isLoading, error } = trpc.player.getPlayers.useQuery({
+  // Handle authentication
+  if (status === 'loading') {
+    return <div>Loading...</div>;
+  }
+  if (status === 'unauthenticated') {
+    router.push('/login');
+    return null;
+  }
+
+  // Fetch players using the new endpoint
+  // This is currently fetching the players list in parent profile from parent getPlayers endpoint.
+  const { data, isLoading, error } = trpc.parent.getPlayers.useQuery({
     page: currentPage,
     limit,
     searchQuery: searchValue,
   });
 
+  // Handle errors
+  if (error) {
+    if (error.data?.code === 'FORBIDDEN') {
+      return <div>You are not authorized to view this page.</div>;
+    } else if (error.data?.code === 'NOT_FOUND') {
+      return <div>Parent not found.</div>;
+    } else {
+      return <div>Error loading players: {error.message}</div>;
+    }
+  }
   // 5. Transform the fetched data to match what the PlayerCard expects
   const players =
     data?.players.map((player) => ({
@@ -30,10 +52,10 @@ export default function PlayerSelectionPage() {
       name: `${player.firstName} ${player.lastName}`,
       initials:
         `${player.firstName[0] ?? ''}${player.lastName[0] ?? ''}`.toUpperCase(),
-      gender: (player as any).gender || 'N/A',
+
       email: player.email,
-      fideId: (player as any).fideId || '',
-      price: 45.0,
+      fideId: '00', // FIDE ID isn’t included; adjust if needed
+      price: 45.0, // Hardcoded as before
     })) || [];
 
   // 6. Toggle player selection on PlayerCard interaction
@@ -50,22 +72,13 @@ export default function PlayerSelectionPage() {
   const handlePayNow = () => {
     const selectedPlayerDetails = players
       .filter((player) => selectedPlayers.includes(player.id))
-      .map(({ id, name, gender, email }) => ({ id, name, gender, email }));
+      .map(({ id, name, email }) => ({ id, name, email }));
 
     if (selectedPlayerDetails.length === 0) {
       alert('Please select at least one player.');
       return;
     }
-
-    const query = new URLSearchParams();
-    selectedPlayerDetails.forEach((player, index) => {
-      query.append(`players[${index}][id]`, player.id);
-      query.append(`players[${index}][name]`, player.name);
-      query.append(`players[${index}][gender]`, player.gender);
-      query.append(`players[${index}][email]`, player.email);
-    });
-
-    router.push(`/memberships-payment?${query.toString()}`);
+    router.push('/memberships-payment');
   };
 
   const totalPages = data ? Math.ceil(data.total / limit) : 1;
