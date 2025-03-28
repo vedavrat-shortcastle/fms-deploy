@@ -1,0 +1,83 @@
+'use client';
+
+import { CheckCircle } from 'lucide-react';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { useSearchParams } from 'next/navigation';
+
+export default function PaymentSuccess() {
+  const searchParams = useSearchParams();
+  const dateParam = searchParams.get('date');
+  const orderId = searchParams.get('orderId'); // Retrieve order id from query
+  const amount = searchParams.get('amount');
+
+  // Format the date for display, e.g., "March 27, 2025"
+  const formattedDate = new Date(dateParam || new Date()).toLocaleDateString(
+    undefined,
+    {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }
+  );
+
+  // Format the amount (default to $149.99 if missing)
+  const formattedAmount = amount ? `$${parseFloat(amount).toFixed(2)}` : ''; // TODO : remove the harcoded $ currency value and replace with a call to api.
+
+  return (
+    <div className="flex min-h-screen items-center justify-center p-4 md:p-6">
+      <Card className="w-full max-w-md border border-green-300 shadow-lg">
+        <CardHeader className="flex flex-col items-center space-y-2 pb-2 pt-6 text-center">
+          <div className="rounded-full bg-green-100 p-3">
+            <CheckCircle className="h-10 w-10 text-green-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-green-500">
+            Payment Successful
+          </h1>
+          <p className="text-sm text-muted-foreground text-green-600 pb-5">
+            Your payment has been processed successfully
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4 px-6">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Order ID</span>
+              <span className="font-medium">
+                {orderId ? `#ORD-${orderId}` : '#ORD-UNKNOWN'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Date</span>
+              <span className="font-medium">{formattedDate}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                Payment Method
+              </span>
+              {/* TODO : remove the hardcoded card value and replace with card details from api */}
+              <span className="font-medium">Credit Card •••• 4242</span>
+            </div>
+            <Separator className="my-2" />
+            <div className="flex items-center justify-between font-medium">
+              <span>Total Amount</span>
+              <span className="text-lg">{formattedAmount}</span>
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter className="flex flex-col space-y-2 px-6 pb-6">
+          <Button asChild className="w-full">
+            <Link href="/players">Go to Dashboard</Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
