@@ -112,14 +112,27 @@ const CheckoutForm = ({
         showToast(error.message || 'Payment failed', 'error');
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         console.log('Payment succeeded:', paymentIntent);
-        await confirmPayment({
+        const result = await confirmPayment({
           paymentIntentId: paymentIntent.id,
           membershipPlanId,
           playerIds,
           parentId,
         });
         showToast('Payment succeeded!', 'success');
-        router.push('/memberships');
+
+        // Extract the order id from the transaction record
+        const orderId = result.transaction.id;
+        const amount = result.transaction.amount;
+        // Extract the transaction date from the result (createdAt field)
+        const transactionDate = new Date(
+          result.transaction.createdAt
+        ).toISOString();
+
+        showToast('Payment succeeded!', 'success');
+        // Redirect to the success page and pass the transaction date via query parameter
+        router.push(
+          `/memberships-payment/success?date=${encodeURIComponent(transactionDate)}&orderId=${encodeURIComponent(orderId)}&amount=${encodeURIComponent(amount)}`
+        );
       }
     } catch (err) {
       console.error('Error creating PaymentIntent:', err);

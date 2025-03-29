@@ -34,23 +34,43 @@ function PaymentContent({ session }: { session: any }) {
   const membershipPlanId = searchParams.get('planId');
   const playerIds = searchParams.get('playerIds')?.split(',') || [];
 
+  if (!membershipPlanId || !playerIds) {
+    return (
+      <div className="flex flex-col justify-center items-center text-3xl min-h-screen text-primary">
+        Error!!
+        <div className="text-2xl text-secondary">
+          Please select a plan first
+        </div>
+      </div>
+    );
+  }
+
   const { data: plan, isLoading } = trpc.membership.getPlanById.useQuery(
     { id: membershipPlanId! },
     { enabled: !!membershipPlanId }
   );
 
   if (isLoading) {
-    return <Loader />;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader />
+      </div>
+    );
   }
 
-  if (!plan || !membershipPlanId) {
-    return <div>Plan not found</div>;
+  if (!plan) {
+    return (
+      <div className="flex flex-col justify-center items-center text-3xl min-h-screen text-primary">
+        Plan not found
+      </div>
+    );
   }
 
   return (
     <div className="flex min-h-svh">
       <div className="flex-1 bg-white p-8">
         <div className="mb-4 flex items-center">
+          {/* This button should redirect to the last visited route */}
           <Button variant="ghost" className="p-0 mr-2">
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -83,7 +103,7 @@ function PaymentContent({ session }: { session: any }) {
               <h3 className="text-lg font-medium mb-4">{plan.name}</h3>
 
               <div className="mb-4">
-                <span className="text-red-500 font-medium">
+                <span className="text-primary font-medium">
                   {plan.duration} Months
                 </span>
               </div>
