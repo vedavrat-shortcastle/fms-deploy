@@ -85,19 +85,20 @@ model Parent {
 
 // Player Schema
 model Player {
-  id        String   @id @default(uuid())
-  birthDate DateTime @map("birth_date")
-  avatarUrl String?  @map("avatar_url")
-  ageProof  String?  @map("age_proof") // URL of uploaded age proof document
-  gender    Gender
+  id        String    @id @default(uuid())
+  birthDate DateTime? @map("birth_date")
+  avatarUrl String?   @map("avatar_url")
+  ageProof  String?   @map("age_proof") // URL of uploaded age proof document
+  gender    Gender?
+  customId  String    @unique @map("custom_id")
 
   // Mailing Details
-  streetAddress  String  @map("street_address")
+  streetAddress  String? @map("street_address")
   streetAddress2 String? @map("street_address2")
-  country        String
-  state          String
-  city           String
-  postalCode     String  @map("postal_code")
+  country        String?
+  state          String?
+  city           String?
+  postalCode     String? @map("postal_code")
   phoneNumber    String? @map("phone_number")
   countryCode    String? @map("country_code")
 
@@ -142,6 +143,7 @@ model Federation {
   domain     String  @unique // White-labeling domain
   logo       String?
   isApproved Boolean @default(false) @map("is_approved")
+  shortCode  String  @unique
 
   // Relation Fix: Differentiate players and admins\
   admins    FederationAdmin[] @relation(name: "FedAdmins")

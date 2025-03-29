@@ -15,6 +15,7 @@ import {
   editPlayerSchema,
   playerOnboardingSchema,
 } from '@/schemas/Player.schema';
+import { generateCustomPlayerId } from '@/utils/generateCustomCode';
 
 export const playerRouter = router({
   // Get all players
@@ -319,11 +320,15 @@ export const playerRouter = router({
           });
         }
 
+        const customId = await generateCustomPlayerId(
+          ctx.db,
+          ctx.session.user.federationId
+        );
         const result = await ctx.db.$transaction(async (tx) => {
           const newPlayer = await tx.player.create({
             data: {
               ...input,
-              fideId: null,
+              customId,
             },
           });
 

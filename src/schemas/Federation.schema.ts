@@ -55,6 +55,10 @@ export const federationOnboardingSchema = createFederationSchema.extend({
     .string()
     .min(1, 'Country code is required')
     .max(10, { message: 'Country code cannot exceed 10 characters' }),
+  shortCode: z
+    .string()
+    .min(1, 'Short name is required')
+    .max(10, { message: 'Short name cannot exceed 10 characters' }),
 });
 
 export type FederationOnboardingFormValues = z.infer<

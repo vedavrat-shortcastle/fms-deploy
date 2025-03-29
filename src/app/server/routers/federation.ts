@@ -11,6 +11,7 @@ import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { federationOnboardingSchema } from '@/schemas/Federation.schema';
 import { createPlayerSchema } from '@/schemas/Player.schema';
 import { z } from 'zod';
+import { generateCustomPlayerId } from '@/utils/generateCustomCode';
 
 export const federationRouter = router({
   federationOnboarding: publicProcedure
@@ -31,6 +32,7 @@ export const federationRouter = router({
         country: input.country,
         domain: input.domain,
         logo: input.logo,
+        shortCode: input.shortCode,
       };
 
       try {
@@ -156,9 +158,15 @@ export const federationRouter = router({
             },
           });
 
+          const customId = await generateCustomPlayerId(
+            ctx.db,
+            ctx.session.user.federationId
+          );
+
           const newPlayer = await tx.player.create({
             data: {
               ...playerDetails,
+              customId,
             },
           });
 
@@ -238,6 +246,11 @@ export const federationRouter = router({
               },
             });
 
+            const customId = await generateCustomPlayerId(
+              ctx.db,
+              ctx.session.user.federationId
+            );
+
             const newPlayer = await prisma.player.create({
               data: {
                 birthDate: player.playerDetails.birthDate,
@@ -258,6 +271,7 @@ export const federationRouter = router({
                 gradeInSchool: player.playerDetails.gradeInSchool,
                 gradeDate: player.playerDetails.gradeDate,
                 clubName: player.playerDetails.clubName,
+                customId,
               },
             });
 
@@ -286,4 +300,19 @@ export const federationRouter = router({
         });
       }
     }),
+  getExistingShortCodes: publicProcedure.query(async ({ ctx }) => {
+    try {
+      const shortCodes = await ctx.db.federation.findMany({
+        select: {
+          shortCode: true,
+        },
+      });
+      return shortCodes.map((federation) => federation.shortCode);
+    } catch (error: any) {
+      handleError(error, {
+        message: 'Failed to fetch existing short codes',
+        cause: error.message,
+      });
+    }
+  }),
 });
