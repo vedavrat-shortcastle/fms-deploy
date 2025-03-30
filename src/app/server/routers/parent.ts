@@ -11,6 +11,7 @@ import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { z } from 'zod';
 import { createParentSchema } from '@/schemas/Parent.schema';
 import { createPlayerSchema, editPlayerSchema } from '@/schemas/Player.schema';
+import { generateCustomPlayerId } from '@/utils/generateCustomCode';
 
 export const parentRouter = router({
   // Create a new parent
@@ -182,9 +183,15 @@ export const parentRouter = router({
             },
           });
 
+          const customId = await generateCustomPlayerId(
+            ctx.db,
+            ctx.session.user.federationId
+          );
+
           const newPlayer = await tx.player.create({
             data: {
               ...playerDetails,
+              customId,
               parent: {
                 connect: { id: parentProfile.profileId },
               },

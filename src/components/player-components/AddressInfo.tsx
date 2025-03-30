@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Country, State } from 'country-state-city';
 import LocationSelect from '@/components/player-components/LocationSelect';
 import { useLocationData } from '@/hooks/useLocation';
-import { PhoneInput } from '@/components/phoneinput';
+import { PhoneInput } from '@/components/phoneInput';
 import * as RPNInput from 'react-phone-number-input';
 
 interface AddressSectionProps {

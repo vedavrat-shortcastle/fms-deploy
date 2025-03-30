@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { PhoneInput } from '@/components/phoneinput';
+import { PhoneInput } from '@/components/phoneInput';
 import DatePicker from '@/components/player-components/DatePicker';
 import { Gender } from '@prisma/client';
 import {

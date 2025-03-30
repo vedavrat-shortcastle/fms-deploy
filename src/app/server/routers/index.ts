@@ -10,18 +10,20 @@ import { membershipRouter } from './membership';
 import { parentRouter } from '@/app/server/routers/parent';
 import { paymentRouter } from '@/app/server/routers/payment';
 import { authRouter } from '@/app/server/routers/auth';
+import { configRouter } from '@/app/server/routers/configFields';
 
 export const appRouter = router({
   superUser: superUserRouter,
   player: playerRouter,
-  // club: clubRouter,
   federation: federationRouter,
   parent: parentRouter,
   dashboard: dashboardRouter,
   membership: membershipRouter,
   upload: uploadRouter,
   payment: paymentRouter,
-  authRouter: authRouter,
+  auth: authRouter,
+  config: configRouter,
+  // club: clubRouter,
   // Add other routers here
 });
 

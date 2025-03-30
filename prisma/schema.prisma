@@ -156,6 +156,7 @@ model Federation {
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime         @updatedAt @map("updated_at")
   MembershipPlan MembershipPlan[]
+  FormTemplate   FormTemplate[]
 
   @@map("federation")
 }
@@ -320,6 +321,67 @@ model ContactInfo {
   Event       Event[]
 
   @@map("contact_info")
+}
+
+// --------------------------------------------------- CUSTOM FORM SETUP --------------------------------------------------- //
+
+model FormTemplate {
+  id           String      @id @default(uuid())
+  federation   Federation  @relation(fields: [federationId], references: [id])
+  federationId String      @map("federation_id")
+  formType     FormType // enum for different form types
+  isActive     Boolean     @default(true) @map("is_active")
+  fields       FormField[]
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  @@unique([federationId, formType])
+  @@map("form_template")
+}
+
+model FormField {
+  id             String       @id @default(uuid())
+  formTemplate   FormTemplate @relation(fields: [formTemplateId], references: [id])
+  formTemplateId String       @map("form_template_id")
+  fieldName      String       @map("field_name")
+  displayName    String       @map("display_name")
+  fieldType      FieldType
+  isHidden       Boolean      @default(false) @map("is_hidden")
+  isMandatory    Boolean      @default(false) @map("is_mandatory")
+  isDisabled     Boolean      @default(false) @map("is_disabled")
+  defaultValue   String?      @map("default_value")
+  placeholder    String?
+  validations    Json?        @db.JsonB // For custom validation rules
+  order          Int          @default(0)
+  isCustomField  Boolean      @default(false) @map("is_custom_field")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@unique([formTemplateId, fieldName])
+  @@map("form_field")
+}
+
+// Add these new enums
+enum FormType {
+  PLAYER
+  PARENT
+  EVENT
+  CLUB
+  SUBSCRIPTION
+}
+
+enum FieldType {
+  TEXT
+  NUMBER
+  EMAIL
+  PHONE
+  DATE
+  SELECT
+  MULTISELECT
+  CHECKBOX
+  RADIO
+  TEXTAREA
+  FILE
 }
 
 // --------------------------------------------------- ENUMS --------------------------------------------------- //

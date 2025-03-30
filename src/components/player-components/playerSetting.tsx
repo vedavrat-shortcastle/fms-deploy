@@ -104,7 +104,7 @@ export default function PlayerSettings() {
     },
   });
 
-  const changePassword = trpc.authRouter.updatePassword.useMutation({
+  const changePassword = trpc.auth.updatePassword.useMutation({
     onSuccess: () => {
       setChangePasswordModalOpen(false);
       setIsChangingPassword(false);

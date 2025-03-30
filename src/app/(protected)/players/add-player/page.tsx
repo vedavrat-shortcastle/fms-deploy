@@ -1,15 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { User } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { PageHeader } from '@/components/layouts/PageHeader';
 import { FormContainer } from '@/components/player-components/FormContainer';
-import { PersonalInformationForm } from '@/components/player-components/PersonalInfoform';
-import MailingAddressForm from '@/components/player-components/MailingAddressform';
-import { OtherInfoForm } from '@/components/player-components/OtherInfoform';
+import { FormBuilder } from '@/components/forms/FormBuilder';
 import {
   CreatePlayerFormValues,
   createPlayerSchema,
@@ -17,6 +15,50 @@ import {
 import { trpc } from '@/utils/trpc';
 import { Country, State } from 'country-state-city';
 import { useRouter } from 'next/navigation';
+import { useFormConfig } from '@/hooks/useFormConfig';
+
+type FormSections = 'personal' | 'mailing' | 'other';
+
+const FORM_SECTIONS: Record<FormSections, string[]> = {
+  personal: [
+    'firstName',
+    'lastName',
+    'middleName',
+    'birthDate',
+    'gender',
+    'email',
+    'avatarUrl',
+    'ageProof',
+  ],
+  mailing: [
+    'streetAddress',
+    'streetAddress2',
+    'country',
+    'state',
+    'city',
+    'postalCode',
+    'phoneNumber',
+    'countryCode',
+  ],
+  other: [
+    'fideId',
+    'schoolName',
+    'graduationYear',
+    'gradeInSchool',
+    'gradeDate',
+    'clubName',
+  ],
+} as const;
+
+// Utility function to sanitize fields
+const sanitizeFields = (fields: any[]) => {
+  return fields.map((field) => ({
+    ...field,
+    defaultValue: field.defaultValue ?? undefined, // Transform null to undefined
+    placeholder: field.placeholder ?? undefined, // Transform null to undefined
+    validations: field.validations ?? undefined, // Transform null to undefined
+  }));
+};
 
 export default function AddPlayerPage() {
   const [activeTab, setActiveTab] = useState<'personal' | 'mailing' | 'other'>(
@@ -24,6 +66,8 @@ export default function AddPlayerPage() {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: session } = useSession();
+  const router = useRouter();
+  const { config, isLoading: isConfigLoading } = useFormConfig('PLAYER');
 
   const form = useForm<CreatePlayerFormValues>({
     resolver: zodResolver(createPlayerSchema),
@@ -31,7 +75,7 @@ export default function AddPlayerPage() {
     defaultValues: {
       baseUser: {
         email: '',
-        password: 'arunsrinivaas',
+        password: 'password',
         firstName: '',
         lastName: '',
         middleName: '',
@@ -60,8 +104,32 @@ export default function AddPlayerPage() {
     },
   });
 
-  const { handleSubmit, reset, trigger } = form;
-  const router = useRouter();
+  const { handleSubmit, reset, trigger, control } = form;
+
+  // Update form with configuration when loaded
+  useEffect(() => {
+    if (config) {
+      const sanitizedFields = sanitizeFields(config.fields); // Sanitize fields
+      const customFields = sanitizedFields
+        .filter((field) => field.isCustomField)
+        .reduce(
+          (acc, field) => ({
+            ...acc,
+            [field.fieldName]: field.defaultValue ?? undefined, // Transform null to undefined
+          }),
+          {}
+        );
+
+      form.reset({
+        ...form.getValues(),
+        playerDetails: {
+          ...form.getValues().playerDetails,
+          ...customFields,
+        },
+      });
+    }
+  }, [config]);
+
   const createPlayerMutation = trpc.federation.createPlayer.useMutation({
     onSuccess: () => {
       reset();
@@ -74,7 +142,6 @@ export default function AddPlayerPage() {
     },
   });
 
-  // Mutation for adding a player for a parent user
   const addPlayerMutation = trpc.parent.addPlayer.useMutation({
     onSuccess: () => {
       reset();
@@ -87,33 +154,23 @@ export default function AddPlayerPage() {
     },
   });
 
-  // Validate fields for each tab using nested paths
-  const validateTab = async (tab: 'personal' | 'mailing' | 'other') => {
-    let isValid = true;
+  const validateTab = async (tab: FormSections) => {
+    if (!config) return false;
+
+    const fieldsToValidate = config.fields
+      .filter((field) => FORM_SECTIONS[tab].includes(field.fieldName))
+      .map((field) => `playerDetails.${field.fieldName}`);
+
     if (tab === 'personal') {
-      isValid = await trigger([
-        'baseUser.firstName',
-        'baseUser.lastName',
-        'baseUser.email',
-        'playerDetails.gender',
-        'playerDetails.birthDate',
-        'playerDetails.ageProof',
-      ]);
-    } else if (tab === 'mailing') {
-      isValid = await trigger([
-        'playerDetails.streetAddress',
-        'playerDetails.country',
-        'playerDetails.state',
-        'playerDetails.city',
-        'playerDetails.postalCode',
-        'playerDetails.phoneNumber',
-        'playerDetails.countryCode',
-      ]);
+      fieldsToValidate.push(
+        ...['baseUser.firstName', 'baseUser.lastName', 'baseUser.email']
+      );
     }
-    return isValid;
+
+    return await trigger(fieldsToValidate as (keyof CreatePlayerFormValues)[]);
   };
 
-  const handleTabChange = async (newTab: 'personal' | 'mailing' | 'other') => {
+  const handleTabChange = async (newTab: FormSections) => {
     const tabOrder = ['personal', 'mailing', 'other'];
     const currentIndex = tabOrder.indexOf(activeTab);
     const newIndex = tabOrder.indexOf(newTab);
@@ -142,16 +199,18 @@ export default function AddPlayerPage() {
   const onSubmit = async (data: CreatePlayerFormValues) => {
     setIsSubmitting(true);
     try {
-      // Check if the current user's role is "PARENT"
       const updatedData = {
         ...data,
         playerDetails: {
           ...data.playerDetails,
           country:
-            Country.getCountryByCode(data.playerDetails.country)?.name || '',
-          state: State.getStateByCode(data.playerDetails.state)?.name || '',
+            Country.getCountryByCode(data.playerDetails.country || '')?.name ||
+            '', // Handle null or undefined country
+          state:
+            State.getStateByCode(data.playerDetails.state || '')?.name || '', // Handle null or undefined state
         },
       };
+
       if (session?.user?.role === 'PARENT') {
         await addPlayerMutation.mutateAsync(updatedData);
       } else {
@@ -162,6 +221,48 @@ export default function AddPlayerPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (isConfigLoading) {
+    return <div>Loading form configuration...</div>;
+  }
+
+  const renderFormSection = () => {
+    if (!config) return null;
+
+    const getFieldsForSection = (section: 'personal' | 'mailing' | 'other') => {
+      const sanitizedFields = sanitizeFields(config.fields); // Sanitize fields
+      const fields = sanitizedFields.filter((field) =>
+        section === 'other'
+          ? FORM_SECTIONS[section].includes(field.fieldName) ||
+            field.isCustomField
+          : FORM_SECTIONS[section].includes(field.fieldName)
+      );
+
+      return fields || []; // Ensure fields is always an array
+    };
+
+    const sectionFields = getFieldsForSection(activeTab);
+
+    return (
+      <div className="space-y-6 max-w-3xl mx-auto bg-white p-6 rounded-lg">
+        <h3 className="text-2xl font-semibold text-gray-900 mb-6">
+          {activeTab === 'personal' && 'Personal Information'}
+          {activeTab === 'mailing' && 'Mailing Address'}
+          {activeTab === 'other' && 'Other Information'}
+        </h3>
+
+        <FormBuilder
+          config={{
+            ...config,
+            fields: sectionFields || [], // Ensure fields is not null or undefined
+          }}
+          control={control}
+          basePrefix={activeTab === 'personal' ? 'baseUser.' : 'playerDetails.'}
+        />
+      </div>
+    );
+  };
+
   return (
     <FormProvider {...form}>
       <div className="flex min-h-svh bg-gray-50">
@@ -175,9 +276,7 @@ export default function AddPlayerPage() {
             onNext={activeTab === 'other' ? handleSubmit(onSubmit) : handleNext}
             submitLabel={activeTab === 'other' ? 'Save' : 'Next'}
           >
-            {activeTab === 'personal' && <PersonalInformationForm />}
-            {activeTab === 'mailing' && <MailingAddressForm />}
-            {activeTab === 'other' && <OtherInfoForm />}
+            {renderFormSection()}
           </FormContainer>
 
           {isSubmitting && (
