@@ -41,11 +41,6 @@ export const PlayerDetailsStepOne = () => {
 
   const selectedCountry = watch('country');
   const selectedState = watch('state');
-  setValue('countryCode', '+1');
-
-  const handleCountryCodeSelect = (country: string) => {
-    setValue('countryCode', '+' + country);
-  };
 
   const handlePhoneNumberChange = (phoneNumber: string) => {
     setValue('phoneNumber', phoneNumber);
@@ -291,7 +286,6 @@ export const PlayerDetailsStepOne = () => {
         <PhoneInput
           placeholder="Your phone number"
           defaultCountry="US"
-          onCountrySelect={handleCountryCodeSelect}
           onPhoneNumberChange={handlePhoneNumberChange}
           className="w-full"
         />

@@ -41,8 +41,7 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
         password: true,
         firstName: true,
         lastName: true,
-        phoneNumber: true,
-        countryCode: true,
+        phoneNumber: true, // Removed countryCode
       })
     ),
     defaultValues: {
@@ -51,18 +50,13 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
       firstName: '',
       lastName: '',
       phoneNumber: '',
-      countryCode: '',
     },
   });
 
   const { setValue } = form;
 
-  const handleCountryCodeSelect = (country: string) => {
-    setValue('countryCode', '+' + country);
-  };
-
   const handlePhoneNumberChange = (phoneNumber: string) => {
-    setValue('phoneNumber', phoneNumber);
+    setValue('phoneNumber', phoneNumber); // Directly set phoneNumber
   };
 
   // Function to handle submit
@@ -161,13 +155,12 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               )}
             />
 
-            {/* Country Code Field */}
+            {/* Phone Number Field */}
             <PhoneInput
               className="w-full"
               placeholder="Your phone number"
               defaultCountry="US"
-              onCountrySelect={handleCountryCodeSelect}
-              onPhoneNumberChange={handlePhoneNumberChange}
+              onPhoneNumberChange={handlePhoneNumberChange} // Only handle phone number change
             />
 
             <Button

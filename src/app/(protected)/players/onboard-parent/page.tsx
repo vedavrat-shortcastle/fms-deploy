@@ -29,7 +29,6 @@ export default function OnboardParentPage() {
     resolver: zodResolver(createParentSchema),
     defaultValues: {
       phoneNumber: '',
-      countryCode: '',
       streetAddress: '',
       streetAddress2: '',
       country: '',

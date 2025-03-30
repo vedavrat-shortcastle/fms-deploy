@@ -153,7 +153,6 @@ export default function Page() {
               city: player.City?.trim() || '',
               postalCode: player.PostalCode?.trim() || '',
               phoneNumber: player.PhoneNumber?.trim() || null,
-              countryCode: player.CountryCode?.trim() || null,
               fideId: player.FideId?.trim() || null,
               schoolName: player.SchoolName?.trim() || null,
               graduationYear: player.GraduationYear

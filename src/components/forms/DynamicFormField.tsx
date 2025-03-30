@@ -21,12 +21,23 @@ import { FileUploader } from '@/components/FileUploader';
 import { PhoneInput } from '@/components/phoneInput';
 import DatePicker from '@/components/player-components/DatePicker';
 import { renderLabel } from '@/components/RenderLabel';
+import { Country, State, City } from 'country-state-city';
 
 interface DynamicFormFieldProps {
-  field: FormFieldConfig;
+  field: FormFieldConfig & {
+    dependentValue?: {
+      country?: string;
+      state?: string;
+    };
+  };
   control: Control<any>;
   name: string;
 }
+
+const UPLOAD_FOLDER_MAP: Record<string, 'avatar' | 'age-proof'> = {
+  avatarUrl: 'avatar',
+  ageProof: 'age-proof',
+};
 
 export const DynamicFormField = ({
   field,
@@ -34,6 +45,7 @@ export const DynamicFormField = ({
   name,
 }: DynamicFormFieldProps) => {
   if (field.isHidden) return null;
+  const baseFieldName = name.split('.').pop() || '';
 
   return (
     <FormField
@@ -51,7 +63,9 @@ export const DynamicFormField = ({
                   return (
                     <Input
                       {...formField}
-                      placeholder={field.placeholder}
+                      placeholder={
+                        field.placeholder || `Enter ${field.displayName}`
+                      }
                       disabled={field.isDisabled}
                       className="w-full"
                     />
@@ -65,7 +79,11 @@ export const DynamicFormField = ({
                       disabled={field.isDisabled}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder={field.placeholder} />
+                        <SelectValue
+                          placeholder={
+                            field.placeholder || `Enter ${field.displayName}`
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {field.validations?.options?.map((option) => (
@@ -90,7 +108,9 @@ export const DynamicFormField = ({
                   return (
                     <Textarea
                       {...formField}
-                      placeholder={field.placeholder}
+                      placeholder={
+                        field.placeholder || `Enter ${field.displayName}`
+                      }
                       disabled={field.isDisabled}
                       className="w-full"
                     />
@@ -109,39 +129,34 @@ export const DynamicFormField = ({
                   return (
                     <FileUploader
                       field={formField}
-                      uploadFolder={name as 'avatar' | 'age-proof'}
+                      uploadFolder={
+                        UPLOAD_FOLDER_MAP[baseFieldName] || 'avatar'
+                      }
                       accept={field.validations?.acceptedFileTypes?.reduce(
                         (acc, type) => ({ ...acc, [type]: [] }),
                         {}
                       )}
                       label={
-                        field.placeholder || 'Click or drag to upload file'
+                        field.placeholder ||
+                        `Enter ${field.displayName}` ||
+                        'Click or drag to upload file'
                       }
                     />
                   );
 
                 case 'PHONE':
                   return (
-                    <div className="flex gap-2">
-                      <PhoneInput
-                        placeholder={field.placeholder || 'Your phone number'}
-                        defaultCountry="US"
-                        defaultValue={formField.value || ''}
-                        onCountrySelect={(countryCode) =>
-                          formField.onChange({
-                            ...formField.value,
-                            countryCode,
-                          })
-                        }
-                        onPhoneNumberChange={(phoneNumber) =>
-                          formField.onChange({
-                            ...formField.value,
-                            phoneNumber,
-                          })
-                        }
-                        className="w-full"
-                      />
-                    </div>
+                    <PhoneInput
+                      placeholder={
+                        field.placeholder || `Enter ${field.displayName}`
+                      }
+                      defaultCountry="US"
+                      defaultValue={formField.value || ''}
+                      onPhoneNumberChange={(phoneNumber) => {
+                        formField.onChange(phoneNumber);
+                      }}
+                      className="w-full"
+                    />
                   );
 
                 case 'EMAIL':
@@ -149,7 +164,9 @@ export const DynamicFormField = ({
                     <Input
                       {...formField}
                       type="email"
-                      placeholder={field.placeholder}
+                      placeholder={
+                        field.placeholder || `Enter ${field.displayName}`
+                      }
                       disabled={field.isDisabled}
                       className="w-full"
                     />
@@ -160,19 +177,106 @@ export const DynamicFormField = ({
                     <Input
                       {...formField}
                       type="number"
-                      placeholder={field.placeholder}
+                      placeholder={
+                        field.placeholder || `Enter ${field.displayName}`
+                      }
                       disabled={field.isDisabled}
                       min={field.validations?.min}
                       max={field.validations?.max}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        formField.onChange(
+                          value ? parseInt(value, 10) : undefined
+                        ); // Ensure value is parsed as a number
+                      }}
                       className="w-full"
                     />
                   );
+
+                case 'COUNTRY': {
+                  const countries = Country.getAllCountries();
+                  return (
+                    <Select
+                      value={formField.value || ''}
+                      onValueChange={formField.onChange}
+                      disabled={field.isDisabled}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countries.map((country) => (
+                          <SelectItem
+                            key={country.isoCode}
+                            value={country.isoCode}
+                          >
+                            {country.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  );
+                }
+
+                case 'STATE': {
+                  const selectedCountry = field.dependentValue?.country || '';
+                  const states = selectedCountry
+                    ? State.getStatesOfCountry(selectedCountry)
+                    : [];
+                  return (
+                    <Select
+                      value={formField.value || ''}
+                      onValueChange={formField.onChange}
+                      disabled={!selectedCountry || field.isDisabled}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select State" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {states.map((state) => (
+                          <SelectItem key={state.isoCode} value={state.isoCode}>
+                            {state.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  );
+                }
+
+                case 'CITY': {
+                  const selectedCountry = field.dependentValue?.country || '';
+                  const selectedState = field.dependentValue?.state || '';
+                  const cities =
+                    selectedCountry && selectedState
+                      ? City.getCitiesOfState(selectedCountry, selectedState)
+                      : [];
+                  return (
+                    <Select
+                      value={formField.value || ''}
+                      onValueChange={formField.onChange}
+                      disabled={!selectedState || field.isDisabled}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select City" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cities.map((city) => (
+                          <SelectItem key={city.name} value={city.name}>
+                            {city.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  );
+                }
 
                 default:
                   return (
                     <Input
                       {...formField}
-                      placeholder={field.placeholder}
+                      placeholder={
+                        field.placeholder || `Enter ${field.displayName}`
+                      }
                       disabled={field.isDisabled}
                       className="w-full"
                     />

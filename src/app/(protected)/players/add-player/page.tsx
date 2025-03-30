@@ -19,43 +19,79 @@ import { useFormConfig } from '@/hooks/useFormConfig';
 
 type FormSections = 'personal' | 'mailing' | 'other';
 
-const FORM_SECTIONS: Record<FormSections, string[]> = {
-  personal: [
-    'firstName',
-    'lastName',
-    'middleName',
-    'birthDate',
-    'gender',
-    'email',
-    'avatarUrl',
-    'ageProof',
-  ],
-  mailing: [
-    'streetAddress',
-    'streetAddress2',
-    'country',
-    'state',
-    'city',
-    'postalCode',
-    'phoneNumber',
-    'countryCode',
-  ],
-  other: [
-    'fideId',
-    'schoolName',
-    'graduationYear',
-    'gradeInSchool',
-    'gradeDate',
-    'clubName',
-  ],
-} as const;
+type FieldPrefix = 'baseUser' | 'playerDetails';
 
+const FORM_SECTIONS: Record<
+  FormSections,
+  { fields: string[]; prefix: Record<string, FieldPrefix> }
+> = {
+  personal: {
+    fields: [
+      'firstName',
+      'lastName',
+      'middleName',
+      'birthDate',
+      'gender',
+      'email',
+      'avatarUrl',
+      'ageProof',
+    ],
+    prefix: {
+      firstName: 'baseUser',
+      lastName: 'baseUser',
+      middleName: 'baseUser',
+      email: 'baseUser',
+      birthDate: 'playerDetails',
+      gender: 'playerDetails',
+      avatarUrl: 'playerDetails',
+      ageProof: 'playerDetails',
+    },
+  },
+  mailing: {
+    fields: [
+      'streetAddress',
+      'streetAddress2',
+      'country',
+      'state',
+      'city',
+      'postalCode',
+      'phoneNumber',
+    ],
+    prefix: {
+      streetAddress: 'playerDetails',
+      streetAddress2: 'playerDetails',
+      country: 'playerDetails',
+      state: 'playerDetails',
+      city: 'playerDetails',
+      postalCode: 'playerDetails',
+      phoneNumber: 'playerDetails',
+    },
+  },
+  other: {
+    fields: [
+      'fideId',
+      'schoolName',
+      'graduationYear',
+      'gradeInSchool',
+      'gradeDate',
+      'clubName',
+    ],
+    prefix: {
+      fideId: 'playerDetails',
+      schoolName: 'playerDetails',
+      graduationYear: 'playerDetails',
+      gradeInSchool: 'playerDetails',
+      gradeDate: 'playerDetails',
+      clubName: 'playerDetails',
+    },
+  },
+} as const;
 // Utility function to sanitize fields
 const sanitizeFields = (fields: any[]) => {
   return fields.map((field) => ({
     ...field,
     defaultValue: field.defaultValue ?? undefined, // Transform null to undefined
-    placeholder: field.placeholder ?? undefined, // Transform null to undefined
+    placeholder: (field.placeholder || field.displayName) ?? undefined, // Transform null to undefined
     validations: field.validations ?? undefined, // Transform null to undefined
   }));
 };
@@ -93,7 +129,6 @@ export default function AddPlayerPage() {
         city: '',
         postalCode: '',
         phoneNumber: '',
-        countryCode: '',
         fideId: '',
         schoolName: '',
         graduationYear: undefined,
@@ -158,14 +193,11 @@ export default function AddPlayerPage() {
     if (!config) return false;
 
     const fieldsToValidate = config.fields
-      .filter((field) => FORM_SECTIONS[tab].includes(field.fieldName))
-      .map((field) => `playerDetails.${field.fieldName}`);
-
-    if (tab === 'personal') {
-      fieldsToValidate.push(
-        ...['baseUser.firstName', 'baseUser.lastName', 'baseUser.email']
-      );
-    }
+      .filter((field) => FORM_SECTIONS[tab].fields.includes(field.fieldName))
+      .map((field) => {
+        const prefix = FORM_SECTIONS[tab].prefix[field.fieldName];
+        return `${prefix}.${field.fieldName}`;
+      });
 
     return await trigger(fieldsToValidate as (keyof CreatePlayerFormValues)[]);
   };
@@ -225,20 +257,27 @@ export default function AddPlayerPage() {
   if (isConfigLoading) {
     return <div>Loading form configuration...</div>;
   }
-
   const renderFormSection = () => {
     if (!config) return null;
 
-    const getFieldsForSection = (section: 'personal' | 'mailing' | 'other') => {
-      const sanitizedFields = sanitizeFields(config.fields); // Sanitize fields
+    const getFieldsForSection = (section: FormSections) => {
+      const sanitizedFields = sanitizeFields(config.fields);
       const fields = sanitizedFields.filter((field) =>
         section === 'other'
-          ? FORM_SECTIONS[section].includes(field.fieldName) ||
+          ? FORM_SECTIONS[section].fields.includes(field.fieldName) ||
             field.isCustomField
-          : FORM_SECTIONS[section].includes(field.fieldName)
+          : FORM_SECTIONS[section].fields.includes(field.fieldName)
       );
 
-      return fields || []; // Ensure fields is always an array
+      return fields.map((field) => ({
+        ...field,
+        prefix:
+          FORM_SECTIONS[section].prefix[field.fieldName] || 'playerDetails',
+        dependentValue: {
+          country: form.getValues('playerDetails.country'),
+          state: form.getValues('playerDetails.state'),
+        }, // Pass dependent values dynamically
+      }));
     };
 
     const sectionFields = getFieldsForSection(activeTab);
@@ -251,18 +290,20 @@ export default function AddPlayerPage() {
           {activeTab === 'other' && 'Other Information'}
         </h3>
 
-        <FormBuilder
-          config={{
-            ...config,
-            fields: sectionFields || [], // Ensure fields is not null or undefined
-          }}
-          control={control}
-          basePrefix={activeTab === 'personal' ? 'baseUser.' : 'playerDetails.'}
-        />
+        {sectionFields.map((field) => (
+          <FormBuilder
+            key={field.id}
+            config={{
+              ...config,
+              fields: [field],
+            }}
+            control={control}
+            basePrefix={`${field.prefix}.`}
+          />
+        ))}
       </div>
     );
   };
-
   return (
     <FormProvider {...form}>
       <div className="flex min-h-svh bg-gray-50">

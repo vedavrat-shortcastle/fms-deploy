@@ -121,7 +121,6 @@ export default function PlayerDetails() {
         city: data.city || '',
         postalCode: data.postalCode || '',
         phoneNumber: data.phoneNumber || undefined,
-        countryCode: data.countryCode || undefined,
         fideId: data.fideId || undefined,
         schoolName: data.schoolName || undefined,
         graduationYear: data.graduationYear || undefined,

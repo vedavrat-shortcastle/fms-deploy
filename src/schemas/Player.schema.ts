@@ -67,11 +67,6 @@ export const playerOnboardingSchema = z.object({
     .max(20, { message: 'Phone number is too long' })
     .nullable()
     .optional(),
-  countryCode: z
-    .string()
-    .max(10, { message: 'Country code is too long' })
-    .nullable()
-    .optional(),
 });
 
 export type playerOnboardingInput = z.input<typeof playerOnboardingSchema>;
@@ -171,11 +166,6 @@ export const editPlayerSchema = z.object({
     phoneNumber: z
       .string()
       .max(20, { message: 'Phone number is too long' })
-      .nullable()
-      .optional(),
-    countryCode: z
-      .string()
-      .max(10, { message: 'Country code is too long' })
       .nullable()
       .optional(),
     fideId: z
@@ -283,11 +273,7 @@ export const createPlayerSchema = z.object({
       .max(20, { message: 'Phone number is too long' })
       .nullable()
       .optional(),
-    countryCode: z
-      .string()
-      .max(10, { message: 'Country code is too long' })
-      .nullable()
-      .optional(),
+
     fideId: z
       .string()
       .max(20, { message: 'FIDE ID is too long' })

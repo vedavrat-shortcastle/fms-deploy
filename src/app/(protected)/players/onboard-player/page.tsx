@@ -39,7 +39,6 @@ export default function PlayerOnboarding() {
       city: '',
       postalCode: '',
       phoneNumber: '',
-      countryCode: '',
       fideId: '',
       schoolName: '',
       graduationYear: undefined,
@@ -91,7 +90,6 @@ export default function PlayerOnboarding() {
           'phoneNumber',
           'streetAddress',
           'postalCode',
-          'countryCode',
         ]);
       }
       if (tab === 'stepTwo') {

@@ -55,10 +55,6 @@ export const federationOnboardingSchema = createFederationSchema.extend({
     .string()
     .min(1, 'Phone number is required')
     .max(15, { message: 'Phone number cannot exceed 20 characters' }),
-  countryCode: z
-    .string()
-    .min(1, 'Country code is required')
-    .max(10, { message: 'Country code cannot exceed 10 characters' }),
 });
 
 export type FederationOnboardingFormValues = z.infer<

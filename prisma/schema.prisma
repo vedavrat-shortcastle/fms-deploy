@@ -63,7 +63,6 @@ model Parent {
 
   // Contact Details
   phoneNumber String? @map("phone_number")
-  countryCode String? @map("country_code")
 
   // Address Details
   streetAddress  String  @map("street_address")
@@ -100,7 +99,6 @@ model Player {
   city           String?
   postalCode     String? @map("postal_code")
   phoneNumber    String? @map("phone_number")
-  countryCode    String? @map("country_code")
 
   // Other Info
   fideId         String?   @map("fide_id")
@@ -126,7 +124,6 @@ model FederationAdmin {
   federation   Federation @relation(name: "FedAdmins", fields: [federationId], references: [id])
   federationId String     @unique @map("federation_id")
   phoneNumber  String?    @map("phone_number")
-  countryCode  String?    @map("country_code")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -382,6 +379,9 @@ enum FieldType {
   RADIO
   TEXTAREA
   FILE
+  COUNTRY
+  STATE
+  CITY
 }
 
 // --------------------------------------------------- ENUMS --------------------------------------------------- //

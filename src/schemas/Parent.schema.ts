@@ -5,10 +5,6 @@ export const createParentSchema = z.object({
     .string()
     .max(15, 'Phone Number cannot exceed 15 digits')
     .optional(),
-  countryCode: z
-    .string()
-    .max(10, { message: 'Country code cannot exceed 10 characters' })
-    .optional(),
   streetAddress: z
     .string()
     .min(1, { message: 'Street Address is required' })
