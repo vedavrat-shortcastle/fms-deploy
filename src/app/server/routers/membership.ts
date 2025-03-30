@@ -227,6 +227,14 @@ export const membershipRouter = router({
             status: true,
             startDate: true,
             endDate: true,
+            // Include membership plan details
+            plan: {
+              select: {
+                name: true,
+                price: true,
+                currency: true,
+              },
+            },
           },
         });
 

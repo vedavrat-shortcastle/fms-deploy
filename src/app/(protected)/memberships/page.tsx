@@ -20,6 +20,7 @@ import Loader from '@/components/Loader';
 import { PERMISSIONS } from '@/config/permissions';
 import { usersColumns } from '@/app/(protected)/memberships/usersColumns';
 import MembersTable from '@/app/(protected)/memberships/MembersTable';
+import clsx from 'clsx';
 
 export default function Memberships() {
   const [search, setSearch] = useState('');
@@ -65,7 +66,10 @@ export default function Memberships() {
         <div className="border-b my-4">
           <Button
             variant="link"
-            className="text-primary font-semibold"
+            className={clsx(
+              'font-semibold',
+              isPlanOpen ? 'text-primary' : 'text-secondary'
+            )}
             onClick={() => setIsPlanOpen(true)}
           >
             Plans
@@ -73,7 +77,10 @@ export default function Memberships() {
           {canCreatePlan && (
             <Button
               variant="link"
-              className="text-primary font-semibold"
+              className={clsx(
+                'font-semibold',
+                !isPlanOpen ? 'text-primary' : 'text-secondary'
+              )}
               onClick={() => setIsPlanOpen(false)}
             >
               Members
