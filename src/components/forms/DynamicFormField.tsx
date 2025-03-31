@@ -195,11 +195,15 @@ export const DynamicFormField = ({
 
                 case 'COUNTRY': {
                   const countries = Country.getAllCountries();
+                  const countryIso = Country.getCountryByCode(
+                    formField.value
+                  )?.isoCode;
+
                   return (
                     <Select
-                      value={formField.value || ''}
                       onValueChange={formField.onChange}
                       disabled={field.isDisabled}
+                      value={countryIso || ''}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select Country" />
@@ -223,9 +227,14 @@ export const DynamicFormField = ({
                   const states = selectedCountry
                     ? State.getStatesOfCountry(selectedCountry)
                     : [];
+                  const stateIso = State.getStateByCodeAndCountry(
+                    formField.value,
+                    selectedCountry
+                  )?.isoCode;
+
                   return (
                     <Select
-                      value={formField.value || ''}
+                      value={stateIso || ''}
                       onValueChange={formField.onChange}
                       disabled={!selectedCountry || field.isDisabled}
                     >

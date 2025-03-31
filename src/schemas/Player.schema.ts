@@ -126,7 +126,9 @@ export const editPlayerSchema = z.object({
   playerDetails: z.object({
     birthDate: z
       .date()
-      .min(new Date('1900-01-01'), { message: 'Invalid birth date' }),
+      .min(new Date('1900-01-01'), { message: 'Invalid birth date' })
+      .max(new Date(), { message: 'Birth date cannot be in future' })
+      .optional(),
     gender: z.nativeEnum(Gender, { required_error: 'Gender is required' }),
     avatarUrl: z
       .string()

@@ -93,7 +93,6 @@ export const defaultFormConfigs = {
         isMandatory: false,
         order: 10,
       },
-
       {
         fieldName: 'country',
         displayName: 'Country',
