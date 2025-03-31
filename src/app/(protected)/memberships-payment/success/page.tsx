@@ -16,8 +16,8 @@ import { useSearchParams } from 'next/navigation';
 export default function PaymentSuccess() {
   const searchParams = useSearchParams();
   const dateParam = searchParams.get('date');
-  const orderId = searchParams.get('orderId'); // Retrieve order id from query
-  const amount = searchParams.get('amount');
+  const orderId = searchParams.get('orderId') || 'UNKNOWN'; // Retrieve order id from query
+  const amount = searchParams.get('amount') || 'UNKNOWN';
 
   // Format the date for display, e.g., "March 27, 2025"
   const formattedDate = new Date(dateParam || new Date()).toLocaleDateString(
@@ -50,7 +50,7 @@ export default function PaymentSuccess() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Order ID</span>
-              <span className="font-medium">
+              <span className="font-medium text-right">
                 {orderId ? `#ORD-${orderId}` : '#ORD-UNKNOWN'}
               </span>
             </div>
