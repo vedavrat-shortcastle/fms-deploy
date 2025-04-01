@@ -1,5 +1,9 @@
 import { TRPCError } from '@trpc/server';
-import { permissionProtectedProcedure, router } from '@/app/server/trpc';
+import {
+  permissionProtectedProcedure,
+  protectedProcedure,
+  router,
+} from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
 import { PERMISSIONS } from '@/config/permissions';
 import { z } from 'zod';
@@ -75,7 +79,7 @@ export const configRouter = router({
   }),
 
   // Get form configuration
-  getFormConfig: permissionProtectedProcedure(PERMISSIONS.PARENT_VIEW)
+  getFormConfig: protectedProcedure
     .input(
       z.object({
         formType: z.enum(['PLAYER', 'PARENT', 'EVENT', 'CLUB', 'SUBSCRIPTION']),

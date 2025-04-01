@@ -180,7 +180,7 @@ export default function OnboardParentPage() {
             />
             <div className="max-w-4xl mx-auto p-6">
               <div className="bg-white border rounded-md shadow-lg p-6">
-                <h2 className="mb-4 pt-1 text-2xl font-bold bg-red-500 rounded-md text-gray-800 border-b pb-2 text-center">
+                <h2 className="mb-4 pt-1 text-2xl font-bold bg-red-500 rounded-md text-white border-b pb-2 text-center">
                   Parent Onboarding
                 </h2>
 
