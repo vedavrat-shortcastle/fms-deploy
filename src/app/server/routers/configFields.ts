@@ -75,7 +75,7 @@ export const configRouter = router({
   }),
 
   // Get form configuration
-  getFormConfig: permissionProtectedProcedure(PERMISSIONS.FED_ALL)
+  getFormConfig: permissionProtectedProcedure(PERMISSIONS.PARENT_VIEW)
     .input(
       z.object({
         formType: z.enum(['PLAYER', 'PARENT', 'EVENT', 'CLUB', 'SUBSCRIPTION']),
