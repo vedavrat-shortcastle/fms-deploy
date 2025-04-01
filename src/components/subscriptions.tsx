@@ -54,7 +54,7 @@ export default function PlanForm({ onClose }: { onClose: () => void }) {
         benefits:
           typeof data.benefits === 'string'
             ? (data.benefits as string)
-                .split(',')
+                .split(', ')
                 .map((item: string) => item.trim())
                 .filter(Boolean)
             : data.benefits,
