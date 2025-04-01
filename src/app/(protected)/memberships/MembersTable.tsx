@@ -54,12 +54,15 @@ export default function MembersTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
+          {/* Simple condition to show "No members found" */}
+          {subscriptions.length === 0 && (
+            <p className="text-primary text-2xl">No members found</p>
+          )}
           {subscriptions.map((sub) => (
             <TableRow key={sub.subscriberId}>
               <TableCell>{sub.subscriberId}</TableCell>
               <TableCell>{sub.type}</TableCell>
               <TableCell>
-                {' '}
                 {sub.status === 'ACTIVE' ? (
                   <Badge variant="green">ACTIVE</Badge>
                 ) : sub.status === 'EXPIRED' ? (
