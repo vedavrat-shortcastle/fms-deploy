@@ -38,7 +38,7 @@ export const authConfig: AuthOptions = {
                 profileType: true,
                 profileId: true,
                 language: true,
-                isRtl : true,
+                isRtl: true,
               },
             },
           },
@@ -62,8 +62,8 @@ export const authConfig: AuthOptions = {
           permissions:
             baseUser.profile?.permissions.map((p) => p.permission) || [],
           profileId: baseUser.profile?.profileId || baseUser.id,
-          language : baseUser.profile?.language ,
-          isRtl : baseUser.profile?.isRtl,
+          language: baseUser.profile?.language || 'en',
+          isRtl: baseUser.profile?.isRtl ?? false,
         };
       },
     }),
@@ -102,7 +102,6 @@ export const authConfig: AuthOptions = {
         session.user.profileId = token.profileId;
         session.user.language = token.language;
         session.user.isRtl = token.isRtl;
-        
       }
       return session;
     },
