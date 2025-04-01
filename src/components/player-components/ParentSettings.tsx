@@ -62,7 +62,6 @@ export default function ParentSettings() {
       postalCode: data.postalCode || '',
       country: data.country || '',
       phoneNumber: data.phoneNumber ?? '',
-      countryCode: data.countryCode ?? '',
     },
   });
 
