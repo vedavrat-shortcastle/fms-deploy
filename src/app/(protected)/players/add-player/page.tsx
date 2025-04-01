@@ -143,13 +143,13 @@ export default function AddPlayerPage() {
   // Update form with configuration when loaded
   useEffect(() => {
     if (config) {
-      const sanitizedFields = sanitizeFields(config.fields); // Sanitize fields
+      const sanitizedFields = sanitizeFields(config.fields);
       const customFields = sanitizedFields
         .filter((field) => field.isCustomField)
         .reduce(
           (acc, field) => ({
             ...acc,
-            [field.fieldName]: field.defaultValue ?? undefined, // Transform null to undefined
+            [field.fieldName]: field.defaultValue ?? undefined,
           }),
           {}
         );

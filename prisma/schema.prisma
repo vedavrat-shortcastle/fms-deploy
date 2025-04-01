@@ -365,6 +365,7 @@ enum FormType {
   EVENT
   CLUB
   SUBSCRIPTION
+  MEMBERSHIP
 }
 
 enum FieldType {

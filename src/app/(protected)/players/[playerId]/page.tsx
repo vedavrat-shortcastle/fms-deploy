@@ -201,27 +201,48 @@ export default function PlayerDetails() {
   return (
     <FormProvider {...form}>
       <div className="flex min-h-svh bg-[#f6f6f6]">
-        <div className="flex-1 p-8">
-          <Button
-            variant="ghost"
-            className="mb-6 gap-2"
-            onClick={() => router.push('/players')}
-            disabled={isSubmitting}
-          >
-            Player
-          </Button>
-          <div className="space-y-6 max-w-3xl mx-auto bg-white p-6 rounded-lg">
-            {renderFormFields()}
-            <div className="flex justify-end gap-4">
-              {isEditing && (
+        <div className="flex-1 p-8 flex gap-8">
+          {/* Left Column: Profile Avatar and Buttons */}
+          <div className="w-1/4 flex flex-col items-center">
+            <div className="w-full max-w-xs aspect-square rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+              {playerData?.avatarUrl ? (
+                <img
+                  src={playerData.avatarUrl}
+                  alt="Player Avatar"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-gray-500">No Avatar</span>
+              )}
+            </div>
+            <div className="mt-4 flex flex-col gap-2">
+              <Button
+                variant="default"
+                onClick={handleEditToggle}
+                disabled={isSubmitting}
+              >
+                {isEditing ? 'Save' : 'Edit'}
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={isSubmitting}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+
+          {/* Right Column: Form */}
+          <div className="w-3/4 bg-white p-6 rounded-lg shadow">
+            <fieldset disabled={!isEditing}>{renderFormFields()}</fieldset>
+            {isEditing && (
+              <div className="flex justify-end gap-4 mt-6">
                 <Button variant="ghost" onClick={handleCancel}>
                   Cancel
                 </Button>
-              )}
-              <Button onClick={handleEditToggle} disabled={isSubmitting}>
-                {isEditing ? 'Save' : 'Edit'}
-              </Button>
-            </div>
+              </div>
+            )}
           </div>
         </div>
 

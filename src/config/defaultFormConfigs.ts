@@ -93,6 +93,7 @@ export const defaultFormConfigs = {
         isMandatory: false,
         order: 10,
       },
+
       {
         fieldName: 'country',
         displayName: 'Country',
@@ -411,6 +412,85 @@ export const defaultFormConfigs = {
         fieldType: FieldType.CHECKBOX,
         isMandatory: true,
         order: 10,
+      },
+    ],
+  },
+
+  [FormType.MEMBERSHIP]: {
+    formType: FormType.MEMBERSHIP,
+    fields: [
+      {
+        fieldName: 'name',
+        displayName: 'Plan Name',
+        placeholder: 'Enter Plan Name',
+        fieldType: FieldType.TEXT,
+        isMandatory: true,
+        order: 1,
+        validations: {
+          minLength: 3,
+          maxLength: 100,
+        },
+      },
+      {
+        fieldName: 'duration',
+        displayName: 'Duration (months)',
+        placeholder: 'Enter Duration in Months',
+        fieldType: FieldType.NUMBER,
+        isMandatory: true,
+        order: 2,
+        validations: {
+          min: 1,
+          max: 120,
+          isNumber: true,
+        },
+      },
+      {
+        fieldName: 'currency',
+        displayName: 'Currency',
+        placeholder: 'Select Currency',
+        fieldType: FieldType.SELECT,
+        isMandatory: true,
+        order: 3,
+        validations: {
+          options: ['usd', 'eur', 'nzd'],
+        },
+      },
+      {
+        fieldName: 'price',
+        displayName: 'Price',
+        placeholder: 'Enter Price',
+        fieldType: FieldType.NUMBER,
+        isMandatory: true,
+        order: 4,
+        validations: {
+          min: 0,
+          isNumber: true,
+        },
+      },
+      {
+        fieldName: 'benefits',
+        displayName: 'Benefits',
+        placeholder: 'Enter each benefit separated by a comma',
+        fieldType: FieldType.TEXTAREA,
+        isMandatory: true,
+        order: 5,
+      },
+      {
+        fieldName: 'description',
+        displayName: 'Description',
+        placeholder: 'Enter Description',
+        fieldType: FieldType.TEXTAREA,
+        isMandatory: true,
+        order: 6,
+      },
+      {
+        fieldName: 'autoRenewal',
+        displayName: 'Auto-Renewal',
+        placeholder: 'Enable Auto-Renewal',
+        fieldType: FieldType.CHECKBOX,
+        isMandatory: false,
+        order: 7,
+        defaultValue: 'false',
       },
     ],
   },

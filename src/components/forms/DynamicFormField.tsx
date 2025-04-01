@@ -18,10 +18,12 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { FileUploader } from '@/components/FileUploader';
-import { PhoneInput } from '@/components/phoneInput';
+import { PhoneInput } from '@/components/PhoneInput';
 import DatePicker from '@/components/player-components/DatePicker';
 import { renderLabel } from '@/components/RenderLabel';
 import { Country, State, City } from 'country-state-city';
+import { Button } from '@/components/ui/button';
+import { FileText } from 'lucide-react';
 
 interface DynamicFormFieldProps {
   field: FormFieldConfig & {
@@ -126,7 +128,26 @@ export const DynamicFormField = ({
                   );
 
                 case 'FILE':
-                  return (
+                  return formField.value ? (
+                    <div className="flex items-center gap-4">
+                      <a
+                        href={formField.value}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 flex items-center gap-2"
+                      >
+                        <FileText className="w-5 h-5" />
+                        File
+                      </a>
+                      <Button
+                        variant="ghost"
+                        onClick={() => formField.onChange(undefined)}
+                        disabled={field.isDisabled}
+                      >
+                        Change File
+                      </Button>
+                    </div>
+                  ) : (
                     <FileUploader
                       field={formField}
                       uploadFolder={
@@ -147,14 +168,10 @@ export const DynamicFormField = ({
                 case 'PHONE':
                   return (
                     <PhoneInput
+                      {...formField}
                       placeholder={
                         field.placeholder || `Enter ${field.displayName}`
                       }
-                      defaultCountry="US"
-                      defaultValue={formField.value || ''}
-                      onPhoneNumberChange={(phoneNumber) => {
-                        formField.onChange(phoneNumber);
-                      }}
                       className="w-full"
                     />
                   );

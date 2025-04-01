@@ -20,7 +20,7 @@ import {
   federationOnboardingSchema,
 } from '@/schemas/Federation.schema';
 import { PasswordInput } from '@/components/PasswordInput'; // Custom Password component.
-import { PhoneInput } from '@/components/phoneInput';
+import { PhoneInput } from '@/components/PhoneInput';
 
 // All the imports
 
@@ -160,7 +160,8 @@ export const OnboardingFederation = ({ imageSrc }: SignupProps) => {
               className="w-full"
               placeholder="Your phone number"
               defaultCountry="US"
-              onPhoneNumberChange={handlePhoneNumberChange} // Only handle phone number change
+              value=""
+              onChange={handlePhoneNumberChange} // Only handle phone number change
             />
 
             <Button

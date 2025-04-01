@@ -111,7 +111,9 @@ export const federationRouter = router({
                 federationId: createdFederation.id,
                 formType: formType as FormType,
                 fields: {
-                  create: config.fields,
+                  create: config.fields.map((field) => ({
+                    ...field,
+                  })),
                 },
               },
             });
