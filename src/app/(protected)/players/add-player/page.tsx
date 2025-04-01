@@ -13,7 +13,6 @@ import {
   createPlayerSchema,
 } from '@/schemas/Player.schema';
 import { trpc } from '@/utils/trpc';
-import { Country, State } from 'country-state-city';
 import { useRouter } from 'next/navigation';
 import { useFormConfig } from '@/hooks/useFormConfig';
 
@@ -144,13 +143,13 @@ export default function AddPlayerPage() {
   // Update form with configuration when loaded
   useEffect(() => {
     if (config) {
-      const sanitizedFields = sanitizeFields(config.fields); // Sanitize fields
+      const sanitizedFields = sanitizeFields(config.fields);
       const customFields = sanitizedFields
         .filter((field) => field.isCustomField)
         .reduce(
           (acc, field) => ({
             ...acc,
-            [field.fieldName]: field.defaultValue ?? undefined, // Transform null to undefined
+            [field.fieldName]: field.defaultValue ?? undefined,
           }),
           {}
         );
@@ -235,11 +234,6 @@ export default function AddPlayerPage() {
         ...data,
         playerDetails: {
           ...data.playerDetails,
-          country:
-            Country.getCountryByCode(data.playerDetails.country || '')?.name ||
-            '', // Handle null or undefined country
-          state:
-            State.getStateByCode(data.playerDetails.state || '')?.name || '', // Handle null or undefined state
         },
       };
 

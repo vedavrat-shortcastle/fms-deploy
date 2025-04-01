@@ -464,7 +464,7 @@ export const parentRouter = router({
         }
 
         // Combine the player details with the base user info
-        return { ...playerBaseUser, ...playerDetails };
+        return { ...playerDetails, ...playerBaseUser };
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to fetch player',

@@ -27,27 +27,34 @@ import { cn } from '@/lib/utils';
 type PhoneInputProps = {
   placeholder?: string;
   defaultCountry?: RPNInput.Country | undefined;
-  defaultValue?: string;
+  value: string;
   className?: string;
-  onPhoneNumberChange?: (phoneNumber: string) => void;
+  onChange?: (phoneNumber: string) => void;
 };
 
 const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
-  (
-    {
-      placeholder,
-      defaultCountry = 'US',
-      defaultValue = '',
-      className,
-      onPhoneNumberChange,
-    },
-    ref
-  ) => {
-    const [phoneNumber, setPhoneNumber] = React.useState(
-      defaultValue.replace(/[^0-9]/g, '') // Ensure only numeric values
-    );
+  ({ placeholder, defaultCountry = 'US', value, className, onChange }, ref) => {
+    const [phoneNumber, setPhoneNumber] = React.useState('');
     const [selectedCountry, setSelectedCountry] =
       React.useState<RPNInput.Country>(defaultCountry);
+
+    // Split value into country code and phone number
+    React.useEffect(() => {
+      if (value) {
+        const match = value.match(/^\+(\d+)-(.+)$/);
+        if (match) {
+          const countryCode = match[1];
+          const phone = match[2];
+          const country = getCountries().find(
+            (c) => getCountryCallingCode(c) === countryCode
+          );
+          if (country) {
+            setSelectedCountry(country);
+            setPhoneNumber(phone);
+          }
+        }
+      }
+    }, [value]);
 
     // Handle phone number input change
     const handlePhoneNumberChangeInternal = (
@@ -55,35 +62,33 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
     ) => {
       const numericValue = e.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
       setPhoneNumber(numericValue);
-      if (onPhoneNumberChange) {
+      if (onChange) {
         const fullPhoneNumber = `+${getCountryCallingCode(
           selectedCountry
-        )}${numericValue}`;
-        onPhoneNumberChange(fullPhoneNumber);
+        )}-${numericValue}`;
+        onChange(fullPhoneNumber);
       }
     };
 
     // Handle country change
     const handleCountryChange = (country: RPNInput.Country) => {
       setSelectedCountry(country);
-      if (onPhoneNumberChange) {
+      if (onChange) {
         const fullPhoneNumber = `+${getCountryCallingCode(
           country
-        )}${phoneNumber}`;
-        onPhoneNumberChange(fullPhoneNumber);
+        )}-${phoneNumber}`;
+        onChange(fullPhoneNumber);
       }
     };
 
     return (
       <div className={cn('flex flex-col gap-4', className)}>
         <div className="flex items-center gap-2">
-          {/* Country Selector */}
           <CountrySelect
             disabled={false}
             value={selectedCountry}
             onChange={handleCountryChange}
           />
-          {/* Phone Number Input */}
           <Input
             ref={ref}
             type="tel"
