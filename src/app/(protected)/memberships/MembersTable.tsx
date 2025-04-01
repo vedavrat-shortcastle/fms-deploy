@@ -11,14 +11,17 @@ import {
 import { trpc } from '@/utils/trpc';
 import Loader from '@/components/Loader';
 import { Badge } from '@/components/ui/badge'; // colored badge for status
+import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 export default function MembersTable() {
-  const page = 1;
+  const [page, setPage] = useState<number>(1);
   const limit = 10;
 
   // Call the API endpoint using tRPC
   const { data, isLoading, error } =
     trpc.membership.getFederationSubscribers.useQuery({ page, limit });
+  const totalPages = data ? Math.ceil(data.total / limit) : 1;
 
   if (isLoading)
     return (
@@ -36,6 +39,15 @@ export default function MembersTable() {
   // The API returns an object with subscriptions and total.
   // Each subscription includes subscriberId, type, status, startDate, and endDate.
   const subscriptions = data?.subscriptions || [];
+
+  // Display a message if no members are found
+  if (subscriptions.length === 0) {
+    return (
+      <div className="flex justify-center min-h-screen text-2xl text-primary">
+        No members found
+      </div>
+    );
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -84,6 +96,27 @@ export default function MembersTable() {
           ))}
         </TableBody>
       </Table>
+      <div className="flex justify-end mt-4 items-center">
+        <Button
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          disabled={page <= 1}
+          className="mr-2"
+        >
+          Previous
+        </Button>
+        <span>
+          Page {page} of {totalPages}
+        </span>
+        <Button
+          onClick={() =>
+            setPage((prev) => (prev < totalPages ? prev + 1 : prev))
+          }
+          disabled={page >= totalPages}
+          className="ml-2"
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 }
