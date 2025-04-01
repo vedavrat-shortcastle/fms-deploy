@@ -171,7 +171,7 @@ export default function OnboardParentPage() {
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex min-h-svh bg-gray-50">
           <main className="flex-1">
             <PageHeader
@@ -195,13 +195,6 @@ export default function OnboardParentPage() {
                     {isSubmitting ? 'Submitting...' : 'Submit'}
                   </Button>
                 </div>
-
-                {/* Debug info - can be removed in production */}
-                {Object.keys(formState.errors).length > 0 && (
-                  <div className="mt-4 p-2 bg-red-50 border border-red-200 rounded text-xs">
-                    <p>Form errors: {JSON.stringify(formState.errors)}</p>
-                  </div>
-                )}
               </div>
             </div>
           </main>
