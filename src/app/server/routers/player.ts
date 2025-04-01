@@ -165,7 +165,7 @@ export const playerRouter = router({
             },
           });
           // Combine the player details with the base user info
-          return { ...baseUser, ...player, subscriptions };
+          return { ...player, ...baseUser, subscriptions };
         });
 
         return result;

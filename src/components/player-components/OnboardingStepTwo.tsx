@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import DatePicker from '@/components/player-components/DatePicker';
+import DatePicker from '@/components/DatePicker';
 import { FileUploader } from '@/components/FileUploader';
 import { playerOnboardingInput } from '@/schemas/Player.schema';
 import { renderLabel } from '@/components/RenderLabel';
