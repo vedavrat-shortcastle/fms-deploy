@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/PhoneInput';
-import DatePicker from '@/components/player-components/DatePicker';
+import DatePicker from '@/components/DatePicker';
 import { Gender } from '@prisma/client';
 import {
   Select,

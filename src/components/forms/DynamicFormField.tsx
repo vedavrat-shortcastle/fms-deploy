@@ -19,7 +19,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { FileUploader } from '@/components/FileUploader';
 import { PhoneInput } from '@/components/PhoneInput';
-import DatePicker from '@/components/player-components/DatePicker';
+import DatePicker from '@/components/DatePicker';
 import { renderLabel } from '@/components/RenderLabel';
 import { Country, State, City } from 'country-state-city';
 import { Button } from '@/components/ui/button';
