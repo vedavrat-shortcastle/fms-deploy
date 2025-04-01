@@ -472,7 +472,7 @@ export const defaultFormConfigs = {
         displayName: 'Benefits',
         placeholder: 'Enter each benefit separated by a comma',
         fieldType: FieldType.TEXTAREA,
-        isMandatory: false,
+        isMandatory: true,
         order: 5,
       },
       {
@@ -490,7 +490,7 @@ export const defaultFormConfigs = {
         fieldType: FieldType.CHECKBOX,
         isMandatory: false,
         order: 7,
-        defaultValue: false,
+        defaultValue: 'false',
       },
     ],
   },

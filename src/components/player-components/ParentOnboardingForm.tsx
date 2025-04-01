@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { PhoneInput } from '@/components/phoneInput';
+import { PhoneInput } from '@/components/PhoneInput';
 
 export const ParentOnboardingForm = () => {
   const { control, setValue, watch } = useFormContext();
