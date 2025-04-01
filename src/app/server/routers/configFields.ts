@@ -78,7 +78,14 @@ export const configRouter = router({
   getFormConfig: permissionProtectedProcedure(PERMISSIONS.FED_ALL)
     .input(
       z.object({
-        formType: z.enum(['PLAYER', 'PARENT', 'EVENT', 'CLUB', 'SUBSCRIPTION']),
+        formType: z.enum([
+          'PLAYER',
+          'PARENT',
+          'EVENT',
+          'CLUB',
+          'SUBSCRIPTION',
+          'MEMBERSHIP',
+        ]),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -121,7 +128,14 @@ export const configRouter = router({
   updateFormConfig: permissionProtectedProcedure(PERMISSIONS.FED_ALL)
     .input(
       z.object({
-        formType: z.enum(['PLAYER', 'PARENT', 'EVENT', 'CLUB', 'SUBSCRIPTION']),
+        formType: z.enum([
+          'PLAYER',
+          'PARENT',
+          'EVENT',
+          'CLUB',
+          'SUBSCRIPTION',
+          'MEMBERSHIP',
+        ]),
         fields: z.array(formFieldSchema),
       })
     )
