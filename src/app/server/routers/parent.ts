@@ -133,8 +133,6 @@ export const parentRouter = router({
     .mutation(async ({ ctx, input }) => {
       try {
         const { baseUser, parentDetails } = input;
-        console.log(input);
-
         // Find the existing user
         const existingUser = await ctx.db.baseUser.findUnique({
           where: {
