@@ -20,6 +20,7 @@ import {
   baseUserFields,
   mapPlayerData,
 } from '@/app/(protected)/players/[playerId]/PlayerDataMapping';
+import { useTranslation } from 'react-i18next';
 
 const sanitizeFields = (fields: any[]) =>
   fields.map((field) => ({
@@ -34,6 +35,7 @@ const sanitizeFields = (fields: any[]) =>
 
 export default function Profile() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { data: sessionData } = useSession();
   const { toast } = useToast();
   const { playerId } = useParams<{ playerId: string }>();
@@ -93,8 +95,8 @@ export default function Profile() {
     refetch();
     setIsSubmitting(false);
     toast({
-      title: 'Success',
-      description: 'Player details updated successfully!',
+      title: t('success'),
+      description: t('playerDetailsUpdated'),
       variant: 'default',
     });
   };
@@ -104,8 +106,8 @@ export default function Profile() {
     setIsSubmitting(false);
     if (action === 'delete') setShowDeleteConfirm(false);
     toast({
-      title: 'Error',
-      description: `Failed to ${action} player: ${error.message}`,
+      title: t('error'),
+      description: `${t(`failedTo${action === 'update' ? 'Update' : 'Delete'}Player`)} ${error.message}`,
       variant: 'destructive',
     });
   };
@@ -139,12 +141,12 @@ export default function Profile() {
     }
     if (error) {
       toast({
-        title: 'Error',
-        description: `Error fetching player details: ${error.message}`,
+        title: t('error'),
+        description: `${t('errorFetchingPlayerDetails')} ${error.message}`,
         variant: 'destructive',
       });
     }
-  }, [playerData, error, reset]);
+  }, [playerData, error, reset, t, toast]);
 
   const renderFormFields = () => {
     if (!config?.fields) return null;
@@ -213,7 +215,7 @@ export default function Profile() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-gray-500">No Avatar</span>
+                <span className="text-gray-500">{t('noAvatar')}</span>
               )}
             </div>
             <div className="mt-4 flex flex-col gap-2">
@@ -222,7 +224,7 @@ export default function Profile() {
                 onClick={handleEditToggle}
                 disabled={isSubmitting}
               >
-                {isEditing ? 'Save' : 'Edit'}
+                {isEditing ? t('save') : t('edit')}
               </Button>
               {isPlayerViewing && (
                 <Button
@@ -230,7 +232,7 @@ export default function Profile() {
                   onClick={() => router.push('/change-password')}
                   disabled={isSubmitting}
                 >
-                  Change Password
+                  {t('changePassword')}
                 </Button>
               )}
               <Button
@@ -238,7 +240,7 @@ export default function Profile() {
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={isSubmitting}
               >
-                Delete
+                {t('delete')}
               </Button>
             </div>
           </div>
@@ -249,7 +251,7 @@ export default function Profile() {
             {isEditing && (
               <div className="flex justify-end gap-4 mt-6">
                 <Button variant="ghost" onClick={handleCancel}>
-                  Cancel
+                  {t('cancel')}
                 </Button>
               </div>
             )}

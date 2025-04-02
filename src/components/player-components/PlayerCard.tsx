@@ -4,6 +4,7 @@ import type React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trash2, Edit, Mail, ActivitySquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 import { Badge } from '@/components/ui/badge';
 import { PlayerCardTypes } from '@/schemas/Player.schema';
@@ -21,6 +22,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   onEdit,
   onView,
 }) => {
+  const { t } = useTranslation();
   const fullName = `${player.firstName} ${player.lastName}`;
 
   // Generate a gradient based on the first letter of the name
@@ -77,9 +79,9 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
             <ActivitySquare className="w-4 h-4 mr-2 flex-shrink-0" />
             <span className="capitalize">
               {player.profile?.userStatus === 'ACTIVE' ? (
-                <Badge variant="green">Active</Badge>
+                <Badge variant="green">{t('active')}</Badge>
               ) : (
-                <Badge variant="destructive">Inactive</Badge>
+                <Badge variant="destructive">{t('inactive')}</Badge>
               )}
             </span>
           </div>
@@ -93,7 +95,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
               e.stopPropagation();
               onEdit(player, e);
             }}
-            aria-label="Edit player"
+            aria-label={t('editPlayer')}
           >
             <Edit className="w-4 h-4" />
           </button>
@@ -103,7 +105,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
               e.stopPropagation();
               onDelete(player.id, e);
             }}
-            aria-label="Delete player"
+            aria-label={t('deletePlayer')}
           >
             <Trash2 className="w-4 h-4" />
           </button>

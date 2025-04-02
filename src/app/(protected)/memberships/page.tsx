@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/usages/DataTable';
-import { adminColumns } from './adminColumns';
+import { useAdminPlanColumns } from './adminColumns';
+import { useUsersPlanColumns } from '@/app/(protected)/memberships/usersColumns';
+
 import { FileText } from 'lucide-react';
 import {
   Dialog,
@@ -18,7 +20,8 @@ import { trpc } from '@/utils/trpc';
 import { usePermission } from '@/hooks/usePermission';
 import Loader from '@/components/Loader';
 import { PERMISSIONS } from '@/config/permissions';
-import { usersColumns } from '@/app/(protected)/memberships/usersColumns';
+import { useTranslation } from 'react-i18next';
+
 import MembersTable from '@/app/(protected)/memberships/MembersTable';
 import clsx from 'clsx';
 import ConfigForm from '@/app/(protected)/memberships/ConfigForm';
@@ -30,6 +33,10 @@ export default function Memberships() {
     'plans' | 'members' | 'form'
   >('plans');
   const canCreatePlan = usePermission(PERMISSIONS.PLAN_CREATE);
+  const { t } = useTranslation();
+  const adminColumns = useAdminPlanColumns();
+  const usersColumns = useUsersPlanColumns();
+  const [isPlanOpen, setIsPlanOpen] = useState(true);
 
   // Fetch plans using tRPC query
   const { data, isLoading, refetch } = trpc.membership.getPlans.useQuery({
@@ -70,63 +77,64 @@ export default function Memberships() {
   return (
     <div className="flex min-h-svh bg-gray-50">
       <main className="flex-1 flex flex-col p-6">
-        {/* Container Divs */}
-
         <h1 className="text-2xl font-bold flex items-center gap-2">
           {/* Heading */}
           <span className="text-primary">
             <FileText size={20} />
             {/* Icon */}
           </span>{' '}
-          Memberships
+          {t('membershipsPage_memberships')}
         </h1>
         {/* Dynamic Section Tabs */}
         <div className="border-b my-4">
-          {sections.map((section) => {
-            if (section.permission && !canCreatePlan) return null;
-            return (
-              <Button
-                key={section.value}
-                variant="link"
-                className={clsx(
-                  'font-semibold',
-                  currentSection === section.value
-                    ? 'text-primary'
-                    : 'text-secondary'
-                )}
-                onClick={() => setCurrentSection(section.value)}
-              >
-                {section.name}
-              </Button>
-            );
-          })}
+          <Button
+            variant="link"
+            className={clsx(
+              'font-semibold',
+              isPlanOpen ? 'text-primary' : 'text-secondary'
+            )}
+            onClick={() => setIsPlanOpen(true)}
+          >
+            {t('membershipsPage_plans')}
+          </Button>
+          {canCreatePlan && (
+            <Button
+              variant="link"
+              className={clsx(
+                'font-semibold',
+                !isPlanOpen ? 'text-primary' : 'text-secondary'
+              )}
+              onClick={() => setIsPlanOpen(false)}
+            >
+              {t('membershipsPage_memberships')}
+            </Button>
+          )}
         </div>
 
         <div className="flex gap-4 mb-4 items-end">
           {/* Search */}
-          {currentSection === 'plans' ||
-            (currentSection === 'members' && (
-              <Input
-                placeholder="Search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-64"
-              />
-            ))}
+          <Input
+            placeholder={t('membershipsPage_search')}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-64"
+          />
 
           {canCreatePlan && currentSection === 'plans' && (
             <div className="flex mt-6 items-end w-full h-15 justify-end">
               {/* Modal Pop-up for Adding usage */}
               <Dialog open={formOpen} onOpenChange={setFormOpen}>
                 <DialogTrigger asChild>
-                  <Button>Add Plan</Button>
+                  <Button>{t('membershipsPage_addPlan')}</Button>
                 </DialogTrigger>
 
                 <DialogContent className="max-w-3xl order ">
                   <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">
                       {/* <div className=""> */}
-                      <h1 className="text-2xl font-bold">Create Plan</h1>
+                      <h1 className="text-2xl font-bold">
+                        {t('membershipsPage_createPlan')}
+                      </h1>
                       {/* </div> */}
                     </DialogTitle>
                   </DialogHeader>

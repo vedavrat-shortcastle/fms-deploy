@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface PaginationProps {
   totalRecords: number;
@@ -28,6 +29,7 @@ export function Pagination({
   onItemsPerPageChange,
   itemsPerPageOptions = [5, 10, 20, 50],
 }: PaginationProps) {
+  const { t } = useTranslation();
   const totalPages = Math.ceil(totalRecords / itemsPerPage);
 
   // Generate page numbers to display
@@ -75,7 +77,7 @@ export function Pagination({
           className="h-8 w-8"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          aria-label="Previous page"
+          aria-label={t('previousPage')}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -119,7 +121,7 @@ export function Pagination({
           className="h-8 w-8"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          aria-label="Next page"
+          aria-label={t('nextPage')}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -127,7 +129,7 @@ export function Pagination({
 
       <div className="flex items-center space-x-2">
         <Label htmlFor="items-per-page" className="text-sm whitespace-nowrap">
-          Items per page:
+          {t('itemsPerPage')}
         </Label>
         <Select
           value={String(itemsPerPage)}

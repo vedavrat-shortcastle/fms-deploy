@@ -17,6 +17,7 @@ import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { trpc } from '@/utils/trpc';
 import Toast from '@/app/(protected)/memberships-payment/Toast';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 type FormData = {
   email: string;
@@ -39,6 +40,7 @@ const CheckoutForm = ({
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const { mutateAsync: createPaymentIntent } =
     trpc.payment.createMembershipPayment.useMutation();
@@ -109,7 +111,7 @@ const CheckoutForm = ({
 
       if (error) {
         console.error('Payment failed:', error);
-        showToast(error.message || 'Payment failed', 'error');
+        showToast(t('checkoutFormPage_paymentFailed'), 'error');
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         console.log('Payment succeeded:', paymentIntent);
         const result = await confirmPayment({
@@ -118,7 +120,7 @@ const CheckoutForm = ({
           playerIds,
           parentId,
         });
-        showToast('Payment succeeded!', 'success');
+        showToast(t('checkoutFormPage_paymentSucceeded'), 'success');
 
         // Extract the order id from the transaction record
         const orderId = result.transaction.id;
@@ -128,7 +130,7 @@ const CheckoutForm = ({
           result.transaction.createdAt
         ).toISOString();
 
-        showToast('Payment succeeded!', 'success');
+        showToast(t('checkoutFormPage_paymentSucceeded'), 'success');
         // Redirect to the success page and pass the transaction date via query parameter
         router.push(
           `/memberships-payment/success?date=${encodeURIComponent(transactionDate)}&orderId=${encodeURIComponent(orderId)}&amount=${encodeURIComponent(amount)}`
@@ -136,7 +138,7 @@ const CheckoutForm = ({
       }
     } catch (err) {
       console.error('Error creating PaymentIntent:', err);
-      showToast('An error occurred', 'error');
+      showToast(t('checkoutFormPage_anErrorOccurred'), 'error');
     }
     setIsProcessing(false);
   };
@@ -149,12 +151,14 @@ const CheckoutForm = ({
           {/* Email Field */}
           <div>
             <Label htmlFor="email" className="text-sm font-normal block mb-2">
-              Email
+              {t('checkoutFormPage_email')}
             </Label>
             <Input
               id="email"
               className="border rounded w-full"
-              {...register('email', { required: 'Email is required' })}
+              {...register('email', {
+                required: t('checkoutFormPage_emailRequired'),
+              })}
             />
             {errors.email && (
               <p className="text-primary text-sm">{errors.email.message}</p>
@@ -164,7 +168,7 @@ const CheckoutForm = ({
           {/* Card Input */}
           <div>
             <Label htmlFor="card" className="text-sm font-normal block mb-2">
-              Debit/Credit Card Information
+              {t('checkoutFormPage_cardInfo')}
             </Label>
             <div className="border rounded w-full mb-2 p-3">
               <CardElement
@@ -185,12 +189,14 @@ const CheckoutForm = ({
           {/* Name on Card Field */}
           <div>
             <Label htmlFor="name" className="text-sm font-normal block mb-2">
-              Name on card
+              {t('checkoutFormPage_nameOnCard')}
             </Label>
             <Input
               id="name"
               className="border rounded w-full"
-              {...register('name', { required: 'Name is required' })}
+              {...register('name', {
+                required: t('checkoutFormPage_nameRequired'),
+              })}
             />
             {errors.name && (
               <p className="text-primary text-sm">{errors.name.message}</p>
@@ -200,7 +206,7 @@ const CheckoutForm = ({
           {/* Billing Address */}
           <div>
             <Label htmlFor="country" className="text-sm font-normal block mb-2">
-              Billing address
+              {t('checkoutFormPage_billingAddress')}
             </Label>
             <Controller
               control={control}
@@ -211,20 +217,30 @@ const CheckoutForm = ({
                     id="country"
                     className="border rounded w-full mb-2"
                   >
-                    <SelectValue placeholder="United States" />
+                    <SelectValue
+                      placeholder={t('checkoutFormPage_unitedStates')}
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="us">United States</SelectItem>
-                    <SelectItem value="nz">New Zealand</SelectItem>
-                    <SelectItem value="uk">United Kingdom</SelectItem>
+                    <SelectItem value="us">
+                      {t('checkoutFormPage_unitedStates')}
+                    </SelectItem>
+                    <SelectItem value="nz">
+                      {t('checkoutFormPage_newZealand')}
+                    </SelectItem>
+                    <SelectItem value="uk">
+                      {t('checkoutFormPage_unitedKingdom')}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               )}
             />
             <Input
               className="border rounded w-full mb-2"
-              placeholder="Address"
-              {...register('address', { required: 'Address is required' })}
+              placeholder={t('checkoutFormPage_address')}
+              {...register('address', {
+                required: t('checkoutFormPage_addressRequired'),
+              })}
             />
             {errors.address && (
               <p className="text-primary text-sm">{errors.address.message}</p>
@@ -237,7 +253,9 @@ const CheckoutForm = ({
             className="w-full bg-primary hover:bg-red-700 text-white"
             disabled={isProcessing || !stripe}
           >
-            {isProcessing ? 'Processing...' : 'Pay'}
+            {isProcessing
+              ? t('checkoutFormPage_processing')
+              : t('checkoutFormPage_pay')}
           </Button>
         </div>
       </form>

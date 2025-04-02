@@ -13,8 +13,10 @@ import {
   createPlanSchema,
   planFormDefaults,
 } from '@/schemas/Membership.schema';
+import { useTranslation } from 'react-i18next';
 
 export default function PlanForm({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation();
   const { config, isLoading: isConfigLoading } = useFormConfig('MEMBERSHIP');
   const createPlan = trpc.membership.createPlan.useMutation();
 
@@ -44,7 +46,7 @@ export default function PlanForm({ onClose }: { onClose: () => void }) {
         ...customFields,
       });
     }
-  }, [config]);
+  }, [config, form]); // Added form to the dependency array
 
   const onSubmit = async (data: planFormValues) => {
     try {
@@ -64,8 +66,8 @@ export default function PlanForm({ onClose }: { onClose: () => void }) {
       await createPlan.mutateAsync(formattedData);
 
       toast({
-        title: 'Plan created successfully',
-        description: 'Your membership plan has been created',
+        title: t('planFormPage_createSuccessTitle'),
+        description: t('planFormPage_createSuccessDescription'),
         variant: 'default',
       });
 
@@ -73,7 +75,7 @@ export default function PlanForm({ onClose }: { onClose: () => void }) {
       onClose(); // Close the modal after successful submission
     } catch (error: any) {
       toast({
-        title: 'Error creating plan',
+        title: t('planFormPage_createErrorTitle'),
         description: error.message,
         variant: 'destructive',
       });
@@ -82,7 +84,7 @@ export default function PlanForm({ onClose }: { onClose: () => void }) {
   };
 
   if (isConfigLoading) {
-    return <div>Loading form configuration...</div>;
+    return <div>{t('planFormPage_loadingConfig')}</div>;
   }
 
   // Utility function to sanitize fields
@@ -115,14 +117,16 @@ export default function PlanForm({ onClose }: { onClose: () => void }) {
                 {/* Buttons */}
                 <div className="flex justify-end mt-4 gap-2">
                   <Button type="button" variant="outline" onClick={onClose}>
-                    Cancel
+                    {t('planFormPage_cancel')}
                   </Button>
                   <Button
                     type="submit"
                     className="bg-red-600 hover:bg-red-700"
                     disabled={createPlan.isLoading}
                   >
-                    {createPlan.isLoading ? 'Saving...' : 'Save'}
+                    {createPlan.isLoading
+                      ? t('planFormPage_saving')
+                      : t('planFormPage_save')}
                   </Button>
                 </div>
               </form>

@@ -4,8 +4,9 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { useTranslation } from 'react-i18next';
 
-export const usersColumns: ColumnDef<{
+export type UserPlanTable = {
   status: string;
   currency: string;
   name: string;
@@ -18,54 +19,56 @@ export const usersColumns: ColumnDef<{
   price: number;
   benefits: string[];
   autoRenewal: boolean;
-}>[] = [
-  {
-    accessorKey: 'name',
-    header: 'Plan Name',
-  },
-  {
-    accessorKey: 'price',
-    header: 'Price',
-  },
-  {
-    accessorKey: 'benefits',
-    header: 'Benefits',
-  },
-  {
-    accessorKey: 'duration',
-    header: 'Billing cycle',
-    cell: ({ row }) => `${row.getValue('duration')} months`,
-  },
-  {
-    id: 'actions',
-    // header: 'Actions',
-    cell: ({ row }) => {
-      const router = useRouter();
-      const session = useSession();
-      return (
-        <div className="flex space-x-2 justify-end">
-          <Button
-            variant={row.original.status === 'active' ? 'outline' : 'default'}
-            onClick={() => {
-              if (row.original.status === 'active') {
-                return;
-              }
-              if (session.data?.user.role === 'PARENT') {
-                router.push(`/memberships-players?planId=${row.original.id}`);
-                return;
-              }
-              if (session.data?.user.role === 'PLAYER') {
+};
+
+export const useUsersPlanColumns = (): ColumnDef<UserPlanTable>[] => {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const session = useSession();
+
+  return [
+    {
+      accessorKey: 'name',
+      header: t('userPlanTable_planName'),
+    },
+    {
+      accessorKey: 'price',
+      header: t('userPlanTable_price'),
+    },
+    {
+      accessorKey: 'benefits',
+      header: t('userPlanTable_benefits'),
+    },
+    {
+      accessorKey: 'duration',
+      header: t('userPlanTable_billingCycle'),
+      cell: ({ row }) =>
+        `${row.getValue('duration')} ${t('userPlanTable_months')}`,
+    },
+    {
+      id: 'actions',
+      // header: t('userPlanTable_actions'), // Optional: Add a translation for "Actions" if needed
+      cell: ({ row }) => {
+        return (
+          <div className="flex space-x-2 justify-end">
+            <Button
+              variant={row.original.status === 'active' ? 'outline' : 'default'}
+              onClick={() => {
+                if (row.original.status === 'active') {
+                  return;
+                }
                 router.push(
                   `/memberships-payment?planId=${row.original.id}&playerIds=${[session.data?.user.profileId]}`
                 );
-                return;
-              }
-            }}
-          >
-            {row.original.status === 'active' ? 'Purchased' : 'Purchase Plan'}
-          </Button>
-        </div>
-      );
+              }}
+            >
+              {row.original.status === 'active'
+                ? t('userPlanTable_purchased')
+                : t('userPlanTable_purchasePlan')}
+            </Button>
+          </div>
+        );
+      },
     },
-  },
-];
+  ];
+};

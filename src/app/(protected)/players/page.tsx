@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { debounce } from 'lodash';
 import { useSession } from 'next-auth/react';
 import Papa from 'papaparse';
+import { useTranslation } from 'react-i18next';
 
 import {
   DropdownMenu,
@@ -26,6 +27,7 @@ import { useToast } from '@/hooks/useToast';
 
 export default function Page() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const [limit, setLimit] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -66,7 +68,7 @@ export default function Page() {
     },
     onError: (error) => {
       console.error('Failed to delete player:', error.message);
-      alert('Delete failed. Please try again.');
+      alert(t('deleteFailed'));
     },
   });
 
@@ -88,7 +90,7 @@ export default function Page() {
   // Delete player using tRPC mutation
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this player?')) {
+    if (window.confirm(t('deleteConfirmation'))) {
       deletePlayerMutation.mutate({ id });
     }
   };
@@ -122,7 +124,7 @@ export default function Page() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploadStatus('Uploading...');
+    setUploadStatus(t('uploading')); // Assuming you'll add 'uploading' to common.json
 
     Papa.parse(file, {
       header: true,
@@ -172,30 +174,30 @@ export default function Page() {
           if (response.success) {
             setUploadStatus(null);
             toast({
-              title: 'Success',
-              description: 'Players uploaded successfully!',
+              title: t('success'),
+              description: t('playersUploadedSuccessfully'),
               variant: 'default',
             });
             playersQuery.refetch(); // Refresh player list
           } else {
             toast({
-              title: 'Failed',
-              description: 'Failed to Upload!',
+              title: t('failed'),
+              description: t('failedToUpload'),
               variant: 'destructive',
             });
           }
         } catch (error) {
           console.error('Upload error:', error);
           toast({
-            title: 'Failed',
-            description: 'Failed to Upload! Try Again',
+            title: t('failed'),
+            description: t('failedToUploadTryAgain'),
             variant: 'destructive',
           });
         }
       },
       error: (error: any) => {
         console.error('CSV Parsing Error:', error);
-        setUploadStatus('Error parsing CSV file.');
+        setUploadStatus(t('errorParsingCSV'));
       },
     });
 
@@ -215,7 +217,7 @@ export default function Page() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'sample_players.csv';
+    link.download = t('samplePlayersCSVFile');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -234,17 +236,17 @@ export default function Page() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'players.csv';
+        link.download = t('playersCSVFile');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
       } else {
-        alert('No data available for export.');
+        alert(t('noDataForExport'));
       }
     } catch (error) {
       console.error('Export failed', error);
-      alert('Export failed. Please try again.');
+      alert(t('exportFailed'));
     }
   };
 
@@ -259,13 +261,15 @@ export default function Page() {
         <main className="flex-1 flex flex-col p-6">
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-medium text-gray-700">Players</h1>
+              <h1 className="text-lg font-medium text-gray-700">
+                {t('players')}
+              </h1>
             </div>
             <Button
               className="bg-red-600 hover:bg-red-700 text-white rounded"
               onClick={handleAddPlayer}
             >
-              Add Player
+              {t('addPlayer')}
             </Button>
           </div>
 
@@ -274,7 +278,7 @@ export default function Page() {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
                 className="pl-10 rounded-md border-gray-200"
-                placeholder="Search"
+                placeholder={t('search')}
                 type="search"
                 value={searchTerm}
                 onChange={handleSearchChange}
@@ -288,15 +292,15 @@ export default function Page() {
                   className="border-gray-200 text-gray-600 rounded-md"
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  Import
+                  {t('import')}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={triggerFileUpload}>
-                  Upload CSV
+                  {t('uploadCSV')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSampleCSV}>
-                  Sample CSV
+                  {t('sampleCSV')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -307,7 +311,7 @@ export default function Page() {
               disabled={players.length === 0}
             >
               <Download className="h-4 w-4 mr-2" />
-              Export
+              {t('export')}
             </Button>
           </div>
 
