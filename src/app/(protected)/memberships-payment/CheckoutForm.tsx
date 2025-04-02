@@ -221,6 +221,7 @@ const CheckoutForm = ({
                       placeholder={t('checkoutFormPage_unitedStates')}
                     />
                   </SelectTrigger>
+                  {/* //TODO: Update this to use dynamic options */}
                   <SelectContent>
                     <SelectItem value="us">
                       {t('checkoutFormPage_unitedStates')}
