@@ -12,6 +12,7 @@ export const createContext = async (opts: { req: Request }) => {
     db,
     session,
     req: opts.req,
+    maxDuration: 300,
     // Add any other context items here
   };
 };
