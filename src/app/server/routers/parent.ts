@@ -9,7 +9,7 @@ import { hashPassword } from '@/utils/encoder';
 import { ProfileType, Role, Prisma } from '@prisma/client';
 import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { z } from 'zod';
-import { createParentSchema } from '@/schemas/Parent.schema';
+import { createParentSchema, editParentSchema } from '@/schemas/Parent.schema';
 import { createPlayerSchema, editPlayerSchema } from '@/schemas/Player.schema';
 import { generateCustomPlayerId } from '@/utils/generateCustomCode';
 
@@ -126,7 +126,101 @@ export const parentRouter = router({
         });
       }
     }),
+  //Edit parent by Id
 
+  editParentById: permissionProtectedProcedure(PERMISSIONS.PARENT_UPDATE)
+    .input(editParentSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const { baseUser, parentDetails } = input;
+        // Find the existing user
+        const existingUser = await ctx.db.baseUser.findUnique({
+          where: {
+            id: baseUser.id,
+            federationId: ctx.session.user.federationId,
+            role: Role.PARENT,
+          },
+          include: {
+            profile: {
+              select: {
+                profileId: true,
+                userStatus: true,
+                profileType: true,
+              },
+            },
+          },
+        });
+
+        if (!existingUser) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Parent not found',
+          });
+        }
+
+        if (existingUser.profile?.userStatus !== 'ACTIVE') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: `Parent profile is ${existingUser.profile?.userStatus}`,
+          });
+        }
+
+        if (existingUser.profile.profileType !== ProfileType.PARENT) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Profile is not a parent',
+          });
+        }
+
+        // Check email uniqueness if email is being updated
+        if (baseUser.email && baseUser.email !== existingUser.email) {
+          const emailExists = await ctx.db.baseUser.findUnique({
+            where: {
+              email_federationId: {
+                email: baseUser.email,
+                federationId: ctx.session.user.federationId,
+              },
+            },
+          });
+
+          if (emailExists) {
+            throw new TRPCError({
+              code: 'CONFLICT',
+              message: 'Email already exists',
+            });
+          }
+        }
+
+        // Perform the update in a transaction
+        const [updatedBaseUser, updatedParent] = await ctx.db.$transaction([
+          // Update BaseUser
+          ctx.db.baseUser.update({
+            where: { id: baseUser.id },
+            data: {
+              ...baseUser,
+            },
+          }),
+
+          // Update Parent (using parentDetails)
+          ctx.db.parent.update({
+            where: { id: existingUser.profile.profileId },
+            data: {
+              ...parentDetails,
+            },
+          }),
+        ]);
+
+        return {
+          ...updatedBaseUser,
+          parentDetails: updatedParent,
+        };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to edit parent',
+          cause: error.message,
+        });
+      }
+    }),
   // Add player to parent
   addPlayer: permissionProtectedProcedure(PERMISSIONS.PLAYER_CREATE)
     .input(createPlayerSchema)

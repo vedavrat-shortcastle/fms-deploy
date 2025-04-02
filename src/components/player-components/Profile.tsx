@@ -9,7 +9,7 @@ import { useSession } from 'next-auth/react';
 import { trpc } from '@/utils/trpc';
 import Loader from '@/components/Loader';
 import { useToast } from '@/hooks/useToast';
-import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
+import { DeleteConfirmDialog } from '@/components/deleteConfirmDialog';
 import { FormBuilder } from '@/components/forms/FormBuilder';
 import { useFormConfig } from '@/hooks/useFormConfig';
 import {

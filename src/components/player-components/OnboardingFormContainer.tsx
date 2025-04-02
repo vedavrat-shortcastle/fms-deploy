@@ -10,6 +10,7 @@ interface OnboardingFormContainerProps {
   onTabChange: (tab: 'stepOne' | 'stepTwo') => void;
   onBack: () => void;
   onNext: () => void;
+  submitLabel: string;
 }
 
 export const OnboardingFormContainer: React.FC<
