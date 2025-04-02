@@ -20,7 +20,10 @@ export default function PlayerSelectionPage() {
 
   const searchParams = useSearchParams();
   const membershipPlanId = searchParams.get('planId'); //TODO: Wire up the planId to the payment page
-  console.log('Membership Plan ID:', membershipPlanId);
+
+  const { data: plan } = trpc.membership.getPlanById.useQuery({
+    id: membershipPlanId!,
+  });
 
   // Handle authentication
   if (status === 'loading') {
@@ -52,14 +55,14 @@ export default function PlayerSelectionPage() {
   // 5. Transform the fetched data to match what the PlayerCard expects
   const players =
     data?.players.map((player) => ({
-      id: player.id,
+      id: player.profile?.profileId ?? '',
       name: `${player.firstName} ${player.lastName}`,
       initials:
         `${player.firstName[0] ?? ''}${player.lastName[0] ?? ''}`.toUpperCase(),
 
       email: player.email,
       fideId: '00', // FIDE ID isn’t included; adjust if needed
-      price: 45.0, // Hardcoded as before
+      price: plan?.price ?? 45.0, // Hardcoded as before
     })) || [];
 
   // 6. Toggle player selection on PlayerCard interaction
@@ -71,7 +74,7 @@ export default function PlayerSelectionPage() {
     }
   };
 
-  const totalAmount = selectedPlayers.length * 45.0;
+  const totalAmount = selectedPlayers.length * (plan?.price ?? 45.0);
 
   const handlePayNow = () => {
     const selectedPlayerDetails = players
@@ -82,7 +85,13 @@ export default function PlayerSelectionPage() {
       alert('Please select at least one player.');
       return;
     }
-    router.push('/memberships-payment');
+    // Construct query string with planId and playerIds
+    const queryParams = new URLSearchParams();
+    queryParams.append('planId', membershipPlanId || ''); // Pass the planId
+    queryParams.append('playerIds', selectedPlayers.join(',')); // Pass playerIds as a comma-separated string
+
+    // Redirect to the payment page with query parameters
+    router.push(`/memberships-payment?${queryParams.toString()}`);
   };
 
   const totalPages = data ? Math.ceil(data.total / limit) : 1;
