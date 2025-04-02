@@ -18,12 +18,7 @@ import { useFormConfig } from '@/hooks/useFormConfig';
 
 type FormSections = 'stepOne' | 'stepTwo';
 
-type FieldPrefix = '';
-
-const FORM_SECTIONS: Record<
-  FormSections,
-  { fields: string[]; prefix: Record<string, FieldPrefix> }
-> = {
+const FORM_SECTIONS: Record<FormSections, { fields: string[] }> = {
   stepOne: {
     fields: [
       'birthDate',
@@ -37,18 +32,6 @@ const FORM_SECTIONS: Record<
       'postalCode',
       'phoneNumber',
     ],
-    prefix: {
-      birthDate: '',
-      gender: '',
-      ageProof: '',
-      streetAddress: '',
-      streetAddress2: '',
-      country: '',
-      state: '',
-      city: '',
-      postalCode: '',
-      phoneNumber: '',
-    },
   },
   stepTwo: {
     fields: [
@@ -60,15 +43,6 @@ const FORM_SECTIONS: Record<
       'clubName',
       'avatarUrl',
     ],
-    prefix: {
-      fideId: '',
-      schoolName: '',
-      graduationYear: '',
-      gradeInSchool: '',
-      gradeDate: '',
-      clubName: '',
-      avatarUrl: '',
-    },
   },
 };
 
@@ -230,7 +204,6 @@ export default function PlayerOnboarding() {
 
       return fields.map((field) => ({
         ...field,
-        prefix: FORM_SECTIONS[section].prefix[field.fieldName] || '',
         dependentValue: {
           country: form.getValues('country'),
           state: form.getValues('state'),
@@ -256,7 +229,6 @@ export default function PlayerOnboarding() {
                 fields: [field],
               }}
               control={control}
-              basePrefix={`${field.prefix}`}
             />
           ))}
         </div>
