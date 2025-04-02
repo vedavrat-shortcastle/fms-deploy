@@ -142,6 +142,23 @@ export default function ConfigForm() {
   //     );
   //   };
 
+  const selectOptions = [
+    { value: 'PLAYER', label: 'Player Form' },
+    { value: 'PARENT', label: 'Parent Form' },
+    { value: 'EVENT', label: 'Event Form' },
+    { value: 'CLUB', label: 'Club Form' },
+    { value: 'SUBSCRIPTION', label: 'Subscription Form' },
+  ];
+
+  const tableHeaders = [
+    { label: 'Field-Name' },
+    { label: 'Field Type' },
+    { label: 'Label' },
+    { label: 'Visible' },
+    { label: 'Mandatory' },
+    { label: 'Edit' },
+  ];
+
   return (
     <div>
       <h2 className="font-extrabold text-xl pb-7">Form Configuration</h2>
@@ -156,11 +173,11 @@ export default function ConfigForm() {
             <SelectValue placeholder="Select Form" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="PLAYER">Player Form</SelectItem>
-            <SelectItem value="PARENT">Parent Form</SelectItem>
-            <SelectItem value="EVENT">Event Form</SelectItem>
-            <SelectItem value="CLUB">Club Form</SelectItem>
-            <SelectItem value="SUBSCRIPTION">Subscription Form</SelectItem>
+            {selectOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -189,21 +206,11 @@ export default function ConfigForm() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="font-medium text-gray-700">
-                Field-Name
-              </TableHead>
-              <TableHead className="font-medium text-gray-700">
-                Field Type
-              </TableHead>
-              <TableHead className="font-medium text-gray-700">Label</TableHead>
-              <TableHead className="font-medium text-gray-700">
-                Visible
-              </TableHead>
-              <TableHead className="font-medium text-gray-700">
-                Mandatory
-              </TableHead>
-              {/* New Edit column */}
-              <TableHead className="font-medium text-gray-700">Edit</TableHead>
+              {tableHeaders.map((header, index) => (
+                <TableHead key={index} className="font-medium text-gray-700">
+                  {header.label}
+                </TableHead>
+              ))}
             </TableRow>
           </TableHeader>
           <TableBody>
