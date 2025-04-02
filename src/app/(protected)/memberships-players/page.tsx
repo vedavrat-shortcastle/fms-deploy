@@ -20,7 +20,6 @@ export default function PlayerSelectionPage() {
 
   const searchParams = useSearchParams();
   const membershipPlanId = searchParams.get('planId'); //TODO: Wire up the planId to the payment page
-  console.log('Membership Plan ID:', membershipPlanId);
 
   const { data: plan } = trpc.membership.getPlanById.useQuery({
     id: membershipPlanId!,
@@ -56,7 +55,7 @@ export default function PlayerSelectionPage() {
   // 5. Transform the fetched data to match what the PlayerCard expects
   const players =
     data?.players.map((player) => ({
-      id: player.id,
+      id: player.profile?.profileId ?? '',
       name: `${player.firstName} ${player.lastName}`,
       initials:
         `${player.firstName[0] ?? ''}${player.lastName[0] ?? ''}`.toUpperCase(),
@@ -89,9 +88,7 @@ export default function PlayerSelectionPage() {
     // Construct query string with planId and playerIds
     const queryParams = new URLSearchParams();
     queryParams.append('planId', membershipPlanId || ''); // Pass the planId
-    selectedPlayers.forEach((playerId) => {
-      queryParams.append('playerIds', playerId); // Pass playerIds as an array
-    });
+    queryParams.append('playerIds', selectedPlayers.join(',')); // Pass playerIds as a comma-separated string
 
     // Redirect to the payment page with query parameters
     router.push(`/memberships-payment?${queryParams.toString()}`);
