@@ -23,11 +23,12 @@ import MembersTable from '@/app/(protected)/memberships/MembersTable';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import ConfigForm from '@/app/(protected)/memberships/ConfigForm';
-const { t } = useTranslation();
 
 export default function Memberships() {
   const [search, setSearch] = useState('');
   const [formOpen, setFormOpen] = useState(false);
+  const { t } = useTranslation();
+
   const [currentSection, setCurrentSection] = useState<
     'plans' | 'members' | 'form'
   >('plans');
