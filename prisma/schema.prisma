@@ -53,6 +53,7 @@ model ClubManager {
   id        String   @id @default(uuid())
   club      Club     @relation(fields: [clubId], references: [id], name: "ClubManager")
   clubId    String   @unique @map("club_id")
+   phoneNumber  String?    @map("phone_number")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -164,7 +165,13 @@ model Federation {
 model Club {
   id   String @id @default(uuid())
   name String
-
+// Address Details
+  streetAddress  String  @map("street_address")
+  streetAddress2 String? @map("street_address2")
+  country        String
+  state          String
+  city           String
+  postalCode     String  @map("postal_code")
   // Relation Fix: Differentiate manager and players
   managerId    String        @unique @map("manager_id")
   clubManagers ClubManager[] @relation(name: "ClubManager")
