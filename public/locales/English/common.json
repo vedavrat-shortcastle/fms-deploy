@@ -8,7 +8,6 @@
   "totalClubs": "Total Clubs",
   "memberGrowth": "Member Growth",
   "login": "Login",
-
   "membersGrowth": "Members Growth",
   "thisMonth": "This Month",
   "last3Months": "Last 3 Months",
@@ -20,5 +19,17 @@
   "errorLoadingRegionData": "Error loading region data.",
   "regions": "Regions",
   "members": "Members",
-  "others": "Others"
+  "others": "Others",
+  "dashboard": "Dashboard",
+  "players": "Players",
+  "memberships": "Memberships",
+  "events": "Events",
+  "support": "Support",
+  "profileSettings": "Profile & Settings",
+  "coaches": "Coaches",
+  "arbiters": "Arbiters",
+  "schools": "Schools",
+  "clubs": "Clubs",
+  "logoutAccount": "Logout Account",
+  "user": "USER:"
 }

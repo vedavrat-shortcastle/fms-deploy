@@ -19,5 +19,18 @@
   "errorLoadingRegionData": "خطأ في تحميل بيانات المنطقة.",
   "regions": "المناطق",
   "members": "أعضاء",
-  "others": "آحرون"
+  "others": "آحرون",
+  "dashboard": "لوحة القيادة",
+  "players": "اللاعبون",
+  "memberships": "العضويات",
+  "events": "الأحداث",
+  "support": "يدعم",
+  "profileSettings": "الملف الشخصي والإعدادات",
+  "coaches": "المدربين",
+  "arbiters": "المحكمون",
+  "schools": "المدارس",
+  "clubs": "الأندية",
+  "logoutAccount": "تسجيل الخروج من الحساب",
+  "fedChess": "فيد تشيس",
+  "user": "مستخدم:"
 }

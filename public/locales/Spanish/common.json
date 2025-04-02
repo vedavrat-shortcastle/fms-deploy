@@ -19,5 +19,18 @@
   "errorLoadingRegionData": "Error al cargar datos de la región.",
   "regions": "Regiones",
   "members": "Miembros",
-  "others": "Otros"
+  "others": "Otros",
+  "dashboard": "Panel",
+  "players": "Jugadores",
+  "memberships": "Membresías",
+  "events": "Eventos",
+  "support": "Apoyo",
+  "profileSettings": "Perfil y configuración",
+  "coaches": "Entrenadores",
+  "arbiters": "Árbitros",
+  "schools": "Escuelas",
+  "clubs": "Clubs",
+  "logoutAccount": "Cerrar sesión en la cuenta",
+  "fedChess": "Ajedrez federal",
+  "user": "USUARIO:"
 }
