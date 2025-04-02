@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   BarChart,
@@ -16,6 +17,8 @@ import { ChevronLeft } from 'lucide-react';
 import { trpc } from '@/utils/trpc';
 
 const MembersGrowthChart = () => {
+  const { t } = useTranslation('dashboard');
+
   const [data, setData] = React.useState<
     { month: string; members: number }[] | undefined
   >(undefined);
@@ -94,7 +97,7 @@ const MembersGrowthChart = () => {
           <Button variant="ghost" size="icon" className="mr-2">
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <CardTitle>Members Growth</CardTitle>
+          <CardTitle>{t('membersGrowth')}</CardTitle>
         </div>
         <div className="flex space-x-2 text-sm">
           <Button
@@ -105,7 +108,7 @@ const MembersGrowthChart = () => {
             }`}
             onClick={handleThisMonth}
           >
-            This Month
+            {t('thisMonth')}
           </Button>
           <Button
             size="sm"
@@ -115,7 +118,7 @@ const MembersGrowthChart = () => {
             }`}
             onClick={handleLast3Months}
           >
-            Last 3 Months
+            {t('last3Months')}
           </Button>
           <Button
             size="sm"
@@ -125,7 +128,7 @@ const MembersGrowthChart = () => {
             }`}
             onClick={handleLast6Months}
           >
-            Last 6 Months
+            {t('last6Months')}
           </Button>
           <Button
             size="sm"
@@ -137,7 +140,7 @@ const MembersGrowthChart = () => {
             }`}
             onClick={handleLast12Months}
           >
-            Last 12 Months
+            {t('last12Months')}
           </Button>
         </div>
       </CardHeader>

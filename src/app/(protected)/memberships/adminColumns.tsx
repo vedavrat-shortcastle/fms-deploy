@@ -1,6 +1,7 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next'; // Assuming you are using react-i18next
 
 export type PlanTable = {
   status: string;
@@ -20,24 +21,29 @@ export type PlanTable = {
 export const adminColumns: ColumnDef<PlanTable>[] = [
   {
     accessorKey: 'name',
-    header: 'Plan Name',
+    header: t('adminPlans.planName'),
   },
   {
     accessorKey: 'price',
-    header: 'Price',
+    header: t('adminPlans.price'),
   },
   {
     accessorKey: 'benefits',
-    header: 'Benefits',
+    header: t('adminPlans.benefits'),
   },
   {
     accessorKey: 'duration',
-    header: 'Billing cycle',
-    cell: ({ row }) => `${row.getValue('duration')} months`,
+    header: t('adminPlans.billingCycle'),
+    cell: ({ row }) => `${row.getValue('duration')} ${t('adminPlans.months')}`, // Added translation for "months"
   },
 
   {
     accessorKey: 'createdAt',
-    header: 'Created At',
+    header: t('adminPlans.createdAt'),
   },
 ];
+
+function t(key: string): string {
+  const { t: translate } = useTranslation('adminPlans');
+  return translate(key);
+}

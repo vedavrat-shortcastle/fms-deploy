@@ -20,8 +20,6 @@ export default async function RootLayout({
   const lng = session?.user?.language || 'English';
   const dir = session?.user.isRtl ? 'rtl' : 'ltr';
 
-  console.log('RootLayout - LNG:', lng);
-  console.log('is rtl', dir);
   return (
     <html lang={lng} dir={dir}>
       <body>

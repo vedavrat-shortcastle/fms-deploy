@@ -18,7 +18,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { FileUploader } from '@/components/FileUploader';
-import { PhoneInput } from '@/components/PhoneInput';
+import { PhoneInput } from '@/components/phoneInput';
 import DatePicker from '@/components/DatePicker';
 import { renderLabel } from '@/components/RenderLabel';
 import { Country, State, City } from 'country-state-city';
