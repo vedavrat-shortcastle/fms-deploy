@@ -8,20 +8,35 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { Pagination } from '@/components/ui/pagination';
 import { trpc } from '@/utils/trpc';
 import Loader from '@/components/Loader';
 import { Badge } from '@/components/ui/badge'; // colored badge for status
-import { Button } from '@/components/ui/button';
+
 import { useState } from 'react';
 
 export default function MembersTable() {
   const [page, setPage] = useState<number>(1);
-  const limit = 10;
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
   // Call the API endpoint using tRPC
   const { data, isLoading, error } =
-    trpc.membership.getFederationSubscribers.useQuery({ page, limit });
-  const totalPages = data ? Math.ceil(data.total / limit) : 1;
+    trpc.membership.getFederationSubscribers.useQuery({
+      page,
+      limit: itemsPerPage,
+    });
+  // const totalPages = data ? Math.ceil(data.total / itemsPerPage) : 1;
+
+  // Handler for page changes
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  // Handler for items per page changes (resets to page 1)
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setPage(1); // Reset to first page when items per page changes
+  };
 
   if (isLoading)
     return (
@@ -96,26 +111,16 @@ export default function MembersTable() {
           ))}
         </TableBody>
       </Table>
-      <div className="flex justify-end mt-4 items-center">
-        <Button
-          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-          disabled={page <= 1}
-          className="mr-2"
-        >
-          Previous
-        </Button>
-        <span>
-          Page {page} of {totalPages}
-        </span>
-        <Button
-          onClick={() =>
-            setPage((prev) => (prev < totalPages ? prev + 1 : prev))
-          }
-          disabled={page >= totalPages}
-          className="ml-2"
-        >
-          Next
-        </Button>
+      {/* Pagination component with spacing */}
+      <div className="mt-4">
+        <Pagination
+          totalRecords={data?.total || 0}
+          currentPage={page}
+          onPageChange={handlePageChange}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+          itemsPerPageOptions={[5, 10, 20, 50]}
+        />
       </div>
     </div>
   );
