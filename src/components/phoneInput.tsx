@@ -23,79 +23,72 @@ import {
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { Label } from '@/components/ui/label';
-import { renderLabel } from '@/components/RenderLabel';
 
-// Updated PhoneInputProps type with new defaultValue prop
 type PhoneInputProps = {
   placeholder?: string;
   defaultCountry?: RPNInput.Country | undefined;
-  defaultValue?: string; // <-- Added defaultValue prop
+  value: string;
   className?: string;
-  onCountrySelect?: (countryCode: string) => void;
-  onPhoneNumberChange?: (phoneNumber: string) => void;
+  onChange?: (phoneNumber: string) => void;
 };
 
 const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
-  (
-    {
-      placeholder,
-      defaultCountry = 'US',
-      defaultValue = '', // <-- Use defaultValue prop
-      className,
-      onCountrySelect,
-      onPhoneNumberChange,
-    },
-    ref
-  ) => {
-    const [countryCode, setCountryCode] = React.useState(
-      getCountryCallingCode(defaultCountry)
-    );
-    const [phoneNumber, setPhoneNumber] = React.useState(defaultValue); // <-- Initialize with defaultValue
+  ({ placeholder, defaultCountry = 'US', value, className, onChange }, ref) => {
+    const [phoneNumber, setPhoneNumber] = React.useState('');
     const [selectedCountry, setSelectedCountry] =
       React.useState<RPNInput.Country>(defaultCountry);
 
-    // Sync country code with selected country
+    // Split value into country code and phone number
     React.useEffect(() => {
-      const callingCode = getCountryCallingCode(selectedCountry);
-      if (callingCode !== countryCode) {
-        setCountryCode(callingCode);
+      if (value) {
+        const match = value.match(/^\+(\d+)-(.+)$/);
+        if (match) {
+          const countryCode = match[1];
+          const phone = match[2];
+          const country = getCountries().find(
+            (c) => getCountryCallingCode(c) === countryCode
+          );
+          if (country) {
+            setSelectedCountry(country);
+            setPhoneNumber(phone);
+          }
+        }
       }
-    }, [selectedCountry, countryCode]);
+    }, [value]);
 
     // Handle phone number input change
     const handlePhoneNumberChangeInternal = (
       e: React.ChangeEvent<HTMLInputElement>
     ) => {
-      const newValue = e.target.value;
-      setPhoneNumber(newValue);
-      if (onPhoneNumberChange) {
-        onPhoneNumberChange(newValue);
+      const numericValue = e.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+      setPhoneNumber(numericValue);
+      if (onChange) {
+        const fullPhoneNumber = `+${getCountryCallingCode(
+          selectedCountry
+        )}-${numericValue}`;
+        onChange(fullPhoneNumber);
       }
     };
 
     // Handle country change
     const handleCountryChange = (country: RPNInput.Country) => {
-      const callingCode = getCountryCallingCode(country);
-      setCountryCode(callingCode);
       setSelectedCountry(country);
-      if (onCountrySelect) {
-        onCountrySelect(callingCode);
+      if (onChange) {
+        const fullPhoneNumber = `+${getCountryCallingCode(
+          country
+        )}-${phoneNumber}`;
+        onChange(fullPhoneNumber);
       }
     };
 
     return (
       <div className={cn('flex flex-col gap-4', className)}>
-        <Label>{renderLabel('Phone Number')}</Label>
-        {/* Changed from <form> to <div> */}
         <div className="flex items-center gap-2">
-          {/* Country Selector */}
           <CountrySelect
             disabled={false}
             value={selectedCountry}
             onChange={handleCountryChange}
           />
-          {/* Phone Number Input */}
           <Input
             ref={ref}
             type="tel"
@@ -103,7 +96,6 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
             value={phoneNumber}
             onChange={handlePhoneNumberChangeInternal}
             placeholder={placeholder || 'Enter phone number'}
-            pattern="[0-9]*"
           />
         </div>
       </div>
@@ -113,7 +105,6 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
 
 PhoneInput.displayName = 'PhoneInput';
 
-// CountryEntry and CountrySelect components remain unchanged
 type CountryEntry = { label: string; value: RPNInput.Country };
 
 type CountrySelectProps = {

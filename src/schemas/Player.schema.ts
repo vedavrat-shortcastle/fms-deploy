@@ -67,11 +67,6 @@ export const playerOnboardingSchema = z.object({
     .max(20, { message: 'Phone number is too long' })
     .nullable()
     .optional(),
-  countryCode: z
-    .string()
-    .max(10, { message: 'Country code is too long' })
-    .nullable()
-    .optional(),
 });
 
 export type playerOnboardingInput = z.input<typeof playerOnboardingSchema>;
@@ -131,7 +126,9 @@ export const editPlayerSchema = z.object({
   playerDetails: z.object({
     birthDate: z
       .date()
-      .min(new Date('1900-01-01'), { message: 'Invalid birth date' }),
+      .min(new Date('1900-01-01'), { message: 'Invalid birth date' })
+      .max(new Date(), { message: 'Birth date cannot be in future' })
+      .optional(),
     gender: z.nativeEnum(Gender, { required_error: 'Gender is required' }),
     avatarUrl: z
       .string()
@@ -171,11 +168,6 @@ export const editPlayerSchema = z.object({
     phoneNumber: z
       .string()
       .max(20, { message: 'Phone number is too long' })
-      .nullable()
-      .optional(),
-    countryCode: z
-      .string()
-      .max(10, { message: 'Country code is too long' })
       .nullable()
       .optional(),
     fideId: z
@@ -283,11 +275,7 @@ export const createPlayerSchema = z.object({
       .max(20, { message: 'Phone number is too long' })
       .nullable()
       .optional(),
-    countryCode: z
-      .string()
-      .max(10, { message: 'Country code is too long' })
-      .nullable()
-      .optional(),
+
     fideId: z
       .string()
       .max(20, { message: 'FIDE ID is too long' })

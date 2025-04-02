@@ -16,8 +16,19 @@ export const createPlanSchema = z.object({
     .string()
     .min(1, { message: 'Currency is required' })
     .max(10, { message: 'Currency cannot exceed 10 characters' }),
-  benefits: z.array(
-    z.string().max(255, { message: 'Benefit cannot exceed 255 characters' })
+  benefits: z.preprocess(
+    (val) => {
+      if (typeof val === 'string') {
+        return val
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+      return val;
+    },
+    z.array(
+      z.string().max(255, { message: 'Benefit cannot exceed 255 characters' })
+    )
   ),
   autoRenewal: z.boolean().default(false),
   criteria: z.object({}).passthrough().optional(),
@@ -61,8 +72,19 @@ export const updatePlanSchema = z.object({
     .max(10, { message: 'Currency cannot exceed 10 characters' })
     .optional(),
   benefits: z
-    .array(
-      z.string().max(255, { message: 'Benefit cannot exceed 255 characters' })
+    .preprocess(
+      (val) => {
+        if (typeof val === 'string') {
+          return val
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean);
+        }
+        return val;
+      },
+      z.array(
+        z.string().max(255, { message: 'Benefit cannot exceed 255 characters' })
+      )
     )
     .optional(),
   autoRenewal: z.boolean().optional(),

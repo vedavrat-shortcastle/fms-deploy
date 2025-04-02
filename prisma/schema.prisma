@@ -41,6 +41,8 @@ model UserProfile {
   userStatus  UserStatus       @default(ACTIVE) @map("user_status")
   deletedAt   DateTime?        @map("deleted_at")
   permissions UserPermission[]
+  language    String           @default("English") 
+  isRtl       Boolean          @default(false) @map("is_rtl")
 
   @@unique([profileType, profileId])
   @@map("user_profile")
@@ -51,6 +53,7 @@ model ClubManager {
   id        String   @id @default(uuid())
   club      Club     @relation(fields: [clubId], references: [id], name: "ClubManager")
   clubId    String   @unique @map("club_id")
+   phoneNumber  String?    @map("phone_number")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -63,7 +66,6 @@ model Parent {
 
   // Contact Details
   phoneNumber String? @map("phone_number")
-  countryCode String? @map("country_code")
 
   // Address Details
   streetAddress  String  @map("street_address")
@@ -85,21 +87,21 @@ model Parent {
 
 // Player Schema
 model Player {
-  id        String   @id @default(uuid())
-  birthDate DateTime @map("birth_date")
-  avatarUrl String?  @map("avatar_url")
-  ageProof  String?  @map("age_proof") // URL of uploaded age proof document
-  gender    Gender
+  id        String    @id @default(uuid())
+  birthDate DateTime? @map("birth_date")
+  avatarUrl String?   @map("avatar_url")
+  ageProof  String?   @map("age_proof") // URL of uploaded age proof document
+  gender    Gender?
+  customId  String    @unique @map("custom_id")
 
   // Mailing Details
-  streetAddress  String  @map("street_address")
+  streetAddress  String? @map("street_address")
   streetAddress2 String? @map("street_address2")
-  country        String
-  state          String
-  city           String
-  postalCode     String  @map("postal_code")
+  country        String?
+  state          String?
+  city           String?
+  postalCode     String? @map("postal_code")
   phoneNumber    String? @map("phone_number")
-  countryCode    String? @map("country_code")
 
   // Other Info
   fideId         String?   @map("fide_id")
@@ -125,7 +127,6 @@ model FederationAdmin {
   federation   Federation @relation(name: "FedAdmins", fields: [federationId], references: [id])
   federationId String     @unique @map("federation_id")
   phoneNumber  String?    @map("phone_number")
-  countryCode  String?    @map("country_code")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -142,6 +143,7 @@ model Federation {
   domain     String  @unique // White-labeling domain
   logo       String?
   isApproved Boolean @default(false) @map("is_approved")
+  shortCode  String  @unique
 
   // Relation Fix: Differentiate players and admins\
   admins    FederationAdmin[] @relation(name: "FedAdmins")
@@ -154,6 +156,7 @@ model Federation {
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime         @updatedAt @map("updated_at")
   MembershipPlan MembershipPlan[]
+  FormTemplate   FormTemplate[]
 
   @@map("federation")
 }
@@ -162,7 +165,13 @@ model Federation {
 model Club {
   id   String @id @default(uuid())
   name String
-
+// Address Details
+  streetAddress  String  @map("street_address")
+  streetAddress2 String? @map("street_address2")
+  country        String
+  state          String
+  city           String
+  postalCode     String  @map("postal_code")
   // Relation Fix: Differentiate manager and players
   managerId    String        @unique @map("manager_id")
   clubManagers ClubManager[] @relation(name: "ClubManager")
@@ -318,6 +327,71 @@ model ContactInfo {
   Event       Event[]
 
   @@map("contact_info")
+}
+
+// --------------------------------------------------- CUSTOM FORM SETUP --------------------------------------------------- //
+
+model FormTemplate {
+  id           String      @id @default(uuid())
+  federation   Federation  @relation(fields: [federationId], references: [id])
+  federationId String      @map("federation_id")
+  formType     FormType // enum for different form types
+  isActive     Boolean     @default(true) @map("is_active")
+  fields       FormField[]
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  @@unique([federationId, formType])
+  @@map("form_template")
+}
+
+model FormField {
+  id             String       @id @default(uuid())
+  formTemplate   FormTemplate @relation(fields: [formTemplateId], references: [id])
+  formTemplateId String       @map("form_template_id")
+  fieldName      String       @map("field_name")
+  displayName    String       @map("display_name")
+  fieldType      FieldType
+  isHidden       Boolean      @default(false) @map("is_hidden")
+  isMandatory    Boolean      @default(false) @map("is_mandatory")
+  isDisabled     Boolean      @default(false) @map("is_disabled")
+  defaultValue   String?      @map("default_value")
+  placeholder    String?
+  validations    Json?        @db.JsonB // For custom validation rules
+  order          Int          @default(0)
+  isCustomField  Boolean      @default(false) @map("is_custom_field")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@unique([formTemplateId, fieldName])
+  @@map("form_field")
+}
+
+// Add these new enums
+enum FormType {
+  PLAYER
+  PARENT
+  EVENT
+  CLUB
+  SUBSCRIPTION
+  MEMBERSHIP
+}
+
+enum FieldType {
+  TEXT
+  NUMBER
+  EMAIL
+  PHONE
+  DATE
+  SELECT
+  MULTISELECT
+  CHECKBOX
+  RADIO
+  TEXTAREA
+  FILE
+  COUNTRY
+  STATE
+  CITY
 }
 
 // --------------------------------------------------- ENUMS --------------------------------------------------- //

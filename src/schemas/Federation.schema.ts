@@ -19,6 +19,10 @@ export const createFederationSchema = z.object({
     .string()
     .max(255, { message: 'Logo URL cannot exceed 255 characters' })
     .optional(),
+  shortCode: z
+    .string()
+    .min(1, 'Short name is required')
+    .max(10, { message: 'Short name cannot exceed 10 characters' }),
 });
 
 export const federationOnboardingSchema = createFederationSchema.extend({
@@ -51,10 +55,6 @@ export const federationOnboardingSchema = createFederationSchema.extend({
     .string()
     .min(1, 'Phone number is required')
     .max(15, { message: 'Phone number cannot exceed 20 characters' }),
-  countryCode: z
-    .string()
-    .min(1, 'Country code is required')
-    .max(10, { message: 'Country code cannot exceed 10 characters' }),
 });
 
 export type FederationOnboardingFormValues = z.infer<

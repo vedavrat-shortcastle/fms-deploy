@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   BarChart,
   Bar,
@@ -8,26 +9,83 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
+import { trpc } from '@/utils/trpc';
 
 const MembersGrowthChart = () => {
-  // Sample data matching the provided chart
-  const data = [
-    { month: 'Jan', members: 50 },
-    { month: 'Feb', members: 75 },
-    { month: 'Mar', members: 105 },
-    { month: 'Apr', members: 80 },
-    { month: 'May', members: 35 },
-    { month: 'Jun', members: 65 },
-    { month: 'Jul', members: 75 },
-    { month: 'Aug', members: 50 },
-    { month: 'Sep', members: 20 },
-    { month: 'Oct', members: 70 },
-    { month: 'Nov', members: 55 },
-    { month: 'Dec', members: 75 },
-  ];
+  const [data, setData] = React.useState<
+    { month: string; members: number }[] | undefined
+  >(undefined);
+
+  const [startDate, setStartDate] = React.useState<Date | null>(null);
+  const [endDate, setEndDate] = React.useState<Date | null>(null);
+  const [activeRange, setActiveRange] = React.useState<
+    'thisMonth' | 'last3Months' | 'last6Months' | 'last12Months'
+  >('last12Months');
+
+  const now = new Date();
+  const initialEndDate = new Date(now);
+  const initialStartDate = new Date(now);
+  initialStartDate.setMonth(now.getMonth() - 12);
+
+  React.useEffect(() => {
+    setStartDate(initialStartDate);
+    setEndDate(initialEndDate);
+  }, []);
+
+  trpc.dashboard.getMemberGrowth.useQuery(
+    startDate && endDate
+      ? { startDate, endDate }
+      : { startDate: initialStartDate, endDate: initialEndDate },
+    {
+      enabled: !!startDate && !!endDate,
+      onSuccess: (data) => {
+        setData(data);
+      },
+      onError: (err) => {
+        console.error('Failed to fetch member growth:', err);
+      },
+    }
+  );
+
+  const handleThisMonth = () => {
+    const end = new Date();
+    const start = new Date(end);
+    start.setDate(1);
+    setStartDate(start);
+    setEndDate(end);
+    setActiveRange('thisMonth');
+  };
+
+  const handleLast3Months = () => {
+    const end = new Date();
+    const start = new Date();
+    start.setMonth(end.getMonth() - 3);
+    setStartDate(start);
+    setEndDate(end);
+    setActiveRange('last3Months');
+  };
+
+  const handleLast6Months = () => {
+    const end = new Date();
+    const start = new Date();
+    start.setMonth(end.getMonth() - 6);
+    setStartDate(start);
+    setEndDate(end);
+    setActiveRange('last6Months');
+  };
+
+  const handleLast12Months = () => {
+    const end = new Date();
+    const start = new Date();
+    start.setMonth(end.getMonth() - 12);
+    setStartDate(start);
+    setEndDate(end);
+    setActiveRange('last12Months');
+  };
 
   return (
     <Card className="w-full">
@@ -39,16 +97,45 @@ const MembersGrowthChart = () => {
           <CardTitle>Members Growth</CardTitle>
         </div>
         <div className="flex space-x-2 text-sm">
-          <Button size="sm" variant="outline" className="rounded-full h-8">
+          <Button
+            size="sm"
+            variant={activeRange === 'thisMonth' ? 'destructive' : 'outline'}
+            className={`rounded-full h-8 ${
+              activeRange === 'thisMonth' ? 'bg-red-500 hover:bg-red-600' : ''
+            }`}
+            onClick={handleThisMonth}
+          >
             This Month
           </Button>
-          <Button size="sm" variant="outline" className="rounded-full h-8">
+          <Button
+            size="sm"
+            variant={activeRange === 'last3Months' ? 'destructive' : 'outline'}
+            className={`rounded-full h-8 ${
+              activeRange === 'last3Months' ? 'bg-red-500 hover:bg-red-600' : ''
+            }`}
+            onClick={handleLast3Months}
+          >
+            Last 3 Months
+          </Button>
+          <Button
+            size="sm"
+            variant={activeRange === 'last6Months' ? 'destructive' : 'outline'}
+            className={`rounded-full h-8 ${
+              activeRange === 'last6Months' ? 'bg-red-500 hover:bg-red-600' : ''
+            }`}
+            onClick={handleLast6Months}
+          >
             Last 6 Months
           </Button>
           <Button
             size="sm"
-            variant="destructive"
-            className="rounded-full h-8 bg-red-500 hover:bg-red-600"
+            variant={activeRange === 'last12Months' ? 'destructive' : 'outline'}
+            className={`rounded-full h-8 ${
+              activeRange === 'last12Months'
+                ? 'bg-red-500 hover:bg-red-600'
+                : ''
+            }`}
+            onClick={handleLast12Months}
           >
             Last 12 Months
           </Button>

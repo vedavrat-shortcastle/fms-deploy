@@ -6,11 +6,13 @@ import {
 } from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
 import { hashPassword } from '@/utils/encoder';
-import { ProfileType, Role } from '@prisma/client';
+import { FormType, ProfileType, Role } from '@prisma/client';
 import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { federationOnboardingSchema } from '@/schemas/Federation.schema';
 import { createPlayerSchema } from '@/schemas/Player.schema';
 import { z } from 'zod';
+import { generateCustomPlayerId } from '@/utils/generateCustomCode';
+import { defaultFormConfigs } from '@/config/defaultFormConfigs';
 
 export const federationRouter = router({
   federationOnboarding: publicProcedure
@@ -31,6 +33,7 @@ export const federationRouter = router({
         country: input.country,
         domain: input.domain,
         logo: input.logo,
+        shortCode: input.shortCode,
       };
 
       try {
@@ -71,7 +74,6 @@ export const federationRouter = router({
             data: {
               federationId: createdFederation.id,
               phoneNumber: input.phoneNumber,
-              countryCode: input.countryCode,
             },
           });
 
@@ -102,6 +104,21 @@ export const federationRouter = router({
               userId: newUserProfile.id,
             })),
           });
+
+          for (const [formType, config] of Object.entries(defaultFormConfigs)) {
+            await tx.formTemplate.create({
+              data: {
+                federationId: createdFederation.id,
+                formType: formType as FormType,
+                fields: {
+                  create: config.fields.map((field) => ({
+                    ...field,
+                  })),
+                },
+              },
+            });
+          }
+
           return {
             federation: createdFederation,
             userProfile: newUserProfile,
@@ -156,9 +173,15 @@ export const federationRouter = router({
             },
           });
 
+          const customId = await generateCustomPlayerId(
+            ctx.db,
+            ctx.session.user.federationId
+          );
+
           const newPlayer = await tx.player.create({
             data: {
               ...playerDetails,
+              customId,
             },
           });
 
@@ -218,12 +241,12 @@ export const federationRouter = router({
         }
 
         // Use a Prisma transaction to ensure atomicity
-        await ctx.db.$transaction(async (prisma) => {
+        await ctx.db.$transaction(async (tx) => {
           for (const player of input) {
             const hashedCSVPassword = await hashPassword(
               player.baseUser.password
             );
-            const newBaseUser = await prisma.baseUser.create({
+            const newBaseUser = await tx.baseUser.create({
               data: {
                 email: player.baseUser.email,
                 password: hashedCSVPassword,
@@ -238,7 +261,12 @@ export const federationRouter = router({
               },
             });
 
-            const newPlayer = await prisma.player.create({
+            const customId = await generateCustomPlayerId(
+              ctx.db,
+              ctx.session.user.federationId
+            );
+
+            const newPlayer = await tx.player.create({
               data: {
                 birthDate: player.playerDetails.birthDate,
                 gender: player.playerDetails.gender,
@@ -251,17 +279,17 @@ export const federationRouter = router({
                 city: player.playerDetails.city,
                 postalCode: player.playerDetails.postalCode,
                 phoneNumber: player.playerDetails.phoneNumber,
-                countryCode: player.playerDetails.countryCode,
                 fideId: player.playerDetails.fideId,
                 schoolName: player.playerDetails.schoolName,
                 graduationYear: player.playerDetails.graduationYear,
                 gradeInSchool: player.playerDetails.gradeInSchool,
                 gradeDate: player.playerDetails.gradeDate,
                 clubName: player.playerDetails.clubName,
+                customId,
               },
             });
 
-            await prisma.userProfile.create({
+            await tx.userProfile.create({
               data: {
                 profileType: ProfileType.PLAYER,
                 profileId: newPlayer.id,
@@ -286,4 +314,19 @@ export const federationRouter = router({
         });
       }
     }),
+  getExistingShortCodes: publicProcedure.query(async ({ ctx }) => {
+    try {
+      const shortCodes = await ctx.db.federation.findMany({
+        select: {
+          shortCode: true,
+        },
+      });
+      return shortCodes.map((federation) => federation.shortCode);
+    } catch (error: any) {
+      handleError(error, {
+        message: 'Failed to fetch existing short codes',
+        cause: error.message,
+      });
+    }
+  }),
 });

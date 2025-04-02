@@ -2,64 +2,18 @@
 
 import DonutChart from '@/components/dashboard-components/DonutChart';
 import MembersGrowthChart from '@/components/dashboard-components/MemberGrowthChart';
-import MetricCard, {
-  MetricCardProps,
-} from '@/components/dashboard-components/MetricCard';
-import {
-  GraduationCap,
-  PersonStanding,
-  Store,
-  UserCheck,
-  UserRound,
-  Users,
-} from 'lucide-react';
+import MetricCard from '@/components/dashboard-components/MetricCard';
+import useDashboardMetrics from '@/hooks/useDashboardMetrics';
 
-const dummyMetricData: MetricCardProps[] = [
-  {
-    title: 'Active Members',
-    value: '80',
-    cardColor: '#E9FBEF',
-    icon: <UserCheck size={32} />,
-  },
-  {
-    title: 'All-time Members',
-    value: '100',
-    cardColor: '#FFE6E9',
-    icon: <Users size={32} />,
-  },
-  {
-    title: 'Active Arbiters',
-    value: '30',
-    cardColor: '#FEF9E6',
-    icon: <PersonStanding size={32} />,
-  },
-  {
-    title: 'All-time Arbiters',
-    value: '50',
-    cardColor: '#F3EBFA',
-    icon: <UserRound size={32} />,
-  },
-  {
-    title: 'Total Schools',
-    value: '20',
-    cardColor: '#FEFFD7',
-    icon: <GraduationCap size={32} />,
-  },
-  {
-    title: 'Total Clubs',
-    value: '8',
-    cardColor: '#E9FFE3',
-    icon: <Store size={32} />,
-  },
-];
 export default function AdminDashboard() {
+  const metricsCardData = useDashboardMetrics();
   return (
     <>
       <div className="flex min-h-svh">
         <div className="flex-1 p-6">
           <h1 className="text-2xl font-bold mb-6 ml-3">Overview</h1>
           <div className="flex flex-wrap gap-4">
-            {dummyMetricData.map((metric) => (
+            {metricsCardData.map((metric) => (
               <MetricCard key={metric.title} {...metric} />
             ))}
           </div>
@@ -73,10 +27,6 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 mt-6 gap-6">
             <div className="lg:col-span-1 bg-white rounded mt-10 ">
               <DonutChart />
-            </div>
-            <div className="lg:col-span-1 bg-white rounded ">
-              <h1 className="p-2 text-xl font-bold"> Member Growth</h1>
-              <MembersGrowthChart />
             </div>
           </div>
         </div>

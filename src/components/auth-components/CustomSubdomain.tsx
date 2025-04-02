@@ -75,21 +75,13 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
     { value: string; label: string }[]
   >([]);
 
-  // Load country options on component mount
-  useEffect(() => {
-    const countries = Country.getAllCountries().map((country) => ({
-      value: country.isoCode, // Use ISO code as value
-      label: country.name,
-    }));
-    setCountryOptions(countries);
-  }, []);
-
   // React Hook Form setup
   const form = useForm<FederationOnboardingFormValues>({
     resolver: zodResolver(
       federationOnboardingSchema.pick({
         type: true,
         name: true,
+        shortCode: true,
         country: true,
         domain: true,
       })
@@ -97,6 +89,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
     defaultValues: {
       type: 'NATIONAL',
       name: '',
+      shortCode: '',
       country: '',
       domain: '',
     },
@@ -116,11 +109,23 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
     }
   };
 
+  // Load country options on component mount
+  useEffect(() => {
+    const countries = Country.getAllCountries().map((country) => ({
+      value: country.isoCode, // Use ISO code as value
+      label: country.name,
+    }));
+    setCountryOptions(countries);
+  }, []);
+
+  // Fetch existing short codes
+  const { data: existingShortCodes } =
+    trpc.federation.getExistingShortCodes.useQuery();
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
         <h2 className="text-2xl font-semibold pt-2">Federation details</h2>
-
         {/* Type Field */}
         <FormField
           control={form.control}
@@ -146,7 +151,6 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
             </FormItem>
           )}
         />
-
         {/* Federation Name Field */}
         <FormField
           control={form.control}
@@ -159,6 +163,35 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
                   placeholder="Federation name"
                   className="w-full"
                   {...field}
+                />
+              </FormControl>
+              <FormMessage /> {/* Error message should go here */}
+            </FormItem>
+          )}
+        />
+
+        {/* Federation Short Code Field */}
+        <FormField
+          control={form.control}
+          name="shortCode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-input-grey">
+                Federation Short code
+              </FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Federation short name"
+                  className="w-full"
+                  {...field}
+                  onBlur={() => {
+                    if (existingShortCodes?.includes(field.value)) {
+                      form.setError('shortCode', {
+                        type: 'manual',
+                        message: 'Short code already exists',
+                      });
+                    }
+                  }}
                 />
               </FormControl>
               <FormMessage /> {/* Error message should go here */}
@@ -196,7 +229,6 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
             </FormItem>
           )}
         />
-
         {/* Domain Field */}
         <FormField
           control={form.control}
@@ -215,7 +247,6 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
             </FormItem>
           )}
         />
-
         <div>
           <FormLabel className="text-input-grey">URL</FormLabel>
           <div className="flex items-center border rounded px-2 py-1">
@@ -227,7 +258,6 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
             />
           </div>
         </div>
-
         <Button type="submit" className="w-full bg-primary text-black">
           Next →
         </Button>

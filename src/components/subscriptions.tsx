@@ -1,76 +1,75 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import React, { useEffect } from 'react';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { renderLabel } from '@/components/RenderLabel';
-import {
-  planFormValues,
-  createPlanSchema as originalCreatePlanSchema,
-  planFormDefaults,
-} from '@/schemas/Membership.schema';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/select';
-import { Textarea } from './ui/textarea';
-import { Checkbox } from './ui/checkbox';
+import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/useToast';
 import { trpc } from '@/utils/trpc';
-import * as z from 'zod';
-import { Label } from '@/components/ui/label';
-
-// Modify the schema to accept benefits as a string
-const createPlanSchema = originalCreatePlanSchema.extend({
-  benefits: z.string(),
-});
-
-type CustomPlanFormValues = Omit<planFormValues, 'benefits'> & {
-  benefits: string;
-};
+import { FormBuilder } from '@/components/forms/FormBuilder';
+import { useFormConfig } from '@/hooks/useFormConfig';
+import {
+  planFormValues,
+  createPlanSchema,
+  planFormDefaults,
+} from '@/schemas/Membership.schema';
 
 export default function PlanForm({ onClose }: { onClose: () => void }) {
+  const { config, isLoading: isConfigLoading } = useFormConfig('MEMBERSHIP');
   const createPlan = trpc.membership.createPlan.useMutation();
 
-  const form = useForm<CustomPlanFormValues>({
+  const form = useForm<planFormValues>({
     resolver: zodResolver(createPlanSchema),
     mode: 'onTouched',
-    defaultValues: {
-      ...planFormDefaults,
-      benefits: '',
-    },
+    defaultValues: planFormDefaults,
   });
 
-  const onSubmit = async (data: CustomPlanFormValues) => {
+  const { handleSubmit, control, reset } = form;
+
+  // Update form with configuration when loaded
+  useEffect(() => {
+    if (config) {
+      const customFields = config.fields
+        .filter((field) => field.isCustomField)
+        .reduce(
+          (acc, field) => ({
+            ...acc,
+            [field.fieldName]: field.defaultValue ?? undefined,
+          }),
+          {}
+        );
+
+      form.reset({
+        ...planFormDefaults,
+        ...customFields,
+      });
+    }
+  }, [config]);
+
+  const onSubmit = async (data: planFormValues) => {
     try {
-      // Split the benefits string by comma and update the field value as an array
+      // Format benefits if it's a string (backward compatibility)
       const formattedData = {
         ...data,
-        benefits: data.benefits
-          .split(', ')
-          .map((item) => item.trim())
-          .filter(Boolean),
+        benefits:
+          typeof data.benefits === 'string'
+            ? (data.benefits as string)
+                .split(', ')
+                .map((item: string) => item.trim())
+                .filter(Boolean)
+            : data.benefits,
       };
+
       // Call the mutation and wait for the result
       await createPlan.mutateAsync(formattedData);
+
       toast({
         title: 'Plan created successfully',
         description: 'Your membership plan has been created',
         variant: 'default',
       });
-      form.reset();
+
+      reset();
       onClose(); // Close the modal after successful submission
     } catch (error: any) {
       toast({
@@ -82,219 +81,52 @@ export default function PlanForm({ onClose }: { onClose: () => void }) {
     }
   };
 
-  return (
-    <div className=" max-w-3xl mx-auto">
-      {/* Header */}
+  if (isConfigLoading) {
+    return <div>Loading form configuration...</div>;
+  }
 
+  // Utility function to sanitize fields
+  const sanitizeFields = (fields: any[]) => {
+    return fields.map((field) => ({
+      ...field,
+      defaultValue: field.defaultValue ?? undefined,
+      placeholder: (field.placeholder || field.displayName) ?? undefined,
+      validations: field.validations ?? undefined,
+    }));
+  };
+
+  return (
+    <div className="max-w-3xl mx-auto">
       <div className="flex flex-col items-center">
         <div className="w-full max-w-3xl p-0 border rounded-lg shadow-md">
           <div className="p-3">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
-                <div className="space-y-4">
-                  <FormField
-                    // control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{renderLabel('Plan name', true)}</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Plan name" required />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div>
-                    <Label className="block mb-1 text-sm">
-                      {renderLabel('duration(months)', true)}
-                    </Label>
-                    <div className="flex gap-2">
-                      <FormField
-                        control={form.control}
-                        name="duration"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                placeholder="months"
-                                type="number"
-                                {...field}
-                                className="w-16"
-                                {...field}
-                                value={isNaN(field.value) ? '' : field.value}
-                                onChange={(e) => {
-                                  const newValue = Math.max(
-                                    0,
-                                    e.target.valueAsNumber
-                                  );
-                                  field.onChange(
-                                    isNaN(newValue) ? '' : newValue
-                                  );
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      {/* it might usefull  */}
-                      {/* <FormField
-                        control={form.control}
-                        name=""
-                        render={({ field }) => (
-                          <FormItem className="w-full">
-                            <FormControl>
-                              <Select onValueChange={field.onChange}>
-                                <SelectTrigger className="w-40">
-                                  <SelectValue placeholder="Month" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="month">month</SelectItem>
-                                  <SelectItem value="year">year</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      /> */}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="currency"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="font-medium">
-                            {renderLabel('Currency', true)}
-                          </FormLabel>
-                          <FormControl>
-                            <Select onValueChange={field.onChange}>
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select a currency" />
-                              </SelectTrigger>
-
-                              <SelectContent>
-                                <SelectItem value="usd">USD</SelectItem>
-                                <SelectItem value="eur">EUR</SelectItem>
-                                <SelectItem value="nzd">NZ$</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="price"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{renderLabel('Price ', true)}</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Price"
-                              type="number"
-                              className="w-16"
-                              {...field}
-                              value={isNaN(field.value) ? '' : field.value}
-                              onChange={(e) => {
-                                const newValue = Math.max(
-                                  0,
-                                  e.target.valueAsNumber
-                                );
-                                field.onChange(isNaN(newValue) ? '' : newValue);
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="benefits"
-                    render={({ field }) => {
-                      // Convert the array to a comma-separated string for display
-                      const displayValue = field.value || '';
-
-                      return (
-                        <FormItem>
-                          <FormLabel>{renderLabel('Benefits', true)}</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              value={displayValue}
-                              onChange={field.onChange}
-                              placeholder="Enter each benefit separated by a comma"
-                              required
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
+            <FormProvider {...form}>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                {config && (
+                  <FormBuilder
+                    config={{
+                      ...config,
+                      fields: sanitizeFields(config.fields),
                     }}
+                    control={control}
                   />
+                )}
 
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            placeholder="Description"
-                            required
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="autoRenewal"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-3">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormLabel
-                          className="text-sm font-normal"
-                          style={{ marginTop: 0 }}
-                        >
-                          Auto-Renewal
-                        </FormLabel>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {/* Buttons */}
-                  <div className="flex justify-end mt-4 gap-2">
-                    <Button variant="outline">Cancel</Button>
-                    <Button className="bg-red-600 hover:bg-red-700">
-                      Save
-                    </Button>
-                  </div>
+                {/* Buttons */}
+                <div className="flex justify-end mt-4 gap-2">
+                  <Button type="button" variant="outline" onClick={onClose}>
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-red-600 hover:bg-red-700"
+                    disabled={createPlan.isLoading}
+                  >
+                    {createPlan.isLoading ? 'Saving...' : 'Save'}
+                  </Button>
                 </div>
               </form>
-            </Form>
+            </FormProvider>
           </div>
         </div>
       </div>
