@@ -1,7 +1,6 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { useTranslation } from 'react-i18next';
 
 export type PlanTable = {
   status: string;
@@ -18,31 +17,27 @@ export type PlanTable = {
   autoRenewal: boolean;
 };
 
-export const useAdminPlanColumns = (): ColumnDef<PlanTable>[] => {
-  const { t } = useTranslation();
+export const adminColumns: ColumnDef<PlanTable>[] = [
+  {
+    accessorKey: 'name',
+    header: 'Plan Name',
+  },
+  {
+    accessorKey: 'price',
+    header: 'Price',
+  },
+  {
+    accessorKey: 'benefits',
+    header: 'Benefits',
+  },
+  {
+    accessorKey: 'duration',
+    header: 'Billing cycle',
+    cell: ({ row }) => `${row.getValue('duration')} months`,
+  },
 
-  return [
-    {
-      accessorKey: 'name',
-      header: t('planTable_planName'),
-    },
-    {
-      accessorKey: 'price',
-      header: t('planTable_price'),
-    },
-    {
-      accessorKey: 'benefits',
-      header: t('planTable_benefits'),
-    },
-    {
-      accessorKey: 'duration',
-      header: t('planTable_billingCycle'),
-      cell: ({ row }) => `${row.getValue('duration')} ${t('planTable_months')}`,
-    },
-
-    {
-      accessorKey: 'createdAt',
-      header: t('planTable_createdAt'),
-    },
-  ];
-};
+  {
+    accessorKey: 'createdAt',
+    header: 'Created At',
+  },
+];
