@@ -15,6 +15,7 @@ import {
 import { trpc } from '@/utils/trpc';
 import { useRouter } from 'next/navigation';
 import { useFormConfig } from '@/hooks/useFormConfig';
+import { useTranslation } from 'react-i18next';
 
 type FormSections = 'stepOne' | 'stepTwo';
 
@@ -63,6 +64,7 @@ export default function PlayerOnboarding() {
   const { data: session, status, update } = useSession();
   const router = useRouter();
   const { config, isLoading: isConfigLoading } = useFormConfig('PLAYER');
+  const { t } = useTranslation();
 
   const form = useForm<playerOnboardingInput>({
     resolver: zodResolver(playerOnboardingSchema),
@@ -187,7 +189,7 @@ export default function PlayerOnboarding() {
   };
 
   if (isConfigLoading) {
-    return <div>Loading form configuration...</div>;
+    return <div>{t('playerOnboardingPage_loadingConfig')}</div>;
   }
 
   const renderFormSection = () => {
@@ -216,8 +218,10 @@ export default function PlayerOnboarding() {
     return (
       <div className="space-y-6 max-w-3xl mx-auto bg-white p-6 rounded-lg">
         <h3 className="text-2xl font-semibold text-gray-900 mb-6">
-          {activeTab === 'stepOne' && 'Personal Information'}
-          {activeTab === 'stepTwo' && 'Other Information'}
+          {activeTab === 'stepOne' &&
+            t('playerOnboardingPage_personalInformation')}
+          {activeTab === 'stepTwo' &&
+            t('playerOnboardingPage_otherInformation')}
         </h3>
 
         <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-2">
@@ -243,17 +247,21 @@ export default function PlayerOnboarding() {
           <main className="flex-1">
             <PageHeader
               icon={<User size={16} color="white" />}
-              title="Player Onboarding"
+              title={t('playerOnboardingPage_playerOnboarding')}
             />
             <OnboardingFormContainer
-              title="Tell Us More About Yourself"
+              title={t('playerOnboardingPage_tellUsMore')}
               activeTab={activeTab}
               onTabChange={handleTabChange}
               onBack={handleBack}
               onNext={
                 activeTab === 'stepTwo' ? handleSubmit(onSubmit) : handleNext
               }
-              submitLabel={activeTab === 'stepTwo' ? 'Save' : 'Next'}
+              submitLabel={
+                activeTab === 'stepTwo'
+                  ? t('playerOnboardingPage_save')
+                  : t('playerOnboardingPage_next')
+              }
             >
               {renderFormSection()}
             </OnboardingFormContainer>
@@ -261,7 +269,9 @@ export default function PlayerOnboarding() {
             {isSubmitting && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white p-6 rounded-lg shadow-lg">
-                  <p className="text-xl">Creating player profile...</p>
+                  <p className="text-xl">
+                    {t('playerOnboardingPage_creatingProfile')}
+                  </p>
                 </div>
               </div>
             )}

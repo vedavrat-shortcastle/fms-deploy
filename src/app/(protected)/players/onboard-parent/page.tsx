@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { useFormConfig } from '@/hooks/useFormConfig';
 import { Button } from '@/components/ui/button';
 import { FieldType } from '@prisma/client';
+import { useTranslation } from 'react-i18next';
 
 // Define types
 interface FormField {
@@ -37,6 +38,7 @@ export default function OnboardParentPage() {
   const router = useRouter();
   const { data: session, update } = useSession();
   const { config, isLoading: isConfigLoading } = useFormConfig('PARENT');
+  const { t } = useTranslation();
 
   // Redirect if user already has a profile
   useEffect(() => {
@@ -138,7 +140,7 @@ export default function OnboardParentPage() {
     return (
       <div className="space-y-6 max-w-3xl mx-auto bg-white">
         <h3 className="text-2xl font-semibold text-gray-900 mb-6">
-          Contact Information
+          {t('onboardParentPage_contactInformation')}
         </h3>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
@@ -166,7 +168,7 @@ export default function OnboardParentPage() {
   };
 
   if (isConfigLoading) {
-    return <div>Loading form configuration...</div>;
+    return <div>{t('onboardParentPage_loadingConfig')}</div>;
   }
 
   return (
@@ -176,12 +178,12 @@ export default function OnboardParentPage() {
           <main className="flex-1">
             <PageHeader
               icon={<User size={16} color="white" />}
-              title="Parents"
+              title={t('onboardParentPage_parents')}
             />
             <div className="max-w-4xl mx-auto p-6">
               <div className="bg-white border rounded-md shadow-lg p-6">
                 <h2 className="mb-4 pt-1 text-2xl font-bold bg-red-500 rounded-md text-white border-b pb-2 text-center">
-                  Parent Onboarding
+                  {t('onboardParentPage_parentOnboarding')}
                 </h2>
 
                 {renderFormSection()}
@@ -192,7 +194,9 @@ export default function OnboardParentPage() {
                     type="submit"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? 'Submitting...' : 'Submit'}
+                    {isSubmitting
+                      ? t('onboardParentPage_submitting')
+                      : t('onboardParentPage_submit')}
                   </Button>
                 </div>
               </div>
