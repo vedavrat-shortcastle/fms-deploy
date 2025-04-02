@@ -20,7 +20,7 @@ import {
   federationOnboardingSchema,
 } from '@/schemas/Federation.schema';
 import { PasswordInput } from '@/components/PasswordInput'; // Custom Password component.
-import { PhoneInput } from '@/components/phoneInput';
+import { PhoneInput } from '@/components/PhoneInput';
 
 // All the imports
 
