@@ -195,6 +195,60 @@ export const membershipRouter = router({
       }
     }),
 
+  getFederationSubscribers: permissionProtectedProcedure(
+    PERMISSIONS.PLAN_CREATE
+  )
+    .input(
+      z.object({
+        page: z.number().min(1),
+        limit: z.number().min(1),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const { page, limit } = input;
+        const offset = (page - 1) * limit;
+
+        // Build the filter condition: Only return subscriptions for the federation
+        const where = {
+          federationId: ctx.session.user.federationId,
+        };
+
+        // Query the subscriptions from the database with pagination,
+        // and include only the subscriber (Player) details.
+        const subscriptions = await ctx.db.subscription.findMany({
+          where,
+          skip: offset,
+          take: limit,
+          orderBy: { createdAt: 'desc' },
+          select: {
+            subscriberId: true,
+            type: true,
+            status: true,
+            startDate: true,
+            endDate: true,
+            // Include membership plan details
+            plan: {
+              select: {
+                name: true,
+                price: true,
+                currency: true,
+              },
+            },
+          },
+        });
+
+        // Count the total subscriptions for pagination purposes
+        const total = await ctx.db.subscription.count({ where });
+
+        return { subscriptions, total };
+      } catch (error: any) {
+        throw new Error(
+          `Failed to fetch federation subscribers: ${error.message}`
+        );
+      }
+    }),
+
   // Archive plan
   archivePlan: permissionProtectedProcedure(PERMISSIONS.PLAN_DELETE)
     .input(z.object({ id: z.string() }))
