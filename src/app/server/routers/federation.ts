@@ -13,6 +13,7 @@ import { createPlayerSchema } from '@/schemas/Player.schema';
 import { z } from 'zod';
 import { generateCustomPlayerId } from '@/utils/generateCustomCode';
 import { defaultFormConfigs } from '@/config/defaultFormConfigs';
+import { getDirection } from '@/utils/getLanguageDirection';
 
 export const federationRouter = router({
   federationOnboarding: publicProcedure
@@ -34,10 +35,11 @@ export const federationRouter = router({
         domain: input.domain,
         logo: input.logo,
         shortCode: input.shortCode,
+        language: input.language,
       };
 
       try {
-        // Check for existing federation outside transaction
+        console.log('flag1: Checking for existing federation');
         const existingFederation = await ctx.db.federation.findUnique({
           where: { domain: federation.domain },
         });
@@ -49,16 +51,26 @@ export const federationRouter = router({
           });
         }
 
+        console.log('flag2: Getting language direction');
+        const direction = getDirection(federation.language);
+
+        console.log('flag3: Hashing password');
         const hashedPassword = await hashPassword(baseUser.password);
 
-        // Wrap all database operations in a transaction
+        console.log('flag4: Starting transaction');
         const result = await ctx.db.$transaction(async (tx) => {
+          console.log('flag5: Creating federation', {
+            ...federation,
+            isRtl: direction === 'rtl',
+          });
           const createdFederation = await tx.federation.create({
-            data: federation,
+            data: { ...federation, isRtl: direction === 'rtl' },
             select: {
               id: true,
             },
           });
+
+          console.log('flag6: Creating base user');
           const newBaseUser = await tx.baseUser.create({
             data: {
               ...baseUser,
@@ -70,6 +82,7 @@ export const federationRouter = router({
             },
           });
 
+          console.log('flag7: Creating federation admin');
           const newFederationAdmin = await tx.federationAdmin.create({
             data: {
               federationId: createdFederation.id,
@@ -77,6 +90,7 @@ export const federationRouter = router({
             },
           });
 
+          console.log('flag8: Fetching federation admin permissions');
           const fedAdminPermissions = await tx.permission.findMany({
             where: {
               code: {
@@ -88,6 +102,7 @@ export const federationRouter = router({
             },
           });
 
+          console.log('flag9: Creating user profile');
           const newUserProfile = await tx.userProfile.create({
             data: {
               baseUser: {
@@ -98,6 +113,7 @@ export const federationRouter = router({
             },
           });
 
+          console.log('flag10: Assigning permissions to user');
           await tx.userPermission.createMany({
             data: fedAdminPermissions.map((permission) => ({
               permissionId: permission.id,
@@ -105,6 +121,7 @@ export const federationRouter = router({
             })),
           });
 
+          console.log('flag11: Creating form templates');
           for (const [formType, config] of Object.entries(defaultFormConfigs)) {
             await tx.formTemplate.create({
               data: {
@@ -125,8 +142,10 @@ export const federationRouter = router({
           };
         });
 
+        console.log('flag12: Transaction completed successfully');
         return result;
       } catch (error: any) {
+        console.error('flag13: Error occurred', error);
         handleError(error, {
           message: 'Failed to create federation with admin',
           cause: error.message,

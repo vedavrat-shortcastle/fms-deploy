@@ -1,7 +1,8 @@
-// src/scripts/translate.js
+// src/scripts/translate.mjs
 import { v2 as GoogleCloudTranslate } from '@google-cloud/translate';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
+import { SupportedLanguages } from '@prisma/client'; // Import SupportedLanguages enum
 
 const Translate = GoogleCloudTranslate.Translate;
 
@@ -23,13 +24,6 @@ try {
 // Initialize Translate with the full credentials object
 const translate = new Translate({ credentials });
 
-// Supported languages
-const languageMap = {
-  English: 'en',
-  Spanish: 'es',
-  Arabic: 'ar',
-};
-
 // Function to translate text
 async function translateText(text, targetLang) {
   try {
@@ -47,7 +41,7 @@ async function generateTranslations() {
     process.cwd(),
     'public',
     'locales',
-    'English',
+    'en',
     'common.json'
   );
   if (!existsSync(sourcePath)) {
@@ -63,16 +57,15 @@ async function generateTranslations() {
     throw new Error(`Failed to parse ${sourcePath}: ${error.message}`);
   }
 
-  const languages = Object.keys(languageMap).filter(
-    (lang) => lang !== 'English'
+  const languages = Object.values(SupportedLanguages).filter(
+    (lang) => lang !== 'en'
   );
 
   for (const lang of languages) {
-    const targetLangCode = languageMap[lang];
     const translations = {};
 
     for (const [key, value] of Object.entries(sourceTranslations)) {
-      translations[key] = await translateText(value, targetLangCode);
+      translations[key] = await translateText(value, lang);
     }
 
     const outputDir = join(process.cwd(), 'public', 'locales', lang);

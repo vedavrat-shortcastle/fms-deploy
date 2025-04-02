@@ -284,7 +284,7 @@
   "parentSettingsPage_errorFetchingDetails": "خطأ في جلب تفاصيل الوالد:",
   "parentSettingsPage_success": "نجاح",
   "parentSettingsPage_detailsUpdated": "تم تحديث تفاصيل الوالدين بنجاح!",
-  "parentSettingsPage_failedToUpdate": "فشل في تحديث تفاصيل الوالدين:",
+  "parentSettingsPage_failedToUpdate": "فشل تحديث تفاصيل الوالدين:",
   "parentSettingsPage_saving": "توفير...",
   "parentSettingsPage_saveChanges": "حفظ التغييرات",
   "parentSettingsPage_cancel": "يلغي",

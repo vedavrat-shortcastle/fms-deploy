@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'; // Adjust to your UI library
+import { SupportedLanguages } from '@prisma/client';
 
 interface LanguageSwitcherProps {
   lng: string;
@@ -30,7 +31,7 @@ export default function LanguageSwitcher({ lng }: LanguageSwitcherProps) {
         <SelectValue placeholder={i18n.language || lng} />
       </SelectTrigger>
       <SelectContent>
-        {['English', 'Spanish', 'Arabic'].map((locale) => (
+        {Object.keys(SupportedLanguages).map((locale) => (
           <SelectItem key={locale} value={locale}>
             {locale}
           </SelectItem>

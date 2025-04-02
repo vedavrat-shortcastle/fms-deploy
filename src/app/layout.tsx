@@ -4,7 +4,6 @@ import { Toaster } from '@/components/ui/toaster';
 import Providers from '@/components/Providers';
 import { authConfig } from '@/app/server/authConfig';
 import { getServerSession } from 'next-auth';
-import LanguageSwitcher from '@/components/languageSwitcher';
 
 export const metadata: Metadata = {
   title: 'FedChess',
@@ -17,7 +16,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authConfig);
-  const lng = session?.user?.language || 'English';
+  const lng = session?.user?.language || 'en';
   const dir = session?.user.isRtl ? 'rtl' : 'ltr';
 
   return (
@@ -25,7 +24,6 @@ export default async function RootLayout({
       <body>
         <Providers lng={lng}>
           {children}
-          <LanguageSwitcher lng={lng} />
           <Toaster />
         </Providers>
       </body>

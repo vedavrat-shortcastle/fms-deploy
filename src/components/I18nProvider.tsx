@@ -6,15 +6,18 @@ import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import HttpBackend from 'i18next-http-backend';
+import { SupportedLanguages } from '@prisma/client';
+import { getDirection } from '@/utils/getLanguageDirection';
 
+const languages = Object.values(SupportedLanguages) as string[];
 const i18nInstance = i18n.createInstance();
 i18nInstance
   .use(HttpBackend)
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    supportedLngs: ['English', 'Spanish', 'Arabic'],
-    fallbackLng: 'English',
+    supportedLngs: languages,
+    fallbackLng: SupportedLanguages.en,
     debug: process.env.NODE_ENV === 'development',
     backend: {
       loadPath: '/locales/{{lng}}/common.json',
@@ -26,14 +29,14 @@ i18nInstance
       order: ['path', 'navigator'],
       caches: [],
     },
-    preload: ['English', 'Spanish', 'Arabic'],
+    preload: languages,
     ns: ['common'],
     defaultNS: 'common',
   });
 
 // Define language direction
-i18nInstance.on('languageChanged', (lng) => {
-  const direction = lng === 'Arabic' ? 'rtl' : 'ltr'; // Add more RTL languages as needed
+i18nInstance.on('languageChanged', (lng: SupportedLanguages) => {
+  const direction = getDirection(lng);
   i18nInstance.dir = () => direction;
 });
 

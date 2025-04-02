@@ -12,7 +12,7 @@
     "prepare-husky": "npx husky init; echo \"# pnpm test\nnpx lint-staged\" > .husky/pre-commit",
     "test": "echo \"No tests specified\" && exit 0",
     "prisma-studio": "prisma studio",
-    "translate": "node src/scripts/trasnlate.mjs"
+    "translate": "node src/scripts/translate.mjs"
   },
   "dependencies": {
     "@auth/core": "^0.38.0",

@@ -10,11 +10,23 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { data: session, status } = useSession();
+  // const {} trpc call to get rtl & language config for fed
   const router = useRouter();
+
+  // useEffect(() => {
+  //     if(!window) return;
+  //     const domain = window.location.host;
+  //     const isRtl =
+  //     document.documentElement.setAttribute(
+  //       'dir',
+  //       session?.user?.isRtl ? 'rtl' : 'ltr'
+  //     );
+
+  // }, [session, status]);
 
   useEffect(() => {
     if (session) {
-      router.push('/players'); //TODO : temporarily keeping it to players later redirect to common page
+      router.push('/memberships');
     }
   }, [session, router]);
 
