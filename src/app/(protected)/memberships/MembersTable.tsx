@@ -8,17 +8,35 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { Pagination } from '@/components/ui/pagination';
 import { trpc } from '@/utils/trpc';
 import Loader from '@/components/Loader';
 import { Badge } from '@/components/ui/badge'; // colored badge for status
 
+import { useState } from 'react';
+
 export default function MembersTable() {
-  const page = 1;
-  const limit = 10;
+  const [page, setPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
   // Call the API endpoint using tRPC
   const { data, isLoading, error } =
-    trpc.membership.getFederationSubscribers.useQuery({ page, limit });
+    trpc.membership.getFederationSubscribers.useQuery({
+      page,
+      limit: itemsPerPage,
+    });
+  // const totalPages = data ? Math.ceil(data.total / itemsPerPage) : 1;
+
+  // Handler for page changes
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  // Handler for items per page changes (resets to page 1)
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setPage(1); // Reset to first page when items per page changes
+  };
 
   if (isLoading)
     return (
@@ -36,6 +54,15 @@ export default function MembersTable() {
   // The API returns an object with subscriptions and total.
   // Each subscription includes subscriberId, type, status, startDate, and endDate.
   const subscriptions = data?.subscriptions || [];
+
+  // Display a message if no members are found
+  if (subscriptions.length === 0) {
+    return (
+      <div className="flex justify-center min-h-screen text-2xl text-primary">
+        No members found
+      </div>
+    );
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -87,6 +114,17 @@ export default function MembersTable() {
           ))}
         </TableBody>
       </Table>
+      {/* Pagination component with spacing */}
+      <div className="mt-4">
+        <Pagination
+          totalRecords={data?.total || 0}
+          currentPage={page}
+          onPageChange={handlePageChange}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+          itemsPerPageOptions={[5, 10, 20, 50]}
+        />
+      </div>
     </div>
   );
 }

@@ -50,9 +50,16 @@ export const usersColumns: ColumnDef<{
               if (row.original.status === 'active') {
                 return;
               }
-              router.push(
-                `/memberships-payment?planId=${row.original.id}&playerIds=${[session.data?.user.profileId]}`
-              );
+              if (session.data?.user.role === 'PARENT') {
+                router.push(`/memberships-players?planId=${row.original.id}`);
+                return;
+              }
+              if (session.data?.user.role === 'PLAYER') {
+                router.push(
+                  `/memberships-payment?planId=${row.original.id}&playerIds=${[session.data?.user.profileId]}`
+                );
+                return;
+              }
             }}
           >
             {row.original.status === 'active' ? 'Purchased' : 'Purchase Plan'}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { trpc } from '@/utils/trpc'; // Adjust the import if needed
 import { PlayerCard } from '@/components/membership-components/PlayerMembershipCard';
@@ -17,6 +17,10 @@ export default function PlayerSelectionPage() {
   const router = useRouter();
   const limit = 20;
   const { status } = useSession();
+
+  const searchParams = useSearchParams();
+  const membershipPlanId = searchParams.get('planId'); //TODO: Wire up the planId to the payment page
+  console.log('Membership Plan ID:', membershipPlanId);
 
   // Handle authentication
   if (status === 'loading') {
