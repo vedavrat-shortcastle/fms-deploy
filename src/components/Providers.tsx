@@ -1,18 +1,20 @@
 'use client';
 
+import TranslationProvider from '@/components/I18nProvider';
 import TrpcProvider from '@/hooks/trpcProvider';
 import { SessionProvider } from 'next-auth/react';
 
 interface ProvidersProps {
   children: React.ReactNode;
+  lng: string;
 }
 
-function Providers({ children }: ProvidersProps) {
+export default function Providers({ children, lng }: ProvidersProps) {
   return (
     <TrpcProvider>
-      <SessionProvider>{children}</SessionProvider>
+      <SessionProvider>
+        <TranslationProvider lng={lng}>{children}</TranslationProvider>
+      </SessionProvider>
     </TrpcProvider>
   );
 }
-
-export default Providers;

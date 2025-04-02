@@ -41,7 +41,7 @@ model UserProfile {
   userStatus  UserStatus       @default(ACTIVE) @map("user_status")
   deletedAt   DateTime?        @map("deleted_at")
   permissions UserPermission[]
-  language    String           @default("English") 
+  language    String           @default("English")
   isRtl       Boolean          @default(false) @map("is_rtl")
 
   @@unique([profileType, profileId])
