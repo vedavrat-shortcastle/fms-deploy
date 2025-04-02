@@ -12,12 +12,14 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 export default function PaymentSuccess() {
   const searchParams = useSearchParams();
   const dateParam = searchParams.get('date');
-  const orderId = searchParams.get('orderId') || 'UNKNOWN'; // Retrieve order id from query
-  const amount = searchParams.get('amount') || 'UNKNOWN';
+  const orderId = searchParams.get('orderId'); // Retrieve order id from query
+  const amount = searchParams.get('amount');
+  const { t } = useTranslation();
 
   // Format the date for display, e.g., "March 27, 2025"
   const formattedDate = new Date(dateParam || new Date()).toLocaleDateString(
@@ -40,41 +42,51 @@ export default function PaymentSuccess() {
             <CheckCircle className="h-10 w-10 text-green-600" />
           </div>
           <h1 className="text-2xl font-bold text-green-500">
-            Payment Successful
+            {t('paymentSuccessPage_paymentSuccessful')}
           </h1>
           <p className="text-sm text-muted-foreground text-green-600 pb-5">
-            Your payment has been processed successfully
+            {t('paymentSuccessPage_paymentProcessed')}
           </p>
         </CardHeader>
         <CardContent className="space-y-4 px-6">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Order ID</span>
-              <span className="font-medium text-right">
-                {orderId ? `#ORD-${orderId}` : '#ORD-UNKNOWN'}
+              <span className="text-sm text-muted-foreground">
+                {t('paymentSuccessPage_orderId')}
+              </span>
+              <span className="font-medium">
+                {orderId
+                  ? `${t('paymentSuccessPage_orderIdPrefix')}${orderId}`
+                  : `${t('paymentSuccessPage_orderIdPrefix')}${t(
+                      'paymentSuccessPage_unknown'
+                    )}`}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Date</span>
+              <span className="text-sm text-muted-foreground">
+                {t('paymentSuccessPage_date')}
+              </span>
               <span className="font-medium">{formattedDate}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">
-                Payment Method
+                {t('paymentSuccessPage_paymentMethod')}
               </span>
               {/* TODO : remove the hardcoded card value and replace with card details from api */}
-              <span className="font-medium">Credit Card •••• 4242</span>
+              <span className="font-medium">
+                {t('paymentSuccessPage_creditCard')}
+              </span>
             </div>
             <Separator className="my-2" />
             <div className="flex items-center justify-between font-medium">
-              <span>Total Amount</span>
+              <span>{t('paymentSuccessPage_totalAmount')}</span>
               <span className="text-lg">{formattedAmount}</span>
             </div>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2 px-6 pb-6">
           <Button asChild className="w-full">
-            <Link href="/players">Go to Dashboard</Link>
+            <Link href="/players">{t('paymentSuccessPage_goToDashboard')}</Link>
           </Button>
         </CardFooter>
       </Card>

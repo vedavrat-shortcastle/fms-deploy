@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation'; // Import useRouter
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { AuthLayout } from '@/components/layouts/AuthLayout';
@@ -36,7 +35,6 @@ interface LoginProps {
 // The third prop will be a link to the sign up page.
 
 export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
-  const router = useRouter(); // Initialize the router
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -65,10 +63,6 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
       if (result?.error) {
         setError('Invalid credentials - No Account found');
         return;
-      }
-
-      if (result?.ok) {
-        router.push('/players');
       }
     } catch (error) {
       console.error(error);

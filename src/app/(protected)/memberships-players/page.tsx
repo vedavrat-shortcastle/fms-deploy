@@ -7,6 +7,7 @@ import { trpc } from '@/utils/trpc'; // Adjust the import if needed
 import { PlayerCard } from '@/components/membership-components/PlayerMembershipCard';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
+import { useTranslation } from 'react-i18next';
 
 const logo = '/assets/logoPlayersMembership.svg';
 
@@ -17,6 +18,7 @@ export default function PlayerSelectionPage() {
   const router = useRouter();
   const limit = 20;
   const { status } = useSession();
+  const { t } = useTranslation();
 
   const searchParams = useSearchParams();
   const membershipPlanId = searchParams.get('planId'); //TODO: Wire up the planId to the payment page
@@ -27,7 +29,7 @@ export default function PlayerSelectionPage() {
 
   // Handle authentication
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <div>{t('playerSelectionPage_loading')}</div>;
   }
   if (status === 'unauthenticated') {
     router.push('/login');
@@ -45,11 +47,15 @@ export default function PlayerSelectionPage() {
   // Handle errors
   if (error) {
     if (error.data?.code === 'FORBIDDEN') {
-      return <div>You are not authorized to view this page.</div>;
+      return <div>{t('playerSelectionPage_unauthorized')}</div>;
     } else if (error.data?.code === 'NOT_FOUND') {
-      return <div>Parent not found.</div>;
+      return <div>{t('playerSelectionPage_parentNotFound')}</div>;
     } else {
-      return <div>Error loading players: {error.message}</div>;
+      return (
+        <div>
+          {t('playerSelectionPage_errorLoadingPlayers')} {error.message}
+        </div>
+      );
     }
   }
   // 5. Transform the fetched data to match what the PlayerCard expects
@@ -82,7 +88,7 @@ export default function PlayerSelectionPage() {
       .map(({ id, name, email }) => ({ id, name, email }));
 
     if (selectedPlayerDetails.length === 0) {
-      alert('Please select at least one player.');
+      alert(t('playerSelectionPage_selectAtLeastOnePlayer'));
       return;
     }
     // Construct query string with planId and playerIds
@@ -108,15 +114,19 @@ export default function PlayerSelectionPage() {
               height={25}
               className="mr-2"
             />
-            <h1 className="text-xl font-bold text-gray-700">Players</h1>
+            <h1 className="text-xl font-bold text-gray-700">
+              {t('playerSelectionPage_players')}
+            </h1>
           </div>
 
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold">Select Players</h2>
+            <h2 className="text-xl font-bold">
+              {t('playerSelectionPage_selectPlayers')}
+            </h2>
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search"
+                placeholder={t('playerSelectionPage_search')}
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 className="pl-8 pr-4 py-2 border border-gray-300 rounded-md w-[250px]"
@@ -126,9 +136,9 @@ export default function PlayerSelectionPage() {
           </div>
 
           {isLoading ? (
-            <div>Loading...</div>
+            <div>{t('playerSelectionPage_loading')}</div>
           ) : error ? (
-            <div>Error loading players</div>
+            <div>{t('playerSelectionPage_errorLoadingPlayers')}</div>
           ) : (
             <div className="space-y-2 mb-6">
               {players.map((player) => (
@@ -179,11 +189,13 @@ export default function PlayerSelectionPage() {
 
           <div className="flex justify-between items-center">
             <div className="text-lg text-primary">
-              Total Players: {selectedPlayers.length}
+              {t('playerSelectionPage_totalPlayers')} {selectedPlayers.length}
             </div>
             <div className="flex items-center space-x-3">
               <div className="bg-gray-200 flex gap-x-8 py-2 px-6 rounded-md">
-                <div className="font-bold text-2xl">Total</div>
+                <div className="font-bold text-2xl">
+                  {t('playerSelectionPage_total')}
+                </div>
                 <div className="font-bold text-2xl">
                   ${totalAmount.toFixed(2)}
                 </div>
@@ -192,7 +204,7 @@ export default function PlayerSelectionPage() {
                 onClick={handlePayNow}
                 className="bg-primary text-white px-16 py-3 rounded-md hover:bg-red-400"
               >
-                Pay Now
+                {t('playerSelectionPage_payNow')}
               </button>
             </div>
           </div>

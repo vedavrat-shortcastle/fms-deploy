@@ -15,6 +15,7 @@ import {
 import { trpc } from '@/utils/trpc';
 import { useRouter } from 'next/navigation';
 import { useFormConfig } from '@/hooks/useFormConfig';
+import { useTranslation } from 'react-i18next';
 
 type FormSections = 'personal' | 'mailing' | 'other';
 
@@ -103,6 +104,7 @@ export default function AddPlayerPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const { config, isLoading: isConfigLoading } = useFormConfig('PLAYER');
+  const { t } = useTranslation();
 
   const form = useForm<CreatePlayerFormValues>({
     resolver: zodResolver(createPlayerSchema),
@@ -249,7 +251,7 @@ export default function AddPlayerPage() {
   };
 
   if (isConfigLoading) {
-    return <div>Loading form configuration...</div>;
+    return <div>{t('addPlayerPage_loadingConfig')}</div>;
   }
   const renderFormSection = () => {
     if (!config) return null;
@@ -279,9 +281,9 @@ export default function AddPlayerPage() {
     return (
       <div className="space-y-6 max-w-3xl mx-auto bg-white p-6 rounded-lg">
         <h3 className="text-2xl font-semibold text-gray-900 mb-6">
-          {activeTab === 'personal' && 'Personal Information'}
-          {activeTab === 'mailing' && 'Mailing Address'}
-          {activeTab === 'other' && 'Other Information'}
+          {activeTab === 'personal' && t('addPlayerPage_personalInformation')}
+          {activeTab === 'mailing' && t('addPlayerPage_mailingAddress')}
+          {activeTab === 'other' && t('addPlayerPage_otherInformation')}
         </h3>
 
         {sectionFields.map((field) => (
@@ -302,14 +304,21 @@ export default function AddPlayerPage() {
     <FormProvider {...form}>
       <div className="flex min-h-svh bg-gray-50">
         <main className="flex-1 p-6">
-          <PageHeader icon={<User size={16} color="white" />} title="Players" />
+          <PageHeader
+            icon={<User size={16} color="white" />}
+            title={t('addPlayerPage_players')}
+          />
           <FormContainer
-            title="Add Player"
+            title={t('addPlayerPage_addPlayer')}
             activeTab={activeTab}
             onTabChange={handleTabChange}
             onBack={handleBack}
             onNext={activeTab === 'other' ? handleSubmit(onSubmit) : handleNext}
-            submitLabel={activeTab === 'other' ? 'Save' : 'Next'}
+            submitLabel={
+              activeTab === 'other'
+                ? t('addPlayerPage_save')
+                : t('addPlayerPage_next')
+            }
           >
             {renderFormSection()}
           </FormContainer>
@@ -317,7 +326,7 @@ export default function AddPlayerPage() {
           {isSubmitting && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white p-6 rounded-lg shadow-lg">
-                <p className="text-xl">Creating player...</p>
+                <p className="text-xl">{t('addPlayerPage_creatingPlayer')}</p>
               </div>
             </div>
           )}

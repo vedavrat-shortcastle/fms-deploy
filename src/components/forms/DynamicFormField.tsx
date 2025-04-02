@@ -24,6 +24,7 @@ import { renderLabel } from '@/components/RenderLabel';
 import { Country, State, City } from 'country-state-city';
 import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface DynamicFormFieldProps {
   field: FormFieldConfig & {
@@ -46,6 +47,7 @@ export const DynamicFormField = ({
   control,
   name,
 }: DynamicFormFieldProps) => {
+  const { t } = useTranslation();
   if (field.isHidden) return null;
   const baseFieldName = name.split('.').pop() || '';
 
@@ -66,7 +68,8 @@ export const DynamicFormField = ({
                     <Input
                       {...formField}
                       placeholder={
-                        field.placeholder || `Enter ${field.displayName}`
+                        field.placeholder ||
+                        `${t('enter')} ${field.displayName}`
                       }
                       disabled={field.isDisabled}
                       className="w-full"
@@ -83,7 +86,8 @@ export const DynamicFormField = ({
                       <SelectTrigger>
                         <SelectValue
                           placeholder={
-                            field.placeholder || `Enter ${field.displayName}`
+                            field.placeholder ||
+                            `${t('enter')} ${field.displayName}`
                           }
                         />
                       </SelectTrigger>
@@ -111,7 +115,8 @@ export const DynamicFormField = ({
                     <Textarea
                       {...formField}
                       placeholder={
-                        field.placeholder || `Enter ${field.displayName}`
+                        field.placeholder ||
+                        `${t('enter')} ${field.displayName}`
                       }
                       disabled={field.isDisabled}
                       className="w-full"
@@ -137,14 +142,14 @@ export const DynamicFormField = ({
                         className="text-blue-500 flex items-center gap-2"
                       >
                         <FileText className="w-5 h-5" />
-                        File
+                        {t('file')}
                       </a>
                       <Button
                         variant="ghost"
                         onClick={() => formField.onChange(undefined)}
                         disabled={field.isDisabled}
                       >
-                        Change File
+                        {t('changeFile')}
                       </Button>
                     </div>
                   ) : (
@@ -159,8 +164,8 @@ export const DynamicFormField = ({
                       )}
                       label={
                         field.placeholder ||
-                        `Enter ${field.displayName}` ||
-                        'Click or drag to upload file'
+                        `${t('enter')} ${field.displayName}` ||
+                        t('clickOrDragToUpload')
                       }
                     />
                   );
@@ -170,7 +175,8 @@ export const DynamicFormField = ({
                     <PhoneInput
                       {...formField}
                       placeholder={
-                        field.placeholder || `Enter ${field.displayName}`
+                        field.placeholder ||
+                        `${t('enter')} ${field.displayName}`
                       }
                       className="w-full"
                     />
@@ -182,7 +188,8 @@ export const DynamicFormField = ({
                       {...formField}
                       type="email"
                       placeholder={
-                        field.placeholder || `Enter ${field.displayName}`
+                        field.placeholder ||
+                        `${t('enter')} ${field.displayName}`
                       }
                       disabled={field.isDisabled}
                       className="w-full"
@@ -195,7 +202,8 @@ export const DynamicFormField = ({
                       {...formField}
                       type="number"
                       placeholder={
-                        field.placeholder || `Enter ${field.displayName}`
+                        field.placeholder ||
+                        `${t('enter')} ${field.displayName}`
                       }
                       disabled={field.isDisabled}
                       min={field.validations?.min}
@@ -223,7 +231,7 @@ export const DynamicFormField = ({
                       value={countryIso || ''}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select Country" />
+                        <SelectValue placeholder={t('selectCountry')} />
                       </SelectTrigger>
                       <SelectContent>
                         {countries.map((country) => (
@@ -256,7 +264,7 @@ export const DynamicFormField = ({
                       disabled={!selectedCountry || field.isDisabled}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select State" />
+                        <SelectValue placeholder={t('selectState')} />
                       </SelectTrigger>
                       <SelectContent>
                         {states.map((state) => (
@@ -283,7 +291,7 @@ export const DynamicFormField = ({
                       disabled={!selectedState || field.isDisabled}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select City" />
+                        <SelectValue placeholder={t('selectCity')} />
                       </SelectTrigger>
                       <SelectContent>
                         {cities.map((city) => (
@@ -301,7 +309,8 @@ export const DynamicFormField = ({
                     <Input
                       {...formField}
                       placeholder={
-                        field.placeholder || `Enter ${field.displayName}`
+                        field.placeholder ||
+                        `${t('enter')} ${field.displayName}`
                       }
                       disabled={field.isDisabled}
                       className="w-full"

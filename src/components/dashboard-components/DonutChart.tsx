@@ -3,6 +3,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { trpc } from '@/utils/trpc';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface RegionData {
   name: string;
@@ -11,6 +12,8 @@ interface RegionData {
 }
 
 const DonutChart = () => {
+  const { t } = useTranslation('dashboard');
+
   const {
     data: memberCountByRegion,
     isLoading,
@@ -71,14 +74,14 @@ const DonutChart = () => {
 
     if (remainingRegions.length > 0) {
       finalData.push({
-        name: 'Others',
+        name: t('others'),
         value: othersValue,
         color: regionColors['Others'] || '#8884d8',
       });
     }
 
     return finalData;
-  }, [memberCountByRegion, regionColors]);
+  }, [memberCountByRegion, regionColors, t]);
 
   // Render custom dot for legend
   const renderColorDot = (color: string) => (
@@ -93,14 +96,14 @@ const DonutChart = () => {
       <Card className="w-full h-full shadow-none border rounded-xl">
         <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4">
           <CardTitle className="text-2xl font-bold">
-            Total Members
+            {t('totalMembers')}
             <br />
-            By Regions
+            {t('byRegions')}
           </CardTitle>
         </CardHeader>
         <CardContent className="px-4 pb-4">
           <div className="flex items-center justify-center h-full">
-            Loading region data...
+            {t('loadingRegionData')}
           </div>
         </CardContent>
       </Card>
@@ -112,14 +115,14 @@ const DonutChart = () => {
       <Card className="w-full h-full shadow-none border rounded-xl">
         <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4">
           <CardTitle className="text-2xl font-bold">
-            Total Members
+            {t('totalMembers')}
             <br />
-            By Regions
+            {t('byRegions')}
           </CardTitle>
         </CardHeader>
         <CardContent className="px-4 pb-4">
           <div className="flex items-center justify-center h-full">
-            Error loading region data.
+            {t('errorLoadingRegionData')}
           </div>
         </CardContent>
       </Card>
@@ -130,9 +133,9 @@ const DonutChart = () => {
     <Card className="w-full h-full shadow-none border rounded-xl">
       <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4">
         <CardTitle className="text-2xl font-bold">
-          Total Members
+          {t('totalMembers')}
           <br />
-          By Regions
+          {t('byRegions')}
         </CardTitle>
       </CardHeader>
       <CardContent className="px-4 pb-4">
@@ -154,7 +157,7 @@ const DonutChart = () => {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value) => [`${value}`, 'Members']}
+                  formatter={(value) => [`${value}`, t('members')]}
                   contentStyle={{
                     backgroundColor: 'white',
                     border: '1px solid #f0f0f0',
@@ -167,8 +170,8 @@ const DonutChart = () => {
           </div>
           <div className="flex-1 ml-6">
             <div className="flex justify-between mb-2 text-md font-bold">
-              <div>Regions</div>
-              <div>Members</div>
+              <div>{t('regions')}</div>
+              <div>{t('members')}</div>
             </div>
             {processedData.map((region, index) => (
               <div key={index} className="flex justify-between mb-3 text-md">

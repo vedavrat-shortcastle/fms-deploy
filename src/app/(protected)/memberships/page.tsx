@@ -21,7 +21,9 @@ import { PERMISSIONS } from '@/config/permissions';
 import { usersColumns } from '@/app/(protected)/memberships/usersColumns';
 import MembersTable from '@/app/(protected)/memberships/MembersTable';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 import ConfigForm from '@/app/(protected)/memberships/ConfigForm';
+const { t } = useTranslation();
 
 export default function Memberships() {
   const [search, setSearch] = useState('');
@@ -55,9 +57,21 @@ export default function Memberships() {
   };
   // Define sections for dynamic rendering
   const sections: Section[] = [
-    { name: 'Plans', value: 'plans', permission: PERMISSIONS.PLAN_CREATE },
-    { name: 'Members', value: 'members', permission: PERMISSIONS.PLAN_CREATE },
-    { name: 'Form', value: 'form', permission: PERMISSIONS.PLAN_CREATE },
+    {
+      name: t('membershipsPage_memberships_plans'),
+      value: 'plans',
+      permission: PERMISSIONS.PLAN_CREATE,
+    },
+    {
+      name: t('membershipsPage_memberships_members'),
+      value: 'members',
+      permission: PERMISSIONS.PLAN_CREATE,
+    },
+    {
+      name: t('membershipsPage_memberships_form'),
+      value: 'form',
+      permission: PERMISSIONS.PLAN_CREATE,
+    },
   ];
 
   // Optionally, refetch on search query change (if you are not debouncing the input)
@@ -78,7 +92,7 @@ export default function Memberships() {
             <FileText size={20} />
             {/* Icon */}
           </span>{' '}
-          Memberships
+          {t('membershipsPage_memberships')}
         </h1>
         {/* Dynamic Section Tabs */}
         <div className="border-b my-4">
@@ -119,14 +133,16 @@ export default function Memberships() {
               {/* Modal Pop-up for Adding usage */}
               <Dialog open={formOpen} onOpenChange={setFormOpen}>
                 <DialogTrigger asChild>
-                  <Button>Add Plan</Button>
+                  <Button>{t('membershipsPage_addPlan')}</Button>
                 </DialogTrigger>
 
                 <DialogContent className="max-w-3xl order ">
                   <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">
                       {/* <div className=""> */}
-                      <h1 className="text-2xl font-bold">Create Plan</h1>
+                      <h1 className="text-2xl font-bold">
+                        {t('membershipsPage_createPlan')}
+                      </h1>
                       {/* </div> */}
                     </DialogTitle>
                   </DialogHeader>

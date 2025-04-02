@@ -13,6 +13,7 @@ import { createPlayerSchema } from '@/schemas/Player.schema';
 import { z } from 'zod';
 import { generateCustomPlayerId } from '@/utils/generateCustomCode';
 import { defaultFormConfigs } from '@/config/defaultFormConfigs';
+import { getDirection } from '@/utils/getLanguageDirection';
 
 export const federationRouter = router({
   federationOnboarding: publicProcedure
@@ -34,10 +35,10 @@ export const federationRouter = router({
         domain: input.domain,
         logo: input.logo,
         shortCode: input.shortCode,
+        language: input.language,
       };
 
       try {
-        // Check for existing federation outside transaction
         const existingFederation = await ctx.db.federation.findUnique({
           where: { domain: federation.domain },
         });
@@ -49,16 +50,18 @@ export const federationRouter = router({
           });
         }
 
+        const direction = getDirection(federation.language);
+
         const hashedPassword = await hashPassword(baseUser.password);
 
-        // Wrap all database operations in a transaction
         const result = await ctx.db.$transaction(async (tx) => {
           const createdFederation = await tx.federation.create({
-            data: federation,
+            data: { ...federation, isRtl: direction === 'rtl' },
             select: {
               id: true,
             },
           });
+
           const newBaseUser = await tx.baseUser.create({
             data: {
               ...baseUser,
@@ -127,6 +130,7 @@ export const federationRouter = router({
 
         return result;
       } catch (error: any) {
+        console.error('flag13: Error occurred', error);
         handleError(error, {
           message: 'Failed to create federation with admin',
           cause: error.message,
@@ -229,8 +233,6 @@ export const federationRouter = router({
   uploadPlayersCSV: permissionProtectedProcedure(PERMISSIONS.PLAYER_CREATE)
     .input(z.array(createPlayerSchema))
     .mutation(async ({ ctx, input }) => {
-      console.log('Received input in backend:', input);
-
       try {
         const federationId = ctx.session.user.federationId;
         if (!federationId) {

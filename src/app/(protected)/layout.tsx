@@ -12,6 +12,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         'dir',
         session.user.isRtl ? 'rtl' : 'ltr'
       );
+      document.documentElement.setAttribute(
+        'lang',
+        session.user.language ?? 'en'
+      );
     }
   }, [session, status]);
 

@@ -1,18 +1,9 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 import '@/app/globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Providers from '@/components/Providers';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
+import { authConfig } from '@/app/server/authConfig';
+import { getServerSession } from 'next-auth';
 
 export const metadata: Metadata = {
   title: 'FedChess',
@@ -21,19 +12,21 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const session = await getServerSession(authConfig);
+  const lng = session?.user?.language || 'en';
+  const dir = session?.user.isRtl ? 'rtl' : 'ltr';
+
   return (
-    <html lang="en">
-      <Providers>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <div>{children}</div>
+    <html lang={lng} dir={dir}>
+      <body>
+        <Providers lng={lng}>
+          {children}
           <Toaster />
-        </body>
-      </Providers>
+        </Providers>
+      </body>
     </html>
   );
 }

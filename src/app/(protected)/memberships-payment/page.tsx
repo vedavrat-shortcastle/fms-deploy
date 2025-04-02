@@ -12,6 +12,7 @@ import { trpc } from '@/hooks/trpcProvider';
 import Loader from '@/components/Loader';
 import { useSession } from 'next-auth/react';
 import { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // Replace with your publishable key
 const stripePromise = loadStripe(
@@ -33,13 +34,14 @@ function PaymentContent({ session }: { session: any }) {
   const searchParams = useSearchParams();
   const membershipPlanId = searchParams.get('planId');
   const playerIds = searchParams.get('playerIds')?.split(',') || [];
+  const { t } = useTranslation();
 
   if (!membershipPlanId || !playerIds) {
     return (
       <div className="flex flex-col justify-center items-center text-3xl min-h-screen text-primary">
-        Error!!
+        {t('paymentPage_error')}
         <div className="text-2xl text-secondary">
-          Please select a plan first
+          {t('paymentPage_selectPlanFirst')}
         </div>
       </div>
     );
@@ -61,7 +63,7 @@ function PaymentContent({ session }: { session: any }) {
   if (!plan) {
     return (
       <div className="flex flex-col justify-center items-center text-3xl min-h-screen text-primary">
-        Plan not found
+        {t('paymentPage_planNotFound')}
       </div>
     );
   }
@@ -74,14 +76,16 @@ function PaymentContent({ session }: { session: any }) {
           <Button variant="ghost" className="p-0 mr-2">
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <h2 className="text-lg font-medium">Payment</h2>
+          <h2 className="text-lg font-medium">{t('paymentPage_payment')}</h2>
         </div>
 
         <div className="flex gap-6">
           {/* Left section - Payment form */}
           <Card className="w-1/2 shadow-none border rounded">
             <CardContent className="p-6">
-              <h3 className="text-lg font-medium mb-6">Payment</h3>
+              <h3 className="text-lg font-medium mb-6">
+                {t('paymentPage_payment')}
+              </h3>
 
               <Elements stripe={stripePromise}>
                 <CheckoutForm
@@ -104,7 +108,7 @@ function PaymentContent({ session }: { session: any }) {
 
               <div className="mb-4">
                 <span className="text-primary font-medium">
-                  {plan.duration} Months
+                  {plan.duration} {t('paymentPage_months')}
                 </span>
               </div>
 
@@ -114,7 +118,11 @@ function PaymentContent({ session }: { session: any }) {
                 </h3>
                 {playerIds.length > 1 && (
                   <p className="text-sm text-gray-500">
-                    ({playerIds.length} players × {plan.currency} {plan.price})
+                    ({t('paymentPage_multiplePlayers')}
+                    {playerIds.length} {t('paymentPage_playersTimes')}{' '}
+                    {plan.currency}
+                    {plan.price}
+                    {t('paymentPage_closingParenthesis')})
                   </p>
                 )}
               </div>

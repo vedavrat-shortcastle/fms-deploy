@@ -1,4 +1,4 @@
-import { FedType } from '@prisma/client';
+import { FedType, SupportedLanguages } from '@prisma/client';
 import { z } from 'zod';
 
 export const createFederationSchema = z.object({
@@ -23,6 +23,7 @@ export const createFederationSchema = z.object({
     .string()
     .min(1, 'Short name is required')
     .max(10, { message: 'Short name cannot exceed 10 characters' }),
+  language: z.nativeEnum(SupportedLanguages),
 });
 
 export const federationOnboardingSchema = createFederationSchema.extend({

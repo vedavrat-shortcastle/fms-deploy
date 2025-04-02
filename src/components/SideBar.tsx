@@ -18,6 +18,7 @@ import { FC, ReactElement } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { Role } from '@prisma/client';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarLinkProps {
   href?: string;
@@ -39,6 +40,7 @@ interface MenuItems {
 const Sidebar: FC = () => {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const { data } = useSession();
 
@@ -46,70 +48,70 @@ const Sidebar: FC = () => {
     {
       href: '/admin-dashboard',
       icon: <Home size={20} />,
-      label: 'Dashboard',
+      label: t('dashboard'),
       active: pathname === '/admin-dashboard',
       roles: ['FED_ADMIN'],
     },
     {
       href: '/players',
       icon: <User size={20} />,
-      label: 'Players',
+      label: t('players'),
       active: pathname === '/players',
       roles: ['FED_ADMIN', 'PARENT'],
     },
     {
       href: '/memberships',
       icon: <ClipboardList size={20} />,
-      label: 'Memberships',
+      label: t('memberships'),
       active: pathname === '/memberships',
       roles: ['FED_ADMIN', 'PARENT', 'PLAYER'],
     },
     {
       href: '/events',
       icon: <Calendar size={20} />,
-      label: 'Events',
+      label: t('events'),
       active: pathname === '/events',
       roles: ['FED_ADMIN', 'PARENT', 'PLAYER'],
     },
     {
       href: '/support',
       icon: <HelpCircle size={20} />,
-      label: 'Support',
+      label: t('support'),
       active: pathname === '/support',
       roles: ['FED_ADMIN', 'PARENT', 'PLAYER'],
     },
     {
       href: '/profile-setting',
       icon: <Settings size={20} />,
-      label: 'Profile & Settings',
+      label: t('profileSettings'),
       active: pathname === '/profile-setting',
       roles: ['FED_ADMIN', 'PARENT', 'PLAYER'],
     },
     {
       href: '/coaches',
       icon: <UserCheck size={20} />,
-      label: 'Coaches',
+      label: t('coaches'),
       active: pathname === '/coaches',
       roles: ['FED_ADMIN', 'PARENT'],
     },
     {
       href: '/arbiters',
       icon: <UserPlus size={20} />,
-      label: 'Arbiters',
+      label: t('arbiters'),
       active: pathname === '/arbiters',
       roles: ['FED_ADMIN'],
     },
     {
       href: '/schools',
       icon: <School size={20} />,
-      label: 'Schools',
+      label: t('schools'),
       active: pathname === '/schools',
       roles: ['FED_ADMIN'],
     },
     {
       href: '/clubs',
       icon: <Building size={20} />,
-      label: 'Clubs',
+      label: t('clubs'),
       active: pathname === '/clubs',
       roles: ['FED_ADMIN'],
     },
@@ -164,7 +166,9 @@ const Sidebar: FC = () => {
             <AvatarFallback>AS</AvatarFallback>
           </Avatar>
           <div>
-            <div className="text-sm font-medium">USER: {data?.user.role}</div>
+            <div className="text-sm font-medium">
+              {t('user')} {data?.user.role}
+            </div>
             <div className="text-sm text-gray-300">
               {data?.user.firstName + ' ' + data?.user.lastName}
             </div>
@@ -175,7 +179,7 @@ const Sidebar: FC = () => {
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
         {filteredMenuItems.map((item, index) => (
-          <SidebarLink key={index} {...item} />
+          <SidebarLink key={index} {...item} label={item.label} />
         ))}
       </nav>
 
@@ -189,7 +193,7 @@ const Sidebar: FC = () => {
           }}
           href="/login"
           icon={<LogOut size={20} />}
-          label="Logout Account"
+          label={t('logoutAccount')}
           active={false}
         />
       </div>

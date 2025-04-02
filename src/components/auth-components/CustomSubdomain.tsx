@@ -33,6 +33,7 @@ import Loader from '../Loader';
 
 // Import Country from the country-state-city library
 import { Country } from 'country-state-city';
+import { SupportedLanguages } from '@prisma/client';
 
 interface CustomSubdomainProps {
   imageSrc: string;
@@ -84,6 +85,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
         shortCode: true,
         country: true,
         domain: true,
+        language: true,
       })
     ),
     defaultValues: {
@@ -92,6 +94,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
       shortCode: '',
       country: '',
       domain: '',
+      language: 'en',
     },
   });
 
@@ -229,6 +232,38 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
             </FormItem>
           )}
         />
+
+        {/* Federation Language Field - Language Selection */}
+        <FormField
+          control={form.control}
+          name="language"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-input-grey">
+                Federation Language
+              </FormLabel>
+              <FormControl>
+                <Select
+                  value={field.value || ''}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(SupportedLanguages).map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage /> {/* Error message should go here */}
+            </FormItem>
+          )}
+        />
+
         {/* Domain Field */}
         <FormField
           control={form.control}

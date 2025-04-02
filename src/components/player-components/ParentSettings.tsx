@@ -15,6 +15,7 @@ import {
   type EditParentFormValues,
   editParentSchema,
 } from '@/schemas/Parent.schema';
+import { useTranslation } from 'react-i18next';
 
 // Define base user fields similar to the player implementation
 const baseUserFields = ['id', 'email', 'firstName', 'lastName'];
@@ -24,6 +25,7 @@ export default function ParentSettings() {
   const router = useRouter();
   const parentId = session.data?.user.id;
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,12 +76,12 @@ export default function ParentSettings() {
     if (error) {
       console.error('Error fetching parent details:', error);
       toast({
-        title: 'Error',
-        description: `Error fetching parent details: ${error.message}`,
+        title: t('parentSettingsPage_error'),
+        description: `${t('parentSettingsPage_errorFetchingDetails')} ${error.message}`,
         variant: 'destructive',
       });
     }
-  }, [data, error, reset, toast]);
+  }, [data, error, reset, toast, t]);
 
   // Mutation for editing parent details
   const editParentMutation = trpc.parent.editParentById.useMutation({
@@ -87,8 +89,8 @@ export default function ParentSettings() {
       setIsEditing(false);
       refetch();
       toast({
-        title: 'Success',
-        description: 'Parent details updated successfully!',
+        title: t('parentSettingsPage_success'),
+        description: t('parentSettingsPage_detailsUpdated'),
         variant: 'default',
       });
       setIsSubmitting(false);
@@ -97,8 +99,8 @@ export default function ParentSettings() {
       console.error('Failed to update parent details:', err.message);
       setIsSubmitting(false);
       toast({
-        title: 'Error',
-        description: `Failed to update parent details: ${err.message}`,
+        title: t('parentSettingsPage_error'),
+        description: `${t('parentSettingsPage_failedToUpdate')} ${err.message}`,
         variant: 'destructive',
       });
     },
@@ -108,8 +110,8 @@ export default function ParentSettings() {
     setIsSubmitting(true);
     if (!parentId) {
       toast({
-        title: 'Error',
-        description: 'Parent ID is missing.',
+        title: t('parentSettingsPage_error'),
+        description: t('parentSettingsPage_missingParentId'),
         variant: 'destructive',
       });
       setIsSubmitting(false);
@@ -218,7 +220,7 @@ export default function ParentSettings() {
             onClick={() => router.push('/parents')}
             disabled={isSubmitting}
           >
-            Back
+            {t('parentSettingsPage_back')}
           </Button>
 
           <div className="bg-white p-6 rounded-lg shadow">
@@ -231,20 +233,22 @@ export default function ParentSettings() {
                   onClick={handleCancel}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {t('parentSettingsPage_cancel')}
                 </Button>
                 <Button
                   type="submit"
                   onClick={handleSubmit(onSubmit)}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Saving...' : 'Save changes'}
+                  {isSubmitting
+                    ? t('parentSettingsPage_saving')
+                    : t('parentSettingsPage_saveChanges')}
                 </Button>
               </div>
             ) : (
               <div className="flex flex-col gap-4 mt-6">
                 <Button variant="outline" onClick={handleEditToggle}>
-                  Edit Details
+                  {t('parentSettingsPage_editDetails')}
                 </Button>
               </div>
             )}

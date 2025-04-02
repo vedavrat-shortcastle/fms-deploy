@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from 'react-i18next';
 
 interface DeleteConfirmDialogProps {
   open: boolean;
@@ -26,14 +27,15 @@ export function DeleteConfirmDialog({
   isSubmitting,
   playerName,
 }: DeleteConfirmDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogTitle>{t('confirmDeletion')}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete {playerName}? This action cannot be
-            undone.
+            {t('areYouSureDelete')} {playerName}
+            {t('cannotBeUndone')}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="mt-4">
@@ -42,7 +44,7 @@ export function DeleteConfirmDialog({
             onClick={() => onOpenChange(false)}
             disabled={isSubmitting}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             variant="destructive"
@@ -52,10 +54,10 @@ export function DeleteConfirmDialog({
             {isSubmitting ? (
               <>
                 <Loader className="mr-2 h-4 w-4 animate-spin" />
-                Deleting...
+                {t('deleting')}
               </>
             ) : (
-              'Delete Player'
+              t('deletePlayer')
             )}
           </Button>
         </DialogFooter>
