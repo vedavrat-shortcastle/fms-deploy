@@ -5,7 +5,7 @@ import {
   protectedProcedure,
 } from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
-import { ProfileType, Role } from '@prisma/client';
+import { ProfileType, Role, SubscriptionStatus } from '@prisma/client';
 import { PERMISSIONS } from '@/config/permissions';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
@@ -281,16 +281,42 @@ export const playerRouter = router({
             role: Role.PLAYER,
             federationId: ctx.session.user.federationId,
           },
-          select: { profile: true },
+          select: {
+            profile: {
+              select: {
+                id: true,
+                profileId: true,
+                profileType: true,
+                userStatus: true,
+              },
+            },
+          },
         });
 
-        if (!userProfileId) {
+        if (!userProfileId || !userProfileId.profile) {
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'Player not found',
           });
         }
-
+        console.log(
+          'Profile ID being checked:',
+          userProfileId.profile.profileId
+        );
+        // Check if player has active subscriptions
+        const activeSubscriptions = await ctx.db.subscription.findFirst({
+          where: {
+            subscriberId: userProfileId.profile.profileId,
+            status: SubscriptionStatus.ACTIVE,
+          },
+        });
+        console.log('Active subscriptions found:', activeSubscriptions);
+        if (activeSubscriptions) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Players with active memberships cannot be deleted',
+          });
+        }
         await ctx.db.userProfile.update({
           where: {
             id: userProfileId.profile?.id,
