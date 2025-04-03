@@ -21,7 +21,7 @@ export default function PlayerSelectionPage() {
   const { t } = useTranslation();
 
   const searchParams = useSearchParams();
-  const membershipPlanId = searchParams.get('planId'); //TODO: Wire up the planId to the payment page
+  const membershipPlanId = searchParams?.get('planId') || '';
 
   const { data: plan } = trpc.membership.getPlanById.useQuery({
     id: membershipPlanId!,

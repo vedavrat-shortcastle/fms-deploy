@@ -21,7 +21,7 @@ import {
   mapPlayerData,
 } from '@/app/(protected)/players/[playerId]/PlayerDataMapping';
 import { useTranslation } from 'react-i18next';
-import LanguagueSwitcher from '@/components/LanguageSwitcher';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const sanitizeFields = (fields: any[]) =>
   fields.map((field) => ({
@@ -39,7 +39,8 @@ export default function Profile() {
   const { t } = useTranslation();
   const { data: sessionData } = useSession();
   const { toast } = useToast();
-  const { playerId } = useParams<{ playerId: string }>();
+  const params = useParams<{ playerId: string }>();
+  const playerId = params?.playerId ?? '';
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -249,7 +250,7 @@ export default function Profile() {
           {/* Right Column: Form */}
           <div className="w-3/4 bg-white p-6 rounded-lg shadow">
             <fieldset disabled={!isEditing}>{renderFormFields()}</fieldset>
-            <LanguagueSwitcher />
+            <LanguageSwitcher />
             {isEditing && (
               <div className="flex justify-end gap-4 mt-6">
                 <Button variant="ghost" onClick={handleCancel}>

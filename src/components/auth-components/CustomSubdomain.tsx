@@ -59,7 +59,7 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
   const mutation = trpc.federation.federationOnboarding.useMutation();
 
   // Retrieve and parse query data
-  const queryData = searchParams.get('data');
+  const queryData = searchParams?.get('data') || null;
   let onboardingData: any = {};
   if (queryData) {
     try {

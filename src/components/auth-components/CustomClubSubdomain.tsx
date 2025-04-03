@@ -58,7 +58,7 @@ const CustomClubSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
   const mutation = trpc.club.clubOnboarding.useMutation();
 
   // Retrieve and parse query data
-  const queryData = searchParams.get('data');
+  const queryData = searchParams ? searchParams.get('data') : null;
   let onboardingData = {};
   if (queryData) {
     try {

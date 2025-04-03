@@ -32,8 +32,8 @@ export default function PaymentPage() {
 
 function PaymentContent({ session }: { session: any }) {
   const searchParams = useSearchParams();
-  const membershipPlanId = searchParams.get('planId');
-  const playerIds = searchParams.get('playerIds')?.split(',') || [];
+  const membershipPlanId = searchParams?.get('planId') || null;
+  const playerIds = searchParams?.get('playerIds')?.split(',') || [];
   const { t } = useTranslation();
 
   if (!membershipPlanId || !playerIds) {

@@ -71,8 +71,8 @@ model Parent {
   streetAddress  String  @map("street_address")
   streetAddress2 String? @map("street_address2")
   country        String
-  state          String
-  city           String
+  state          String?
+  city           String?
   postalCode     String  @map("postal_code")
 
   // Relationships

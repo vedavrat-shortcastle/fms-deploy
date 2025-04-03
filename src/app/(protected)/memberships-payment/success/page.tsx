@@ -16,9 +16,9 @@ import { useTranslation } from 'react-i18next';
 
 export default function PaymentSuccess() {
   const searchParams = useSearchParams();
-  const dateParam = searchParams.get('date');
-  const orderId = searchParams.get('orderId'); // Retrieve order id from query
-  const amount = searchParams.get('amount');
+  const dateParam = searchParams ? searchParams.get('date') : null;
+  const orderId = searchParams ? searchParams.get('orderId') : null; // Retrieve order id from query
+  const amount = searchParams ? searchParams.get('amount') : null;
   const { t } = useTranslation();
 
   // Format the date for display, e.g., "March 27, 2025"
