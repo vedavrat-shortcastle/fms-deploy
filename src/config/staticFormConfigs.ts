@@ -95,3 +95,66 @@ export const AdminProfileFormConfig: FormFieldConfig[] = [
     isCustomField: false,
   },
 ];
+
+export const AddMemberFormConfig: FormFieldConfig[] = [
+  {
+    id: 'playerIdField',
+    fieldName: 'playerId',
+    displayName: 'Player ID',
+    placeholder: 'Enter Player ID',
+    fieldType: FieldType.TEXT,
+    isMandatory: true,
+    order: 1,
+    validations: {
+      minLength: 1,
+    },
+    isHidden: false,
+    isDisabled: false,
+    isCustomField: false,
+  },
+  {
+    id: 'planIdField',
+    fieldName: 'planId',
+    displayName: 'Plan ID',
+    placeholder: 'Enter Plan ID',
+    fieldType: FieldType.TEXT,
+    isMandatory: true,
+    order: 2,
+    validations: {
+      minLength: 1,
+    },
+    isHidden: false,
+    isDisabled: false,
+    isCustomField: false,
+  },
+  {
+    id: 'subscriptionTypeField',
+    fieldName: 'subscriptionType',
+    displayName: 'Subscription Type',
+    placeholder: 'Enter Subscription Type',
+    fieldType: FieldType.TEXT,
+    isMandatory: true,
+    order: 3,
+    validations: {
+      minLength: 1,
+    },
+    isHidden: false,
+    isDisabled: false,
+    isCustomField: false,
+  },
+  {
+    id: 'paymentModeField',
+    fieldName: 'paymentMode',
+    displayName: 'Payment Mode',
+    placeholder: 'Select Payment Mode',
+    fieldType: FieldType.SELECT,
+    isMandatory: true,
+    order: 4,
+    validations: {
+      options: ['Credit Card', 'Debit Card', 'UPI', 'Net Banking', 'Wallet'],
+    },
+    isHidden: false,
+    isDisabled: false,
+    isCustomField: false,
+  },
+];
