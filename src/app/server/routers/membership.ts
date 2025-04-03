@@ -7,6 +7,7 @@ import {
 import { handleError } from '@/utils/errorHandler';
 import { PERMISSIONS } from '@/config/permissions';
 import { z } from 'zod';
+import { addMemberSchema } from '@/schemas/Membership.schema';
 import { Prisma, PlanStatus, SubscriptionStatus } from '@prisma/client';
 import {
   createPlanSchema,
@@ -277,6 +278,36 @@ export const membershipRouter = router({
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to archive membership plan',
+          cause: error.message,
+        });
+      }
+    }),
+
+  addMemberSubscription: permissionProtectedProcedure(PERMISSIONS.PLAN_VIEW)
+    .input(addMemberSchema)
+    .mutation(async ({ input }) => {
+      try {
+        // Log the input details to the console
+        console.log('addMemberSubscription input:', input);
+
+        // TODO: Implement subscription creation logic
+        // For example:
+        // const subscription = await ctx.db.subscription.create({
+        //   data: {
+        //     subscriberId: input.playerId,
+        //     planId: input.planId,
+        //     type: input.subscriptionType,
+        //     status: SubscriptionStatus.ACTIVE,
+        //     startDate: new Date(),
+        //     // Add other fields as needed
+        //   },
+        // });
+
+        // For now, just returning the input
+        return input;
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to add member subscription',
           cause: error.message,
         });
       }

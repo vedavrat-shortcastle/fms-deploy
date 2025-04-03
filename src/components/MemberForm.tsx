@@ -3,49 +3,73 @@
 import React from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { FormBuilder } from '@/components/forms/FormBuilder';
 import { AddMemberFormConfig } from '@/config/staticFormConfigs';
 import { sanitizeFields } from '@/utils/sanitize';
 import { Button } from '@/components/ui/button';
-
-// Define a zod schema for the add member form based on the configuration
-const addMemberSchema = z.object({
-  playerId: z.string().min(1, 'Player ID is required'),
-  planId: z.string().min(1, 'Plan ID is required'),
-  subscriptionType: z.string().min(1, 'Subscription Type is required'),
-  paymentMode: z.enum([
-    'Credit Card',
-    'Debit Card',
-    'UPI',
-    'Net Banking',
-    'Wallet',
-  ]),
-});
-
-type AddMemberFormValues = z.infer<typeof addMemberSchema>;
+import { trpc } from '@/utils/trpc';
+import { Toast } from '@/components/ui/toast';
+import {
+  addMemberSchema,
+  AddMemberFormValues,
+} from '@/schemas/Membership.schema';
 
 interface MemberFormProps {
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export default function MemberForm({ onClose }: MemberFormProps) {
+export default function MemberForm({ onClose, onSuccess }: MemberFormProps) {
   const form = useForm<AddMemberFormValues>({
     resolver: zodResolver(addMemberSchema),
     mode: 'onChange',
+    defaultValues: {
+      playerId: '',
+      planId: '',
+      subscriptionType: '',
+      paymentMode: 'Credit Card',
+    },
   });
-  const { control, handleSubmit } = form;
 
-  const onSubmit = (formData: AddMemberFormValues) => {
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = form;
+
+  // Use the mutation
+  const addMemberMutation = trpc.membership.addMemberSubscription.useMutation({
+    onSuccess: () => {
+      Toast({
+        title: 'Success',
+        variant: 'default',
+      });
+
+      reset();
+      if (onSuccess) onSuccess();
+      onClose();
+    },
+    onError: (error: any) => {
+      console.log(error);
+      Toast({
+        title: 'Error',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const onSubmit = async (formData: AddMemberFormValues) => {
     console.log('Member Form Data:', formData);
-    // TODO: Implement API call or state update here
+    await addMemberMutation.mutateAsync(formData);
   };
 
   return (
     <div className="max-w-3xl mx-auto">
       <div className="flex flex-col items-center">
         <div className="w-full max-w-3xl p-0 border rounded-lg shadow-md">
-          <div className="p-3">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Add Member to Plan</h2>
             <FormProvider {...form}>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <FormBuilder
@@ -56,11 +80,23 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                   }}
                   control={control}
                 />
-                <div className="flex justify-end gap-4">
-                  <Button type="button" variant="outline" onClick={onClose}>
+                <div className="flex justify-end gap-4 mt-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onClose}
+                    disabled={isSubmitting || addMemberMutation.isLoading}
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit">Add Member</Button>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting || addMemberMutation.isLoading}
+                  >
+                    {isSubmitting || addMemberMutation.isLoading
+                      ? 'Adding...'
+                      : 'Add Member'}
+                  </Button>
                 </div>
               </form>
             </FormProvider>
