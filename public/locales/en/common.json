@@ -293,5 +293,10 @@
   "parentSettingsPage_cancel": "Cancel",
   "parentSettingsPage_editDetails": "Edit Details",
   "parentSettingsPage_missingParentId": "Parent ID is missing.",
-  "parentSettingsPage_loading": "Loading..."
+  "parentSettingsPage_loading": "Loading...",
+  "language_preference": "Language Preference",
+  "select_language": "Select Language",
+  "language_change_confirmation": "Are you sure you want to change Language Preference?",
+  "confirm_language_change": "Confirm Language Change",
+  "confirm": "Confirm"
 }

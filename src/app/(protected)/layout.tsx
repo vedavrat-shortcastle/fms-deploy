@@ -2,26 +2,15 @@
 import Sidebar from '@/components/SideBar';
 import { ProtectedRoute } from '@/hooks/protectedRoute';
 import { useSession } from 'next-auth/react';
-import { useEffect } from 'react';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
-  useEffect(() => {
-    if (status === 'authenticated' && session?.user?.isRtl !== undefined) {
-      document.documentElement.setAttribute(
-        'dir',
-        session.user.isRtl ? 'rtl' : 'ltr'
-      );
-      document.documentElement.setAttribute(
-        'lang',
-        session.user.language ?? 'en'
-      );
-    }
-  }, [session, status]);
+  const { data: session } = useSession();
+  const lng = session?.user.language;
+  const dir = session?.user.isRtl ? 'rtl' : 'ltr';
 
   return (
     <ProtectedRoute>
-      <section>
+      <section lang={lng} dir={dir}>
         <div className="flex min-h-svh">
           <Sidebar />
           <main className="flex-1 min-h-svh">{children}</main>
