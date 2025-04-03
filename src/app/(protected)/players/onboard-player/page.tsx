@@ -90,7 +90,11 @@ export default function PlayerOnboarding() {
     },
   });
 
-  const { handleSubmit, trigger, control } = form;
+  const { handleSubmit, trigger, control, watch } = form;
+
+  // Watch for changes in country and state
+  const watchedCountry = watch('country');
+  const watchedState = watch('state');
 
   // Update form with configuration when loaded
   useEffect(() => {
@@ -207,8 +211,8 @@ export default function PlayerOnboarding() {
       return fields.map((field) => ({
         ...field,
         dependentValue: {
-          country: form.getValues('country'),
-          state: form.getValues('state'),
+          country: watchedCountry,
+          state: watchedState,
         },
       }));
     };

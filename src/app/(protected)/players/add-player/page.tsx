@@ -104,7 +104,6 @@ export default function AddPlayerPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const { config, isLoading: isConfigLoading } = useFormConfig('PLAYER');
-  console.log('form config', config);
   const { t } = useTranslation();
 
   const form = useForm<CreatePlayerFormValues>({
@@ -141,7 +140,11 @@ export default function AddPlayerPage() {
     },
   });
 
-  const { handleSubmit, reset, trigger, control } = form;
+  const { handleSubmit, reset, trigger, control, watch } = form;
+
+  // Watch for changes in country and state
+  const watchCountry = watch('playerDetails.country');
+  const watchState = watch('playerDetails.state');
 
   // Update form with configuration when loaded
   useEffect(() => {
@@ -271,9 +274,9 @@ export default function AddPlayerPage() {
         prefix:
           FORM_SECTIONS[section].prefix[field.fieldName] || 'playerDetails',
         dependentValue: {
-          country: form.getValues('playerDetails.country'),
-          state: form.getValues('playerDetails.state'),
-        }, // Pass dependent values dynamically
+          country: watchCountry,
+          state: watchState,
+        },
       }));
     };
 

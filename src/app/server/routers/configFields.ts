@@ -10,33 +10,6 @@ import { z } from 'zod';
 import { defaultFormConfigs } from '@/config/defaultFormConfigs';
 import { FormType } from '@prisma/client';
 
-// Validation schemas
-// const formFieldSchema = z.object({
-//   fieldName: z.string(),
-//   displayName: z.string(),
-//   fieldType: z.enum([
-//     'TEXT',
-//     'NUMBER',
-//     'EMAIL',
-//     'PHONE',
-//     'DATE',
-//     'SELECT',
-//     'MULTISELECT',
-//     'CHECKBOX',
-//     'RADIO',
-//     'TEXTAREA',
-//     'FILE',
-//   ]),
-//   isHidden: z.boolean().optional(),
-//   isMandatory: z.boolean().optional(),
-//   isDisabled: z.boolean().optional(),
-//   defaultValue: z.string().optional(),
-//   placeholder: z.string().optional(),
-//   validations: z.any().optional(),
-//   order: z.number(),
-//   isCustomField: z.boolean().optional(),
-// });
-
 export const configRouter = router({
   // Initialize federation form configs
   initializeFederationConfigs: permissionProtectedProcedure(
@@ -127,67 +100,6 @@ export const configRouter = router({
         });
       }
     }),
-
-  // Update form configuration
-  // updateFormConfig: permissionProtectedProcedure(PERMISSIONS.FED_ALL)
-  //   .input(
-  //     z.object({
-  //       formType: z.enum(['PLAYER', 'PARENT', 'EVENT', 'CLUB', 'SUBSCRIPTION']),
-  //       fields: z.array(formFieldSchema),
-  //     })
-  //   )
-  //   .mutation(async ({ ctx, input }) => {
-  //     try {
-  //       const federationId = ctx.session.user.federationId;
-
-  //       await ctx.db.$transaction(async (tx) => {
-  //         // Get existing template
-  //         const template = await tx.formTemplate.findUnique({
-  //           where: {
-  //             federationId_formType: {
-  //               federationId: federationId!,
-  //               formType: input.formType,
-  //             },
-  //           },
-  //           include: {
-  //             fields: true,
-  //           },
-  //         });
-
-  //         if (!template) {
-  //           throw new TRPCError({
-  //             code: 'NOT_FOUND',
-  //             message: 'Form template not found',
-  //           });
-  //         }
-
-  //         // Delete existing fields
-  //         await tx.formField.deleteMany({
-  //           where: {
-  //             formTemplateId: template.id,
-  //           },
-  //         });
-
-  //         // Create new fields
-  //         await tx.formField.createMany({
-  //           data: input.fields.map((field) => ({
-  //             ...field,
-  //             formTemplateId: template.id,
-  //           })),
-  //         });
-  //       });
-
-  //       return {
-  //         success: true,
-  //         message: 'Form configuration updated successfully',
-  //       };
-  //     } catch (error: any) {
-  //       handleError(error, {
-  //         message: 'Failed to update form configuration',
-  //         cause: error.message,
-  //       });
-  //     }
-  //   }),
 
   updateFormConfig: permissionProtectedProcedure(PERMISSIONS.FED_ALL)
     .input(

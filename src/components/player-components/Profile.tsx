@@ -41,7 +41,10 @@ export default function Profile() {
     mode: 'onChange',
   });
 
-  const { handleSubmit, reset, control } = form;
+  const { handleSubmit, reset, control, watch } = form;
+
+  const watchCountry = watch('playerDetails.country');
+  const watchState = watch('playerDetails.state');
 
   const { config, isLoading: isConfigLoading } = useFormConfig('PLAYER');
   const isParent = sessionData?.user?.role === 'PARENT';
@@ -150,8 +153,8 @@ export default function Profile() {
           ? 'baseUser'
           : 'playerDetails',
         dependentValue: {
-          country: form.getValues('playerDetails.country'),
-          state: form.getValues('playerDetails.state'),
+          country: watchCountry,
+          state: watchState,
         },
       }))
     );

@@ -37,8 +37,10 @@ export default function ParentSettings() {
     mode: 'onChange',
   });
 
-  const { handleSubmit, reset, control, getValues } = methods;
+  const { handleSubmit, reset, control, watch } = methods;
 
+  const watchCountry = watch('parentDetails.country');
+  const watchState = watch('parentDetails.state');
   // Fetch form configuration using the custom hook
   const { config, isLoading: isConfigLoading } = useFormConfig('PARENT');
 
@@ -168,8 +170,8 @@ export default function ParentSettings() {
           ? 'baseUser'
           : 'parentDetails',
         dependentValue: {
-          country: getValues('parentDetails.country'),
-          state: getValues('parentDetails.state'),
+          country: watchCountry,
+          state: watchState,
         },
       }))
     );
