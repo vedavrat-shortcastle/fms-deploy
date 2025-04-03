@@ -110,7 +110,6 @@ export default function OnboardParentPage() {
   });
 
   const onSubmit = (data: any) => {
-    console.log('Form submitted with data:', data);
     parentOnboardMutation.mutate(data);
   };
 

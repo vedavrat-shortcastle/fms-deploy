@@ -176,7 +176,6 @@ model Club {
   city           String
   postalCode     String        @map("postal_code")
   // Relation Fix: Differentiate manager and players
-  managerId      String        @unique @map("manager_id")
   clubManagers   ClubManager[] @relation(name: "ClubManager")
 
   players Player[] @relation(name: "ClubPlayers")

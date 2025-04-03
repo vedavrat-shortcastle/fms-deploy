@@ -1,111 +1,132 @@
-// import { TRPCError } from '@trpc/server';
-// import { permissionProtectedProcedure, router } from '@/app/server/trpc';
-// import { handleError } from '@/utils/errorHandler';
-// import { Role } from '@prisma/client';
-// import { PERMISSIONS } from '@/config/permissions';
-// import { createClubSchema } from '@/schemas/Club.schema';
+import { publicProcedure, router } from '@/app/server/trpc';
+import { roleMap } from '@/config/permissions';
+import { clubOnboardingSchema } from '@/schemas/Club.schema';
+import { hashPassword } from '@/utils/encoder';
+import { handleError } from '@/utils/errorHandler';
+import { ProfileType, Role } from '@prisma/client';
+import { TRPCError } from '@trpc/server';
 
-// export const clubRouter = router({
-//   createClub: permissionProtectedProcedure(PERMISSIONS.CLUB_CREATE)
-//     .input(createClubSchema)
-//     .mutation(async ({ ctx, input }) => {
-//       try {
-//         if (!ctx.session.user.orgId) {
-//           throw new TRPCError({
-//             code: 'FORBIDDEN',
-//             message: 'No federation context found',
-//           });
-//         }
+export const clubRouter = router({
+  clubOnboarding: publicProcedure
+    .input(clubOnboardingSchema)
+    .mutation(async ({ ctx, input }) => {
+      const federation = await ctx.db.federation.findFirst({
+        where: {
+          domain: input.domain,
+        },
+        select: {
+          id: true,
+        },
+      });
+      if (!federation) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Federation ID is required',
+        });
+      }
 
-//         // Check if manager exists and belongs to the same federation
-//         const manager = await ctx.db.user.findFirst({
-//           where: {
-//             id: input.managerId,
-//             federationId: ctx.session.user.orgId,
-//           },
-//         });
+      const baseUser = {
+        email: input.email,
+        password: input.password,
+        firstName: input.firstName,
+        lastName: input.lastName,
+      };
 
-//         if (!manager) {
-//           throw new TRPCError({
-//             code: 'NOT_FOUND',
-//             message: 'Manager not found in federation',
-//           });
-//         }
+      const club = {
+        name: input.name,
+        streetAddress: input.streetAddress,
+        streetAddress2: input.streetAddress2,
+        country: input.country,
+        state: input.state,
+        city: input.city,
+        postalCode: input.postalCode,
+        federationId: federation.id,
+      };
 
-//         // Create club and update manager's role
-//         const club = await ctx.db.club.create({
-//           data: {
-//             name: input.name,
-//             federationId: ctx.session.user.orgId,
-//             managerId: input.managerId,
-//           },
-//           include: {
-//             manager: true,
-//             federation: true,
-//             players: true,
-//           },
-//         });
+      try {
+        const existingClub = await ctx.db.club.findUnique({
+          where: {
+            name_federationId: {
+              name: input.name,
+              federationId: federation.id,
+            },
+          },
+        });
 
-//         // Update manager's role
-//         await ctx.db.user.update({
-//           where: { id: input.managerId },
-//           data: { role: Role.CLUB_MANAGER },
-//         });
+        if (existingClub) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: 'Federation with this domain already exists',
+          });
+        }
+        const hashedPassword = await hashPassword(baseUser.password);
+        // Wrap all database operations in a transaction
+        const result = await ctx.db.$transaction(async (tx) => {
+          const createdClub = await tx.club.create({
+            data: club,
+            select: {
+              id: true,
+            },
+          });
+          const newBaseUser = await tx.baseUser.create({
+            data: {
+              ...baseUser,
+              password: hashedPassword,
+              role: Role.CLUB_MANAGER,
+              federation: {
+                connect: { id: federation.id },
+              },
+            },
+          });
 
-//         return club;
-//       } catch (error: any) {
-//         handleError(error, {
-//           message: 'Failed to create club',
-//           cause: error.message,
-//         });
-//       }
-//     }),
+          const newClubManager = await tx.clubManager.create({
+            data: {
+              clubId: createdClub.id,
+              phoneNumber: input.phoneNumber,
+            },
+          });
 
-//   // Get all clubs
-//   getClubs: permissionProtectedProcedure(PERMISSIONS.CLUB_VIEW).query(
-//     async ({ ctx }) => {
-//       try {
-//         if (!ctx.session.user.orgId) {
-//           throw new TRPCError({
-//             code: 'FORBIDDEN',
-//             message: 'No federation context found',
-//           });
-//         }
+          const clubManagerPermissions = await tx.permission.findMany({
+            where: {
+              code: {
+                in: roleMap[Role.CLUB_MANAGER],
+              },
+            },
+            select: {
+              id: true,
+            },
+          });
 
-//         const clubs = await ctx.db.club.findMany({
-//           where: {
-//             federationId: ctx.session.user.orgId,
-//           },
-//           include: {
-//             manager: {
-//               select: {
-//                 id: true,
-//                 email: true,
-//                 firstName: true,
-//                 lastName: true,
-//                 role: true,
-//               },
-//             },
-//             players: {
-//               select: {
-//                 id: true,
-//                 email: true,
-//                 firstName: true,
-//                 lastName: true,
-//                 role: true,
-//               },
-//             },
-//             federation: true,
-//           },
-//         });
+          const newUserProfile = await tx.userProfile.create({
+            data: {
+              baseUser: {
+                connect: { id: newBaseUser.id },
+              },
+              profileType: ProfileType.CLUB_MANAGER,
+              profileId: newClubManager.id,
+            },
+          });
 
-//         return clubs;
-//       } catch (error: any) {
-//         handleError(error, {
-//           message: 'Failed to fetch clubs',
-//           cause: error.message,
-//         });
-//       }
-//     }
-//   ),
-// });
+          await tx.userPermission.createMany({
+            data: clubManagerPermissions.map((permission) => ({
+              permissionId: permission.id,
+              userId: newUserProfile.id,
+            })),
+          });
+
+          return {
+            club: createdClub,
+            userProfile: newUserProfile,
+          };
+        });
+
+        return result;
+      } catch (error: any) {
+        console.log('error', error);
+        handleError(error, {
+          message: 'Failed to create club',
+          cause: error.message ?? 'No error message',
+        });
+      }
+    }),
+});

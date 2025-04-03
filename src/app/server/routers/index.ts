@@ -11,6 +11,7 @@ import { parentRouter } from '@/app/server/routers/parent';
 import { paymentRouter } from '@/app/server/routers/payment';
 import { authRouter } from '@/app/server/routers/auth';
 import { configRouter } from '@/app/server/routers/configFields';
+import { clubRouter } from '@/app/server/routers/club';
 
 export const appRouter = router({
   superUser: superUserRouter,
@@ -23,7 +24,7 @@ export const appRouter = router({
   payment: paymentRouter,
   auth: authRouter,
   config: configRouter,
-  // club: clubRouter,
+  club: clubRouter,
   // Add other routers here
 });
 

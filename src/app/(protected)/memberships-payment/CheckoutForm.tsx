@@ -113,7 +113,6 @@ const CheckoutForm = ({
         console.error('Payment failed:', error);
         showToast(t('checkoutFormPage_paymentFailed'), 'error');
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        console.log('Payment succeeded:', paymentIntent);
         const result = await confirmPayment({
           paymentIntentId: paymentIntent.id,
           membershipPlanId,
