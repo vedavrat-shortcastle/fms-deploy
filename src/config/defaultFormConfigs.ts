@@ -1,4 +1,4 @@
-import { FieldType, FormType } from '@prisma/client';
+import { FieldType, FormType, SupportedLanguages } from '@prisma/client';
 
 export const defaultFormConfigs = {
   [FormType.PLAYER]: {
@@ -274,7 +274,7 @@ export const defaultFormConfigs = {
         displayName: 'State/Province',
         placeholder: 'Select State/Province',
         fieldType: FieldType.STATE,
-        isMandatory: false,
+        isMandatory: true,
         order: 9,
       },
       {
@@ -292,6 +292,18 @@ export const defaultFormConfigs = {
         fieldType: FieldType.TEXT,
         isMandatory: true,
         order: 11,
+      },
+      {
+        fieldName: 'language',
+        displayName: 'Prefered Language',
+        placeholder: 'Select Prefered Language',
+        fieldType: FieldType.SELECT,
+        isMandatory: true,
+        order: 12,
+        defaultValue: 'en',
+        validations: {
+          options: Object.values(SupportedLanguages),
+        },
       },
     ],
   },
