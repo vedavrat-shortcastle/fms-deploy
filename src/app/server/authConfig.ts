@@ -85,8 +85,10 @@ export const authConfig: AuthOptions = {
         token.language = user.language;
         token.isRtl = user.isRtl;
       }
-      if (trigger === 'update' && session.user?.profileId) {
-        token.profileId = session?.user.profileId;
+      if (trigger === 'update' && session?.user) {
+        token.profileId = session.user.profileId;
+        token.language = session.user.language;
+        token.isRtl = session.user.isRtl;
       }
       return token;
     },
