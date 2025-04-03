@@ -172,8 +172,8 @@ model Club {
   streetAddress  String        @map("street_address")
   streetAddress2 String?       @map("street_address2")
   country        String
-  state          String
-  city           String
+  state          String?
+  city           String?
   postalCode     String        @map("postal_code")
   // Relation Fix: Differentiate manager and players
   clubManagers   ClubManager[] @relation(name: "ClubManager")
