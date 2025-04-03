@@ -299,7 +299,7 @@ export const playerRouter = router({
             message: 'Player not found',
           });
         }
-       
+
         // Check if player has active subscriptions
         const activeSubscriptions = await ctx.db.subscription.findFirst({
           where: {
@@ -307,7 +307,7 @@ export const playerRouter = router({
             status: SubscriptionStatus.ACTIVE,
           },
         });
-       
+
         if (activeSubscriptions) {
           throw new TRPCError({
             code: 'FORBIDDEN',
