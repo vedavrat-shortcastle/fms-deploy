@@ -38,7 +38,7 @@ interface FormField {
   visible: boolean;
   mandatory: boolean;
   label: string;
-  fieldType: string; // NEW: To store the field type value
+  fieldType: string;
   order: number;
 }
 
@@ -73,10 +73,6 @@ export default function ConfigForm() {
   useEffect(() => {
     refetch();
   }, [selectedForm, refetch]);
-
-  useEffect(() => {
-    console.log('Updated fields:', fields);
-  }, [fields]);
 
   // What this does?
   // Creates an array called mappedfields and passes all the field values recieved from api for a form type.
@@ -169,6 +165,19 @@ export default function ConfigForm() {
     { label: 'Edit' },
   ];
 
+  const editFieldChange = (
+    key: keyof FormField,
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    let value: any = event.target.value;
+    if (key === 'order') {
+      value = Number(value);
+    } else if (key === 'visible' || key === 'mandatory') {
+      value = value === 'True';
+    }
+    setSelectedField((prev) => (prev ? { ...prev, [key]: value } : prev));
+  };
+
   return (
     <div>
       <h2 className="font-extrabold text-xl pb-7">Form Configuration</h2>
@@ -252,14 +261,9 @@ export default function ConfigForm() {
             ))}
           </TableBody>
         </Table>
-        {/* <button
-          // onClick={handleSave}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Save Changes
-        </button> */}
       </div>
-      {/* View Field Modal */}
+
+      {/* Edit Field Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -275,12 +279,7 @@ export default function ConfigForm() {
                   id="name"
                   value={selectedField.name}
                   className="col-span-3"
-                  onChange={(e) =>
-                    setSelectedField((prev) => ({
-                      ...prev!,
-                      name: e.target.value,
-                    }))
-                  }
+                  onChange={(e) => editFieldChange('name', e)}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -291,12 +290,7 @@ export default function ConfigForm() {
                   id="fieldType"
                   value={selectedField.fieldType}
                   className="col-span-3 border border-gray-300 rounded-lg p-2"
-                  onChange={(e) =>
-                    setSelectedField((prev) => ({
-                      ...prev!,
-                      fieldType: e.target.value,
-                    }))
-                  }
+                  onChange={(e) => editFieldChange('fieldType', e)}
                 >
                   <option value="TEXT">Text</option>
                   <option value="NUMBER">Number</option>
@@ -320,12 +314,7 @@ export default function ConfigForm() {
                   id="label"
                   value={selectedField.label}
                   className="col-span-3"
-                  onChange={(e) =>
-                    setSelectedField((prev) => ({
-                      ...prev!,
-                      label: e.target.value,
-                    }))
-                  }
+                  onChange={(e) => editFieldChange('label', e)}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -337,12 +326,7 @@ export default function ConfigForm() {
                   value={selectedField.order}
                   type="number" // Added
                   className="col-span-3"
-                  onChange={(e) =>
-                    setSelectedField((prev) => ({
-                      ...prev!,
-                      order: Number(e.target.value), // Fixed: updating order and converting to number
-                    }))
-                  }
+                  onChange={(e) => editFieldChange('order', e)}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -353,12 +337,7 @@ export default function ConfigForm() {
                   id="visible"
                   value={selectedField.visible ? 'True' : 'False'}
                   className="col-span-3 border border-gray-300 rounded-lg p-2"
-                  onChange={(e) =>
-                    setSelectedField((prev) => ({
-                      ...prev!,
-                      visible: e.target.value === 'True', // Convert to boolean
-                    }))
-                  }
+                  onChange={(e) => editFieldChange('visible', e)}
                 >
                   <option value="True">True</option>
                   <option value="False">False</option>
@@ -372,12 +351,7 @@ export default function ConfigForm() {
                   id="mandatory"
                   value={selectedField.mandatory ? 'True' : 'False'} // Match option values
                   className="col-span-3 border border-gray-300 rounded-lg p-2"
-                  onChange={(e) =>
-                    setSelectedField((prev) => ({
-                      ...prev!,
-                      mandatory: e.target.value === 'True', // Convert to boolean
-                    }))
-                  }
+                  onChange={(e) => editFieldChange('mandatory', e)}
                 >
                   <option value="True">Mandatory</option>
                   <option value="False">Optional</option>
