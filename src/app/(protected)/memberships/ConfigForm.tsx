@@ -84,7 +84,6 @@ export default function ConfigForm() {
   // Then the main fields array is updated with mapped fields.
   useEffect(() => {
     if (formConfig?.fields) {
-      console.log('API Response:', formConfig); // Log the complete response
       const mappedFields: FormField[] = formConfig.fields.map((field) => ({
         id: field.id,
         name: field.fieldName, // mapping fieldName from API to name
