@@ -6,14 +6,13 @@ import { SessionProvider } from 'next-auth/react';
 
 interface ProvidersProps {
   children: React.ReactNode;
-  lng: string;
 }
 
-export default function Providers({ children, lng }: ProvidersProps) {
+export default function Providers({ children }: ProvidersProps) {
   return (
     <TrpcProvider>
       <SessionProvider>
-        <TranslationProvider lng={lng}>{children}</TranslationProvider>
+        <TranslationProvider>{children}</TranslationProvider>
       </SessionProvider>
     </TrpcProvider>
   );

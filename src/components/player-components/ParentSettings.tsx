@@ -16,6 +16,7 @@ import {
   editParentSchema,
 } from '@/schemas/Parent.schema';
 import { useTranslation } from 'react-i18next';
+import LanguagueSwitcher from '@/components/LanguageSwitcher';
 
 // Define base user fields similar to the player implementation
 const baseUserFields = ['id', 'email', 'firstName', 'lastName'];
@@ -225,7 +226,7 @@ export default function ParentSettings() {
 
           <div className="bg-white p-6 rounded-lg shadow">
             <fieldset disabled={!isEditing}>{renderFormFields()}</fieldset>
-
+            <LanguagueSwitcher />
             {isEditing ? (
               <div className="flex justify-end gap-4 mt-6">
                 <Button

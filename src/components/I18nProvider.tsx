@@ -8,6 +8,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import HttpBackend from 'i18next-http-backend';
 import { SupportedLanguages } from '@prisma/client';
 import { getDirection } from '@/utils/getLanguageDirection';
+import { useSession } from 'next-auth/react';
 
 const languages = Object.values(SupportedLanguages) as string[];
 const i18nInstance = i18n.createInstance();
@@ -41,22 +42,36 @@ i18nInstance.on('languageChanged', (lng: SupportedLanguages) => {
 });
 
 interface TranslationProviderProps {
-  children: React.ReactNode;
-  lng: string;
+  children: React.ReactNode; // Use React.ReactNode for children
 }
 
 export default function TranslationProvider({
   children,
-  lng,
 }: TranslationProviderProps) {
+  const { data: session, status } = useSession();
   const [direction, setDirection] = useState(i18nInstance.dir());
-
+  const [lng, setLng] = useState<SupportedLanguages | undefined>(
+    session?.user?.language as SupportedLanguages | undefined
+  );
   useEffect(() => {
-    if (i18nInstance.language !== lng) {
-      i18nInstance.changeLanguage(lng);
+    if (status === 'loading') {
+      return; // Wait for session to load
+    }
+
+    const sessionLanguage = session?.user?.language as
+      | SupportedLanguages
+      | undefined;
+    if (sessionLanguage && i18nInstance.language !== sessionLanguage) {
+      i18nInstance.changeLanguage(sessionLanguage);
+      setLng(sessionLanguage);
+    } else if (
+      !sessionLanguage &&
+      i18nInstance.language !== i18nInstance.language
+    ) {
+      setLng(i18nInstance.language as SupportedLanguages | undefined);
     }
     setDirection(i18nInstance.dir());
-  }, [lng]);
+  }, [session?.user?.language, status, lng]);
 
   return (
     <I18nextProvider i18n={i18nInstance}>

@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import '@/app/globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Providers from '@/components/Providers';
-import { authConfig } from '@/app/server/authConfig';
-import { getServerSession } from 'next-auth';
 
 export const metadata: Metadata = {
   title: 'FedChess',
@@ -15,14 +13,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authConfig);
-  const lng = session?.user?.language || 'en';
-  const dir = session?.user.isRtl ? 'rtl' : 'ltr';
-
   return (
-    <html lang={lng} dir={dir}>
+    <html>
       <body>
-        <Providers lng={lng}>
+        <Providers>
           {children}
           <Toaster />
         </Providers>
