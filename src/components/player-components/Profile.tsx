@@ -22,17 +22,7 @@ import {
 } from '@/app/(protected)/players/[playerId]/PlayerDataMapping';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-
-const sanitizeFields = (fields: any[]) =>
-  fields.map((field) => ({
-    ...field,
-    defaultValue: field.defaultValue ?? undefined,
-    placeholder: field.placeholder ?? undefined,
-    validations:
-      typeof field.validations === 'object' && !Array.isArray(field.validations)
-        ? field.validations
-        : undefined,
-  }));
+import { sanitizeFields } from '@/utils/sanitize';
 
 export default function Profile() {
   const router = useRouter();

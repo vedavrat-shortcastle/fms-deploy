@@ -104,6 +104,7 @@ export default function AddPlayerPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const { config, isLoading: isConfigLoading } = useFormConfig('PLAYER');
+  console.log('form config', config);
   const { t } = useTranslation();
 
   const form = useForm<CreatePlayerFormValues>({

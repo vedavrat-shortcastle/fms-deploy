@@ -26,7 +26,7 @@ export interface FormFieldConfig {
 
 export interface FormConfig {
   id: string;
-  formType: FormType;
+  formType?: FormType;
   isActive: boolean;
   fields: FormFieldConfig[];
 }

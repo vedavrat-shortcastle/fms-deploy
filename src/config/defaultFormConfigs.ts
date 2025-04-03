@@ -415,7 +415,6 @@ export const defaultFormConfigs = {
       },
     ],
   },
-
   [FormType.MEMBERSHIP]: {
     formType: FormType.MEMBERSHIP,
     fields: [
