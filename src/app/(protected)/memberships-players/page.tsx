@@ -60,16 +60,25 @@ export default function PlayerSelectionPage() {
   }
   // 5. Transform the fetched data to match what the PlayerCard expects
   const players =
-    data?.players.map((player) => ({
-      id: player.profile?.profileId ?? '',
-      name: `${player.firstName} ${player.lastName}`,
-      initials:
-        `${player.firstName[0] ?? ''}${player.lastName[0] ?? ''}`.toUpperCase(),
+    data?.players.map((player) => {
+      const playerSubscription = data.playerSubscriptions.players.find(
+        (sub) => sub.id === player.profile?.profileId
+      );
 
-      email: player.email,
-      fideId: '00', // FIDE ID isn’t included; adjust if needed
-      price: plan?.price ?? 45.0, // Hardcoded as before
-    })) || [];
+      return {
+        id: player.profile?.profileId ?? '',
+        name: `${player.firstName} ${player.lastName}`,
+        initials:
+          `${player.firstName[0] ?? ''}${player.lastName[0] ?? ''}`.toUpperCase(),
+        email: player.email,
+        isPlanActive:
+          playerSubscription?.subscriptions.some(
+            (sub) => sub.planId === membershipPlanId
+          ) ?? false,
+        fideId: '00', // FIDE ID isn’t included; adjust if needed
+        price: plan?.price ?? 45.0, // Hardcoded as before
+      };
+    }) || [];
 
   // 6. Toggle player selection on PlayerCard interaction
   const handleSelectPlayer = (id: string, selected: boolean) => {
