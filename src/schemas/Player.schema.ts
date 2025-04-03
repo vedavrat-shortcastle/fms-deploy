@@ -21,11 +21,13 @@ export const playerOnboardingSchema = z.object({
   state: z
     .string()
     .min(1, { message: 'State is required' })
-    .max(50, { message: 'State is too long' }),
+    .max(50, { message: 'State is too long' })
+    .optional(),
   city: z
     .string()
     .min(1, { message: 'City is required' })
-    .max(50, { message: 'City is too long' }),
+    .max(50, { message: 'City is too long' })
+    .optional(),
   postalCode: z
     .string()
     .min(1, { message: 'Postal code is required' })
@@ -261,11 +263,13 @@ export const createPlayerSchema = z.object({
     state: z
       .string()
       .min(1, 'State is required')
-      .max(50, { message: 'State is too long' }),
+      .max(50, { message: 'State is too long' })
+      .optional(),
     city: z
       .string()
       .min(1, 'City is required')
-      .max(50, { message: 'City is too long' }),
+      .max(50, { message: 'City is too long' })
+      .optional(),
     postalCode: z
       .string()
       .min(1, 'Postal code is required')

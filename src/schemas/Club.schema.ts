@@ -24,8 +24,11 @@ export const clubOnboardingSchema = z.object({
   streetAddress: z.string().min(1, { message: 'Please enter street address' }),
   streetAddress2: z.string().optional(),
   country: z.string().min(1, { message: 'Please select a country' }),
-  state: z.string().min(1, { message: 'Please select a state/province' }),
-  city: z.string().min(1, { message: 'Please enter a city' }),
+  state: z
+    .string()
+    .min(1, { message: 'Please select a state/province' })
+    .optional(),
+  city: z.string().min(1, { message: 'Please enter a city' }).optional(),
   postalCode: z.string().min(1, { message: 'Please enter a postal code' }),
 });
 

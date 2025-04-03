@@ -8,27 +8,29 @@ export const createParentSchema = z.object({
   streetAddress: z
     .string()
     .min(1, { message: 'Street Address is required' })
-    .max(100, { message: 'Street Address cannot exeed 100 characters' }),
+    .max(100, { message: 'Street Address cannot exceed 100 characters' }),
   streetAddress2: z
     .string()
-    .max(100, { message: 'Street Address 2 cannot exeed 100 characters' })
+    .max(100, { message: 'Street Address 2 cannot exceed 100 characters' })
     .optional(),
   country: z
     .string()
     .min(1, { message: 'Country is required' })
-    .max(50, { message: 'Country cannot exeed 50 characters' }),
+    .max(50, { message: 'Country cannot exceed 50 characters' }),
   state: z
     .string()
     .min(1, { message: 'State is required' })
-    .max(50, { message: 'State cannot exeed 50 characters' }),
+    .max(50, { message: 'State cannot exceed 50 characters' })
+    .optional(),
   city: z
     .string()
     .min(1, { message: 'City is required' })
-    .max(50, { message: 'City cannot exeed 50 characters' }),
+    .max(50, { message: 'City cannot exceed 50 characters' })
+    .optional(),
   postalCode: z
     .string()
     .min(1, { message: 'Postal Code is required' })
-    .max(20, { message: 'Postal Code cannot exeed 20 characters' }),
+    .max(20, { message: 'Postal Code cannot exceed 20 characters' }),
 });
 
 export const editParentSchema = z.object({
@@ -60,11 +62,13 @@ export const editParentSchema = z.object({
     state: z
       .string()
       .min(1, { message: 'State is required' })
-      .max(50, { message: 'State cannot exceed 50 characters' }),
+      .max(50, { message: 'State cannot exceed 50 characters' })
+      .optional(),
     city: z
       .string()
       .min(1, { message: 'City is required' })
-      .max(50, { message: 'City cannot exceed 50 characters' }),
+      .max(50, { message: 'City cannot exceed 50 characters' })
+      .optional(),
     postalCode: z
       .string()
       .min(1, { message: 'Postal Code is required' })

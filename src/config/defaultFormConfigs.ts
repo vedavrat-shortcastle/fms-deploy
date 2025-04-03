@@ -274,7 +274,7 @@ export const defaultFormConfigs = {
         displayName: 'State/Province',
         placeholder: 'Select State/Province',
         fieldType: FieldType.STATE,
-        isMandatory: true,
+        isMandatory: false,
         order: 9,
       },
       {

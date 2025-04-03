@@ -1,11 +1,7 @@
-import LanguagueSwitcher from '@/components/LanguageSwitcher';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const AdminSetting = () => {
-  return (
-    <div>
-      <LanguagueSwitcher />
-    </div>
-  );
+  return <LanguageSwitcher />;
 };
 
 export default AdminSetting;

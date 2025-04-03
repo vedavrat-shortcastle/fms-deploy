@@ -44,10 +44,10 @@ const LanguageSwitcher = () => {
   const updateLanguage = trpc.user.updateLanguage.useMutation({
     onSuccess: async (data) => {
       // Ensure session updates with the new language and direction
+      setSelectedLanguage(data.language);
       await update({
         user: { ...session?.user, language: data.language, isRtl: data.isRtl },
       });
-      setSelectedLanguage(data.language);
       setDirection(data.isRtl ? 'rtl' : 'ltr');
       document.documentElement.setAttribute('dir', data.isRtl ? 'rtl' : 'ltr');
     },
