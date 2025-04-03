@@ -58,6 +58,16 @@ export default function ConfigForm() {
   const [selectedField, setSelectedField] = useState<FormField | null>(null);
   const [isAddFieldOpen, setIsAddFieldOpen] = useState(false); // State for Add field modal button
 
+  // New field state for the add field dialog.
+  const [newField, setNewField] = useState<Partial<FormField>>({
+    name: '',
+    fieldType: 'TEXT',
+    label: '',
+    mandatory: false,
+    visible: true,
+    order: 0,
+  });
+
   // We disable the query initially so that it only runs when selectedForm changes.
   const {
     data: formConfig, // Main list for all the fields
@@ -136,7 +146,7 @@ export default function ConfigForm() {
   //       }
   //     );
   //   };
-  const handleSave = () => {
+  const handleEditSave = () => {
     if (selectedField) {
       setFields((prevFields) =>
         prevFields.map((field) =>
@@ -146,6 +156,46 @@ export default function ConfigForm() {
     }
     setIsEditModalOpen(false);
     setSelectedField(null);
+  };
+
+  // Function to handle adding a new field.
+  const handleAddField = () => {
+    // Generate a unique ID for the new field (simple example using Date.now())
+    const newFieldWithId: FormField = {
+      id: Date.now().toString(),
+      name: newField.name || 'New Field',
+      fieldType: newField.fieldType || 'TEXT',
+      label: newField.label || 'New Label',
+      mandatory: newField.mandatory ?? false,
+      visible: newField.visible ?? true,
+      order: newField.order ?? 0,
+    };
+    // Add the new field to the array.
+    setFields((prev) => [...prev, newFieldWithId]);
+    // Reset new field state.
+    setNewField({
+      name: '',
+      fieldType: 'TEXT',
+      label: '',
+      mandatory: false,
+      visible: true,
+      order: 0,
+    });
+    // Close the add field dialog.
+    setIsAddFieldOpen(false);
+  };
+
+  const handleNewFieldChange = (
+    key: keyof FormField,
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    let value: any = event.target.value;
+    if (key === 'order') {
+      value = Number(value);
+    } else if (key === 'visible' || key === 'mandatory') {
+      value = value === 'True';
+    }
+    setNewField((prev) => ({ ...prev, [key]: value }));
   };
 
   const selectOptions = [
@@ -176,6 +226,16 @@ export default function ConfigForm() {
       value = value === 'True';
     }
     setSelectedField((prev) => (prev ? { ...prev, [key]: value } : prev));
+  };
+
+  const handleDeleteField = (id: string) => {
+    // Remove the field with the given id.
+    setFields((prevFields) => prevFields.filter((field) => field.id !== id));
+    // Optionally, if the field being deleted is the currently selected field, close the modal.
+    if (selectedField && selectedField.id === id) {
+      setSelectedField(null);
+      setIsEditModalOpen(false);
+    }
   };
 
   return (
@@ -360,8 +420,14 @@ export default function ConfigForm() {
             </div>
           )}
           <DialogFooter>
-            <Button>Delete Field</Button>
-            <Button type="submit" onClick={handleSave} className="bg-secondary">
+            <Button onClick={() => handleDeleteField(selectedField!.id)}>
+              Delete Field
+            </Button>
+            <Button
+              type="submit"
+              onClick={handleEditSave}
+              className="bg-secondary"
+            >
               Save changes
             </Button>
           </DialogFooter>
@@ -380,9 +446,11 @@ export default function ConfigForm() {
                 Field Name
               </Label>
               <Input
-                id="id1"
+                id="newName"
                 placeholder="Enter Field Name"
                 className="col-span-3"
+                value={newField.name || ''}
+                onChange={(e) => handleNewFieldChange('name', e)}
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -390,9 +458,10 @@ export default function ConfigForm() {
                 Field Type
               </Label>
               <select
-                id="id2"
-                value="TEXT"
+                id="newFieldType"
                 className="col-span-3 border border-gray-300 rounded-lg p-2"
+                value={newField.fieldType || 'TEXT'}
+                onChange={(e) => handleNewFieldChange('fieldType', e)}
               >
                 <option value="TEXT">Text</option>
                 <option value="NUMBER">Number</option>
@@ -412,25 +481,22 @@ export default function ConfigForm() {
                 Label
               </Label>
               <Input
-                id="id3"
-                className="col-span-3"
+                id="newLabel"
                 placeholder="Enter Label"
+                className="col-span-3"
+                value={newField.label || ''}
+                onChange={(e) => handleNewFieldChange('label', e)}
               />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="placeholder4" className="text-right">
-                Order
-              </Label>
-              <Input id="id4" value="1" className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="mandatory" className="text-right">
                 Mandatory
               </Label>
               <select
-                id="id5"
-                value="Optional"
+                id="newMandatory"
                 className="col-span-3 border border-gray-300 rounded-lg p-2"
+                value={newField.mandatory ? 'True' : 'False'}
+                onChange={(e) => handleNewFieldChange('mandatory', e)}
               >
                 <option value="True">Mandatory</option>
                 <option value="False">Optional</option>
@@ -441,9 +507,10 @@ export default function ConfigForm() {
                 Visible
               </Label>
               <select
-                id="id6"
-                value="True"
+                id="newVisible"
                 className="col-span-3 border border-gray-300 rounded-lg p-2"
+                value={newField.visible ? 'True' : 'False'}
+                onChange={(e) => handleNewFieldChange('visible', e)}
               >
                 <option value="True">True</option>
                 <option value="False">False</option>
@@ -452,7 +519,11 @@ export default function ConfigForm() {
           </div>
           <DialogFooter>
             <Button onClick={() => setIsAddFieldOpen(false)}>Cancel</Button>
-            <Button type="submit" className="bg-secondary">
+            <Button
+              type="submit"
+              onClick={handleAddField}
+              className="bg-secondary"
+            >
               Confirm
             </Button>
           </DialogFooter>
