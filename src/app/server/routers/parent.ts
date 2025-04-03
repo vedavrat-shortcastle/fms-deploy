@@ -414,6 +414,16 @@ export const parentRouter = router({
             players: {
               select: {
                 id: true,
+
+                subscriptions: {
+                  where: {
+                    status: 'ACTIVE',
+                  },
+                  select: {
+                    id: true,
+                    planId: true,
+                  },
+                },
               },
             },
           },
@@ -478,7 +488,7 @@ export const parentRouter = router({
         return {
           players: baseUsers,
           total: totalPlayers,
-          page,
+          playerSubscriptions: parentWithPlayers,
           limit,
         };
       } catch (error: any) {

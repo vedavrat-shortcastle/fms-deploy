@@ -14,6 +14,7 @@ interface PlayerCardProps {
     email: string;
     fideId: string;
     price: number;
+    isPlanActive: boolean;
   };
   onSelect?: (id: string, selected: boolean) => void;
   isSelected?: boolean;
@@ -54,11 +55,15 @@ export function PlayerCard({
     <div className="flex items-center border border-gray-200 shadow-md rounded-md overflow-hidden">
       {/* Checkbox */}
       <div className="p-4">
-        <Checkbox
-          checked={selected}
-          onCheckedChange={handleCheckboxChange}
-          className="h-8 w-8"
-        />
+        {!player.isPlanActive ? (
+          <Checkbox
+            checked={selected}
+            onCheckedChange={handleCheckboxChange}
+            className="h-8 w-8"
+          />
+        ) : (
+          <div className="h-8 w-8 " />
+        )}
       </div>
 
       {/* Initials tile */}
@@ -82,7 +87,11 @@ export function PlayerCard({
 
       {/* Price */}
       <div className="pr-16 font-bold text-xl text-primary">
-        $ {player.price.toFixed(2)}
+        {!player.isPlanActive ? (
+          <span>$ {player.price.toFixed(2)}</span>
+        ) : (
+          <span className="text-green-500"> Active</span>
+        )}
       </div>
     </div>
   );
