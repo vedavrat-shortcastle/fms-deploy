@@ -11,7 +11,10 @@ import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { federationOnboardingSchema } from '@/schemas/Federation.schema';
 import { createPlayerSchema } from '@/schemas/Player.schema';
 import { z } from 'zod';
-import { generateCustomPlayerId } from '@/utils/generateCustomCode';
+import {
+  generateCustomPlayerId,
+  generateBulkCustomPlayerIds,
+} from '@/utils/generateCustomCode';
 import { defaultFormConfigs } from '@/config/defaultFormConfigs';
 import { getDirection } from '@/utils/getLanguageDirection';
 
@@ -242,12 +245,19 @@ export const federationRouter = router({
           });
         }
 
-        // Use a Prisma transaction to ensure atomicity
+        const customIds = await generateBulkCustomPlayerIds(
+          ctx.db,
+          federationId,
+          input.length
+        );
+
         await ctx.db.$transaction(async (tx) => {
-          for (const player of input) {
+          for (let i = 0; i < input.length; i++) {
+            const player = input[i];
             const hashedCSVPassword = await hashPassword(
               player.baseUser.password
             );
+
             const newBaseUser = await tx.baseUser.create({
               data: {
                 email: player.baseUser.email,
@@ -263,38 +273,17 @@ export const federationRouter = router({
               },
             });
 
-            const customId = await generateCustomPlayerId(
-              ctx.db,
-              ctx.session.user.federationId
-            );
-
-            const newPlayer = await tx.player.create({
+            await tx.player.create({
               data: {
-                birthDate: player.playerDetails.birthDate,
-                gender: player.playerDetails.gender,
-                avatarUrl: player.playerDetails.avatarUrl,
-                ageProof: player.playerDetails.ageProof,
-                streetAddress: player.playerDetails.streetAddress,
-                streetAddress2: player.playerDetails.streetAddress2,
-                country: player.playerDetails.country,
-                state: player.playerDetails.state,
-                city: player.playerDetails.city,
-                postalCode: player.playerDetails.postalCode,
-                phoneNumber: player.playerDetails.phoneNumber,
-                fideId: player.playerDetails.fideId,
-                schoolName: player.playerDetails.schoolName,
-                graduationYear: player.playerDetails.graduationYear,
-                gradeInSchool: player.playerDetails.gradeInSchool,
-                gradeDate: player.playerDetails.gradeDate,
-                clubName: player.playerDetails.clubName,
-                customId,
+                ...player.playerDetails,
+                customId: customIds[i],
               },
             });
 
             await tx.userProfile.create({
               data: {
                 profileType: ProfileType.PLAYER,
-                profileId: newPlayer.id,
+                profileId: newBaseUser.id,
                 baseUser: {
                   connect: { id: newBaseUser.id },
                 },
