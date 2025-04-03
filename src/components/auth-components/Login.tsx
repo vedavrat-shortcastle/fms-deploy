@@ -93,16 +93,6 @@ export const Login = ({ imageSrc, heading, signUpHref }: LoginProps) => {
             <div className="text-primary text-lg text-center mb-4">{error}</div>
           )}
           <h1 className="flex justify-center text-2xl">{heading} Login</h1>
-          {/* Pass the heading string you accepted as a prop above */}
-
-          <h1 className="flex justify-center text-3xl m-5 font-bold">
-            Hello Again!
-          </h1>
-          <p className="text-center text-gray-600 mb-3 text-sm">
-            Connect Effortlessly, Control Securely, Collaborate Seamlessly
-            Across Federated Networks
-          </p>
-
           {/* The below is the form-logic for login */}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
