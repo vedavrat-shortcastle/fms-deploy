@@ -12,6 +12,7 @@ import { paymentRouter } from '@/app/server/routers/payment';
 import { authRouter } from '@/app/server/routers/auth';
 import { configRouter } from '@/app/server/routers/configFields';
 import { userRouter } from '@/app/server/routers/user';
+import { clubRouter } from '@/app/server/routers/club';
 
 export const appRouter = router({
   superUser: superUserRouter,
@@ -25,7 +26,7 @@ export const appRouter = router({
   auth: authRouter,
   config: configRouter,
   user: userRouter,
-  // club: clubRouter,
+  club: clubRouter,
   // Add other routers here
 });
 

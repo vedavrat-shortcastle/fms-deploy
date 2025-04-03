@@ -84,7 +84,6 @@ export default function ConfigForm() {
   // Then the main fields array is updated with mapped fields.
   useEffect(() => {
     if (formConfig?.fields) {
-      console.log('API Response:', formConfig); // Log the complete response
       const mappedFields: FormField[] = formConfig.fields.map((field) => ({
         id: field.id,
         name: field.fieldName, // mapping fieldName from API to name
@@ -141,6 +140,17 @@ export default function ConfigForm() {
   //       }
   //     );
   //   };
+  const handleSave = () => {
+    if (selectedField) {
+      setFields((prevFields) =>
+        prevFields.map((field) =>
+          field.id === selectedField.id ? { ...selectedField } : field
+        )
+      );
+    }
+    setIsEditModalOpen(false);
+    setSelectedField(null);
+  };
 
   const selectOptions = [
     { value: 'PLAYER', label: 'Player Form' },
@@ -265,6 +275,12 @@ export default function ConfigForm() {
                   id="name"
                   value={selectedField.name}
                   className="col-span-3"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      name: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -275,6 +291,12 @@ export default function ConfigForm() {
                   id="fieldType"
                   value={selectedField.fieldType}
                   className="col-span-3 border border-gray-300 rounded-lg p-2"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      fieldType: e.target.value,
+                    }))
+                  }
                 >
                   <option value="TEXT">Text</option>
                   <option value="NUMBER">Number</option>
@@ -298,6 +320,12 @@ export default function ConfigForm() {
                   id="label"
                   value={selectedField.label}
                   className="col-span-3"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      label: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -307,7 +335,14 @@ export default function ConfigForm() {
                 <Input
                   id="order"
                   value={selectedField.order}
+                  type="number" // Added
                   className="col-span-3"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      order: Number(e.target.value), // Fixed: updating order and converting to number
+                    }))
+                  }
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -318,6 +353,12 @@ export default function ConfigForm() {
                   id="visible"
                   value={selectedField.visible ? 'True' : 'False'}
                   className="col-span-3 border border-gray-300 rounded-lg p-2"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      visible: e.target.value === 'True', // Convert to boolean
+                    }))
+                  }
                 >
                   <option value="True">True</option>
                   <option value="False">False</option>
@@ -329,8 +370,14 @@ export default function ConfigForm() {
                 </Label>
                 <select
                   id="mandatory"
-                  value={selectedField.mandatory ? 'Mandatory' : 'Optional'}
+                  value={selectedField.mandatory ? 'True' : 'False'} // Match option values
                   className="col-span-3 border border-gray-300 rounded-lg p-2"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      mandatory: e.target.value === 'True', // Convert to boolean
+                    }))
+                  }
                 >
                   <option value="True">Mandatory</option>
                   <option value="False">Optional</option>
@@ -340,7 +387,7 @@ export default function ConfigForm() {
           )}
           <DialogFooter>
             <Button>Delete Field</Button>
-            <Button type="submit" className="bg-secondary">
+            <Button type="submit" onClick={handleSave} className="bg-secondary">
               Save changes
             </Button>
           </DialogFooter>
