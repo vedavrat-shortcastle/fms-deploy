@@ -299,10 +299,7 @@ export const playerRouter = router({
             message: 'Player not found',
           });
         }
-        console.log(
-          'Profile ID being checked:',
-          userProfileId.profile.profileId
-        );
+       
         // Check if player has active subscriptions
         const activeSubscriptions = await ctx.db.subscription.findFirst({
           where: {
@@ -310,7 +307,7 @@ export const playerRouter = router({
             status: SubscriptionStatus.ACTIVE,
           },
         });
-        console.log('Active subscriptions found:', activeSubscriptions);
+       
         if (activeSubscriptions) {
           throw new TRPCError({
             code: 'FORBIDDEN',
