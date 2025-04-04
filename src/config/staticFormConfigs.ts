@@ -149,7 +149,7 @@ export const federationOnboardingFormConfig: FormFieldConfig[] = [
     fieldName: 'password',
     displayName: 'Password',
     placeholder: 'Enter Password',
-    fieldType: FieldType.TEXT,
+    fieldType: FieldType.PASSWORD,
     isMandatory: true,
     order: 4,
     validations: {
