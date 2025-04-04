@@ -16,7 +16,7 @@ import {
   editParentSchema,
 } from '@/schemas/Parent.schema';
 import { useTranslation } from 'react-i18next';
-import LanguagueSwitcher from '@/components/LanguageSwitcher';
+import { SupportedLanguages } from '@prisma/client';
 
 // Define base user fields similar to the player implementation
 const baseUserFields = ['id', 'email', 'firstName', 'lastName'];
@@ -68,11 +68,15 @@ export default function ParentSettings() {
       country: data.country || '',
       phoneNumber: data.phoneNumber ?? '',
     },
+    parentUserProfile: {
+      language: data.language || SupportedLanguages.en,
+    },
   });
 
   useEffect(() => {
     if (data) {
       const mappedParent = mapParentData(data);
+      console.log('mapped data', mappedParent);
       reset(mappedParent);
     }
 
@@ -110,6 +114,7 @@ export default function ParentSettings() {
   });
 
   const onSubmit = (formData: EditParentFormValues) => {
+    console.log('data submitted', formData);
     setIsSubmitting(true);
     if (!parentId) {
       toast({
@@ -128,6 +133,9 @@ export default function ParentSettings() {
       },
       parentDetails: {
         ...formData.parentDetails,
+      },
+      parentUserProfile: {
+        language: formData.parentUserProfile.language,
       },
     };
 
@@ -168,7 +176,9 @@ export default function ParentSettings() {
         ...field,
         prefix: baseUserFields.includes(field.fieldName)
           ? 'baseUser'
-          : 'parentDetails',
+          : field.fieldName === 'language'
+            ? 'parentUserProfile'
+            : 'parentDetails',
         dependentValue: {
           country: watchCountry,
           state: watchState,
@@ -181,6 +191,9 @@ export default function ParentSettings() {
     );
     const parentDetailsFieldsConfig = sanitizedFields.filter(
       (field) => field.prefix === 'parentDetails'
+    );
+    const parentUserProfileFieldsConfig = sanitizedFields.filter(
+      (field) => field.prefix === 'parentUserProfile'
     );
 
     return (
@@ -200,6 +213,14 @@ export default function ParentSettings() {
           }}
           control={control}
           basePrefix="parentDetails." // Pass correct prefix for parentDetails fields
+        />
+        <FormBuilder
+          config={{
+            ...config,
+            fields: parentUserProfileFieldsConfig,
+          }}
+          control={control}
+          basePrefix="parentUserProfile." // Pass correct prefix for parentUserProfile fields
         />
       </>
     );
@@ -228,7 +249,7 @@ export default function ParentSettings() {
 
           <div className="bg-white p-6 rounded-lg shadow">
             <fieldset disabled={!isEditing}>{renderFormFields()}</fieldset>
-            <LanguagueSwitcher />
+            {/* <LanguagueSwitcher /> Keep the separate language switcher or integrate in FormBuilder */}
             {isEditing ? (
               <div className="flex justify-end gap-4 mt-6">
                 <Button
