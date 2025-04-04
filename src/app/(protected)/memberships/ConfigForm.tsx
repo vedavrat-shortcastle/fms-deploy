@@ -42,7 +42,7 @@ interface FormField {
   isDisabled: boolean;
   defaultValue: string | null;
   placeholder: string | null;
-  validations: object | null;
+  validations: any; // Changed from object | null to any
   order: number;
   isCustomField: boolean;
 }
