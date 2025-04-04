@@ -102,6 +102,7 @@ export const addMemberSchema = z.object({
     'UPI',
     'Net Banking',
     'Wallet',
+    'Cash',
   ]),
 });
 

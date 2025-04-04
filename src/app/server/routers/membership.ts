@@ -292,10 +292,14 @@ export const membershipRouter = router({
   addMemberSubscription: permissionProtectedProcedure(PERMISSIONS.PLAN_VIEW)
     .input(addMemberSchema)
     .mutation(async ({ ctx, input }) => {
+      console.log(input);
       try {
         // First, verify the plan exists
         const plan = await ctx.db.membershipPlan.findUnique({
-          where: { id: input.planId },
+          where: {
+            id: input.planId,
+            federationId: ctx.session.user.federationId,
+          },
         });
 
         if (!plan) {

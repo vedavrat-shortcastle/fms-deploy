@@ -95,33 +95,34 @@ export const AdminProfileFormConfig: FormFieldConfig[] = [
     isCustomField: false,
   },
 ];
-
 export const AddMemberFormConfig: FormFieldConfig[] = [
   {
     id: 'playerIdField',
     fieldName: 'playerId',
-    displayName: 'Player ID',
-    placeholder: 'Enter Player ID',
-    fieldType: FieldType.TEXT,
+    displayName: 'Player',
+    placeholder: 'Select a Player',
+    fieldType: FieldType.SELECT,
     isMandatory: true,
     order: 1,
     validations: {
-      minLength: 1,
+      // The actual options are set dynamically in the MemberForm component.
+      options: [],
     },
     isHidden: false,
-    isDisabled: false,
+    isDisabled: false, // The component will disable it while loading.
     isCustomField: false,
   },
   {
     id: 'planIdField',
     fieldName: 'planId',
-    displayName: 'Plan ID',
-    placeholder: 'Enter Plan ID',
-    fieldType: FieldType.TEXT,
+    displayName: 'Membership Plan',
+    placeholder: 'Select a Plan',
+    fieldType: FieldType.SELECT,
     isMandatory: true,
     order: 2,
     validations: {
-      minLength: 1,
+      // Options populated dynamically from active/inactive plans.
+      options: [],
     },
     isHidden: false,
     isDisabled: false,
@@ -131,12 +132,12 @@ export const AddMemberFormConfig: FormFieldConfig[] = [
     id: 'subscriptionTypeField',
     fieldName: 'subscriptionType',
     displayName: 'Subscription Type',
-    placeholder: 'Enter Subscription Type',
-    fieldType: FieldType.TEXT,
+    placeholder: 'Select Subscription Type',
+    fieldType: FieldType.SELECT,
     isMandatory: true,
     order: 3,
     validations: {
-      minLength: 1,
+      options: ['INDIVIDUAL', 'EVENT'],
     },
     isHidden: false,
     isDisabled: false,
@@ -151,7 +152,14 @@ export const AddMemberFormConfig: FormFieldConfig[] = [
     isMandatory: true,
     order: 4,
     validations: {
-      options: ['Credit Card', 'Debit Card', 'UPI', 'Net Banking', 'Wallet'],
+      options: [
+        'Credit Card',
+        'Debit Card',
+        'UPI',
+        'Net Banking',
+        'Wallet',
+        'Cash',
+      ],
     },
     isHidden: false,
     isDisabled: false,
