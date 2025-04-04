@@ -1,5 +1,6 @@
 import {
   permissionProtectedProcedure,
+  protectedProcedure,
   publicProcedure,
   router,
 } from '@/app/server/trpc';
@@ -9,8 +10,9 @@ import { createPlayerSchema } from '@/schemas/Player.schema';
 import { hashPassword } from '@/utils/encoder';
 import { handleError } from '@/utils/errorHandler';
 import { generateCustomPlayerId } from '@/utils/generateCustomCode';
-import { ProfileType, Role } from '@prisma/client';
+import { Prisma, ProfileType, Role } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
 
 export const clubRouter = router({
   clubOnboarding: publicProcedure
@@ -256,6 +258,140 @@ export const clubRouter = router({
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to add player',
+          cause: error.message,
+        });
+      }
+    }),
+
+  // Get players for club
+  getClubPlayers: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().default(1),
+        limit: z.number().default(20),
+        searchQuery: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const { page, limit, searchQuery } = input;
+        const offset = (page - 1) * limit;
+        console.log('getClubPlayers: Starting mutation for club players');
+
+        // Ensure the user is a club manager by retrieving their club manager profile.
+        console.log(
+          'Retrieving club manager profile for user:',
+          ctx.session.user.id
+        );
+        const clubManagerProfile = await ctx.db.userProfile.findFirst({
+          where: {
+            baseUserId: ctx.session.user.id,
+            profileType: ProfileType.CLUB_MANAGER,
+          },
+          select: { profileId: true },
+        });
+        console.log('Club manager profile:', clubManagerProfile);
+
+        if (!clubManagerProfile) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Not authorized as club manager',
+          });
+        }
+
+        // Retrieve the club manager record and the club they manage.
+        console.log(
+          'Retrieving club manager record for profile id:',
+          clubManagerProfile.profileId
+        );
+        const clubManager = await ctx.db.clubManager.findFirst({
+          where: {
+            id: clubManagerProfile.profileId,
+          },
+          select: {
+            clubId: true,
+          },
+        });
+        console.log('Club manager record:', clubManager);
+
+        if (!clubManager) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Club not found for this manager in the federation',
+          });
+        }
+
+        // Build the where clause for players in the club.
+        // Step 3: Build the where clause for players in the club
+        const where: Prisma.BaseUserWhereInput = {
+          role: Role.PLAYER,
+          federationId: ctx.session.user.federationId,
+          profile: {
+            profileType: ProfileType.PLAYER,
+            userStatus: {
+              not: 'DELETED',
+            },
+            profileId: {
+              in: await ctx.db.player
+                .findMany({
+                  where: {
+                    clubId: clubManager.clubId,
+                  },
+                  select: {
+                    id: true,
+                  },
+                })
+                .then((players) => players.map((p) => p.id)),
+            },
+          },
+          ...(searchQuery && {
+            OR: [
+              { email: { contains: searchQuery, mode: 'insensitive' } },
+              { firstName: { contains: searchQuery, mode: 'insensitive' } },
+              { lastName: { contains: searchQuery, mode: 'insensitive' } },
+            ],
+          }),
+        };
+
+        // Step 4: Query players from BaseUser
+        const baseUsers = await ctx.db.baseUser.findMany({
+          where,
+          skip: offset,
+          take: limit,
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            profile: {
+              select: {
+                userStatus: true,
+                profileId: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        });
+        // Step 5: Get total count for pagination
+        const totalPlayers = await ctx.db.baseUser.count({
+          where,
+        });
+
+        // Step 6: Return the response
+        return {
+          players: baseUsers,
+          total: totalPlayers,
+          page,
+          limit,
+        };
+      } catch (error: any) {
+        console.error('Error in getClubPlayers:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to fetch club players',
           cause: error.message,
         });
       }

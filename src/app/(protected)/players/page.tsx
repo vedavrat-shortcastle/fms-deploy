@@ -41,6 +41,7 @@ export default function Page() {
 
   // Check user role for conditional query
   const isParent = session?.user?.role === 'PARENT';
+  const isClubManager = session?.user?.role === 'CLUB_MANAGER';
 
   // Conditional API call: if parent, use parent's getPlayers route; otherwise, use player's route.
   const playersQuery = isParent
@@ -49,11 +50,17 @@ export default function Page() {
         page: currentPage,
         searchQuery: debounceSearchTerm,
       })
-    : trpc.player.getPlayers.useQuery({
-        limit,
-        page: currentPage,
-        searchQuery: debounceSearchTerm,
-      });
+    : isClubManager
+      ? trpc.club.getClubPlayers.useQuery({
+          limit,
+          page: currentPage,
+          searchQuery: debounceSearchTerm,
+        })
+      : trpc.player.getPlayers.useQuery({
+          limit,
+          page: currentPage,
+          searchQuery: debounceSearchTerm,
+        });
 
   // CSV export remains unchanged (always using the player endpoint)
   const exportCSVQuery = trpc.player.getPlayersCSV.useQuery(
