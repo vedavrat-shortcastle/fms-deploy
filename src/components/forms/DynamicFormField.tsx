@@ -25,6 +25,7 @@ import { Country, State, City } from 'country-state-city';
 import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { PasswordInput } from '@/components/PasswordInput';
 
 interface DynamicFormFieldProps {
   field: FormFieldConfig & {
@@ -303,6 +304,18 @@ export const DynamicFormField = ({
                     </Select>
                   );
                 }
+
+                case 'PASSWORD':
+                  return (
+                    <PasswordInput
+                      field={formField}
+                      placeholder={
+                        field.placeholder ||
+                        `${t('enter')} ${field.displayName}`
+                      }
+                      className="w-full"
+                    />
+                  );
 
                 default:
                   return (
