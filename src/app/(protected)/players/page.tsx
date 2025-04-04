@@ -62,7 +62,7 @@ export default function Page() {
   );
 
   // Mutation for deleting a player
-  const deletePlayerMutation = trpc.player.deletePlayerById.useMutation({
+  const deletePlayerMutation = trpc.federation.deletePlayerById.useMutation({
     onSuccess: () => {
       playersQuery.refetch();
     },
