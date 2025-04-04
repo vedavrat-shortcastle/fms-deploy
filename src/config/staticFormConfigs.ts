@@ -39,7 +39,7 @@ export const AdminProfileFormConfig: FormFieldConfig[] = [
     fieldName: 'password',
     displayName: 'Password',
     placeholder: 'Enter New Password',
-    fieldType: FieldType.TEXT,
+    fieldType: FieldType.PASSWORD,
     isMandatory: false,
     order: 3,
     validations: {

@@ -1,4 +1,4 @@
-import { Gender, Role, UserStatus } from '@prisma/client';
+import { Gender, Role, SupportedLanguages, UserStatus } from '@prisma/client';
 import { z } from 'zod';
 
 export const playerOnboardingSchema = z.object({
@@ -304,6 +304,18 @@ export const createPlayerSchema = z.object({
       .optional(),
   }),
 });
+
+export const editAdminSchema = z.object({
+  firstName: z.string().min(2).max(50).optional(),
+  lastName: z.string().min(2).max(50).optional(),
+  middleName: z.string().nullable(),
+  password: z.string().min(8).optional(),
+  nameSuffix: z.string().nullable(),
+  email: z.string().email().optional(),
+  language: z.nativeEnum(SupportedLanguages),
+});
+
+export type EditAdminFormValues = z.infer<typeof editAdminSchema>;
 
 export type CreatePlayerFormValues = z.infer<typeof createPlayerSchema>;
 
