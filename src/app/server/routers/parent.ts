@@ -200,38 +200,40 @@ export const parentRouter = router({
         }
 
         // Perform the update in a transaction
-        const [updatedBaseUser, updatedParent] = await ctx.db.$transaction([
-          // Update BaseUser
-          ctx.db.baseUser.update({
-            where: { id: baseUser.id },
-            data: {
-              ...baseUser,
-            },
-          }),
-          ctx.db.userProfile.update({
-            where: {
-              baseUserId: existingUser.id,
-            },
-            data: {
-              language: input.parentUserProfile.language,
-              isRtl:
-                i18next.dir(input.parentUserProfile.language) === 'rtl'
-                  ? true
-                  : false,
-            },
-          }),
-          // Update Parent (using parentDetails)
-          ctx.db.parent.update({
-            where: { id: existingUser.profile.profileId },
-            data: {
-              ...parentDetails,
-            },
-          }),
-        ]);
+        const [updatedBaseUser, updatedParentDetails, updatedParent] =
+          await ctx.db.$transaction([
+            // Update BaseUser
+            ctx.db.baseUser.update({
+              where: { id: baseUser.id },
+              data: {
+                ...baseUser,
+              },
+            }),
+            ctx.db.userProfile.update({
+              where: {
+                baseUserId: existingUser.id,
+              },
+              data: {
+                language: input.parentUserProfile.language,
+                isRtl:
+                  i18next.dir(input.parentUserProfile.language) === 'rtl'
+                    ? true
+                    : false,
+              },
+            }),
+            // Update Parent (using parentDetails)
+            ctx.db.parent.update({
+              where: { id: existingUser.profile.profileId },
+              data: {
+                ...parentDetails,
+              },
+            }),
+          ]);
 
         return {
           ...updatedBaseUser,
           parentDetails: updatedParent,
+          parentUserProfile: updatedParentDetails,
         };
       } catch (error: any) {
         handleError(error, {

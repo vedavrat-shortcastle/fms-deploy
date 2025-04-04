@@ -22,9 +22,9 @@ import { SupportedLanguages } from '@prisma/client';
 const baseUserFields = ['id', 'email', 'firstName', 'lastName'];
 
 export default function ParentSettings() {
-  const session = useSession();
+  const { data: session, update } = useSession();
   const router = useRouter();
-  const parentId = session.data?.user.id;
+  const parentId = session?.user.id;
   const { toast } = useToast();
   const { t } = useTranslation();
 
@@ -76,10 +76,8 @@ export default function ParentSettings() {
   useEffect(() => {
     if (data) {
       const mappedParent = mapParentData(data);
-      console.log('mapped data', mappedParent);
       reset(mappedParent);
     }
-
     if (error) {
       console.error('Error fetching parent details:', error);
       toast({
@@ -92,15 +90,27 @@ export default function ParentSettings() {
 
   // Mutation for editing parent details
   const editParentMutation = trpc.parent.editParentById.useMutation({
-    onSuccess: () => {
+    onSuccess: async (data) => {
+      const newLang = data?.parentUserProfile.language;
+      const isRtl = data?.parentUserProfile.isRtl;
+      await update({
+        user: {
+          ...session?.user,
+          language: newLang,
+          isRtl: isRtl,
+        },
+      });
+
       setIsEditing(false);
       refetch();
+
       toast({
         title: t('parentSettingsPage_success'),
         description: t('parentSettingsPage_detailsUpdated'),
         variant: 'default',
       });
       setIsSubmitting(false);
+      router.refresh();
     },
     onError: (err: any) => {
       console.error('Failed to update parent details:', err.message);
