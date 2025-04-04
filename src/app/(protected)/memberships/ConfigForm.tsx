@@ -52,9 +52,6 @@ export default function ConfigForm() {
   type FormType = 'PLAYER' | 'PARENT' | 'EVENT' | 'CLUB' | 'SUBSCRIPTION';
   const [selectedForm, setSelectedForm] = useState<FormType>('PLAYER');
 
-  // Update endpoint
-  // const updateMutation = trpc.config.updateFormConfig.useMutation();
-
   //   Main list to show all the fields recieved by api for a form type.
   const [fields, setFields] = useState<FormField[]>([]);
 
@@ -115,39 +112,6 @@ export default function ConfigForm() {
     }
   };
 
-  // Function to update the array on switching the toggle for mandator and visible.
-  //   const updateField = (id: string, key: keyof FormField, value: any) => {
-  //     setFields(
-  //       fields.map((field) =>
-  //         field.id === id ? { ...field, [key]: value } : field
-  //       )
-  //     );
-  //   };
-
-  // save function - calls the update endpoint
-  //   const handleSave = () => {
-  //     const updatedFields = fields.map(({ id, visible, mandatory }) => ({
-  //       id: id, // Required for identifying the field
-  //       isHidden: !visible, // Convert 'visible' to 'isHidden'
-  //       isMandatory: mandatory, // Keep isMandatory unchanged
-  //     }));
-
-  //     updateMutation.mutate(
-  //       {
-  //         formType: selectedForm,
-  //         fields: updatedFields,
-  //       },
-  //       {
-  //         onSuccess: () => {
-  //           alert('Form updated successfully!');
-  //           refetch(); // Refresh form configuration
-  //         },
-  //         onError: (error) => {
-  //           alert(`Error: ${error.message}`);
-  //         },
-  //       }
-  //     );
-  //   };
   // Handle save for edit modal (updateField)
   const handleSave = async () => {
     if (selectedField) {

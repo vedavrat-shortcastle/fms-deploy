@@ -505,4 +505,143 @@ export const clubRouter = router({
         });
       }
     }),
+
+  deletePlayerById: permissionProtectedProcedure(
+    PERMISSIONS.PLAYER_DELETE,
+    Role.CLUB_MANAGER
+  )
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // Step 1: Verify the user is a club manager
+        const clubManagerProfile = await ctx.db.userProfile.findFirst({
+          where: {
+            baseUserId: ctx.session.user.id,
+            profileType: ProfileType.CLUB_MANAGER,
+          },
+          select: { profileId: true },
+        });
+
+        if (!clubManagerProfile) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Not authorized as club manager',
+          });
+        }
+
+        // Step 2: Retrieve the club ID from the ClubManager record
+        const clubManager = await ctx.db.clubManager.findFirst({
+          where: {
+            id: clubManagerProfile.profileId,
+          },
+          select: { clubId: true },
+        });
+
+        if (!clubManager) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Club not found for this manager',
+          });
+        }
+
+        const clubId = clubManager.clubId;
+
+        // Step 3: Fetch the player's BaseUser record
+        const playerBaseUser = await ctx.db.baseUser.findFirst({
+          where: {
+            id: input.id,
+            role: Role.PLAYER,
+            federationId: ctx.session.user.federationId,
+            profile: {
+              profileType: ProfileType.PLAYER,
+              userStatus: { not: 'DELETED' },
+            },
+          },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            profile: {
+              select: {
+                profileId: true,
+                profileType: true,
+                userStatus: true,
+              },
+            },
+          },
+        });
+
+        if (!playerBaseUser) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player not found',
+          });
+        }
+
+        // Step 4: Verify the player belongs to the club
+        const playerId = playerBaseUser.profile?.profileId;
+
+        const playerBelongsToClub = await ctx.db.player.findFirst({
+          where: {
+            id: playerId,
+            clubId: clubId,
+          },
+        });
+
+        if (!playerBelongsToClub) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Player does not belong to this club',
+          });
+        }
+
+        // Step 5: Check for active subscriptions
+        const activeSubscriptions = await ctx.db.subscription.findFirst({
+          where: {
+            subscriberId: playerId,
+            status: 'ACTIVE', // Use the correct enum value for SubscriptionStatus.ACTIVE
+          },
+        });
+
+        if (activeSubscriptions) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Players with active subscriptions cannot be deleted',
+          });
+        }
+
+        // Step 6: Find the userProfile record for this player
+        const playerUserProfile = await ctx.db.userProfile.findFirst({
+          where: {
+            profileType: ProfileType.PLAYER,
+            profileId: playerId,
+          },
+        });
+
+        if (!playerUserProfile) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player profile not found',
+          });
+        }
+
+        // Step 7: Mark the player as deleted (soft delete)
+        await ctx.db.userProfile.update({
+          where: { id: playerUserProfile.id },
+          data: {
+            userStatus: 'DELETED',
+            deletedAt: new Date(),
+          },
+        });
+
+        return { success: true, playerId, clubId };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to delete player',
+          cause: error.message,
+        });
+      }
+    }),
 });
