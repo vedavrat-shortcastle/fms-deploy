@@ -26,6 +26,7 @@ import {
 } from '@/utils/generateCustomCode';
 import { defaultFormConfigs } from '@/config/defaultFormConfigs';
 import { getDirection } from '@/utils/getLanguageDirection';
+import i18next from 'i18next';
 
 export const federationRouter = router({
   federationOnboarding: publicProcedure
@@ -110,6 +111,8 @@ export const federationRouter = router({
               },
               profileType: ProfileType.FEDERATION_ADMIN,
               profileId: newFederationAdmin.id,
+              language: input.language,
+              isRtl: i18next.dir(input.language) === 'rtl' ? true : false,
             },
           });
 
