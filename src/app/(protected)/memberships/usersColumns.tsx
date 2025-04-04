@@ -50,7 +50,10 @@ export const usersColumns: ColumnDef<{
               if (row.original.status === 'active') {
                 return;
               }
-              if (session.data?.user.role === 'PARENT') {
+              if (
+                session.data?.user.role === 'PARENT' ||
+                session.data?.user.role === 'CLUB_MANAGER'
+              ) {
                 router.push(`/memberships-players?planId=${row.original.id}`);
                 return;
               }

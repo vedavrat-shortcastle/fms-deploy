@@ -34,12 +34,17 @@ import { Label } from '@/components/ui/label';
 
 interface FormField {
   id: string;
-  name: string;
-  visible: boolean;
-  mandatory: boolean;
-  label: string;
-  fieldType: string; // NEW: To store the field type value
+  fieldName: string;
+  displayName: string;
+  fieldType: string;
+  isHidden: boolean;
+  isMandatory: boolean;
+  isDisabled: boolean;
+  defaultValue: string | null;
+  placeholder: string | null;
+  validations: object | null;
   order: number;
+  isCustomField: boolean;
 }
 
 export default function ConfigForm() {
@@ -69,6 +74,8 @@ export default function ConfigForm() {
     { enabled: false } // initially disabled
   );
 
+  const updateFieldMutation = trpc.config.updateField.useMutation();
+
   // Trigger refetch when selectedForm changes
   useEffect(() => {
     refetch();
@@ -86,12 +93,17 @@ export default function ConfigForm() {
     if (formConfig?.fields) {
       const mappedFields: FormField[] = formConfig.fields.map((field) => ({
         id: field.id,
-        name: field.fieldName, // mapping fieldName from API to name
-        label: field.displayName, // mapping displayName to label
-        visible: !field.isHidden, // assuming true means visible, so invert isHidden
-        mandatory: field.isMandatory, // mapping directly
-        fieldType: field.fieldType, // NEW: mapping fieldType from API
+        fieldName: field.fieldName,
+        displayName: field.displayName,
+        fieldType: field.fieldType,
+        isHidden: field.isHidden,
+        isMandatory: field.isMandatory,
+        isDisabled: field.isDisabled,
+        defaultValue: field.defaultValue,
+        placeholder: field.placeholder,
+        validations: field.validations,
         order: field.order,
+        isCustomField: field.isCustomField,
       }));
       setFields(mappedFields);
       // update the main arrays with mapped fields array.
@@ -140,16 +152,37 @@ export default function ConfigForm() {
   //       }
   //     );
   //   };
-  const handleSave = () => {
+  // Handle save for edit modal (updateField)
+  const handleSave = async () => {
     if (selectedField) {
-      setFields((prevFields) =>
-        prevFields.map((field) =>
-          field.id === selectedField.id ? { ...selectedField } : field
-        )
-      );
+      try {
+        const updatedField = await updateFieldMutation.mutateAsync({
+          formType: selectedForm,
+          fieldName: selectedField.fieldName, // Changed from fieldId to fieldName
+          field: {
+            displayName: selectedField.displayName,
+            isHidden: selectedField.isHidden,
+            isMandatory: selectedField.isMandatory,
+            isDisabled: selectedField.isDisabled,
+            defaultValue: selectedField.defaultValue,
+            placeholder: selectedField.placeholder,
+            isCustomField: selectedField.isCustomField,
+          },
+        });
+
+        // Update local state with the updated field
+        setFields((prevFields) =>
+          prevFields.map((field) =>
+            field.id === updatedField.id ? updatedField : field
+          )
+        );
+
+        setIsEditModalOpen(false);
+        setSelectedField(null);
+      } catch (error: any) {
+        alert(`Error updating field: ${error.message}`);
+      }
     }
-    setIsEditModalOpen(false);
-    setSelectedField(null);
   };
 
   const selectOptions = [
@@ -226,14 +259,14 @@ export default function ConfigForm() {
           <TableBody>
             {fields.map((field) => (
               <TableRow key={field.id} className="border-t">
-                <TableCell className="font-medium">{field.name}</TableCell>
+                <TableCell className="font-medium">{field.fieldName}</TableCell>
                 <TableCell className="font-medium">{field.fieldType}</TableCell>
-                <TableCell>{field.label}</TableCell>
+                <TableCell>{field.displayName}</TableCell>
                 <TableCell className="font-medium">
-                  {field.visible ? 'True' : 'False'}
+                  {field.isHidden ? 'True' : 'False'}
                 </TableCell>
                 <TableCell className="font-medium">
-                  {field.mandatory ? 'True' : 'False'}
+                  {field.isMandatory ? 'True' : 'False'}
                 </TableCell>
 
                 {/* New Edit cell with icon */}
@@ -245,7 +278,7 @@ export default function ConfigForm() {
                     className="h-8 w-8"
                   >
                     <Pencil className="h-4 w-4" />
-                    <span className="sr-only">Edit {field.name}</span>
+                    <span className="sr-only">Edit {field.fieldName}</span>
                   </Button>
                 </TableCell>
               </TableRow>
@@ -268,57 +301,23 @@ export default function ConfigForm() {
           {selectedField && (
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
+                <Label htmlFor="fieldName" className="text-right">
                   Field-Name
                 </Label>
                 <Input
-                  id="name"
-                  value={selectedField.name}
+                  id="fieldName"
+                  value={selectedField.fieldName}
                   className="col-span-3"
-                  onChange={(e) =>
-                    setSelectedField((prev) => ({
-                      ...prev!,
-                      name: e.target.value,
-                    }))
-                  }
+                  disabled
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="fieldType" className="text-right">
-                  Field Type
-                </Label>
-                <select
-                  id="fieldType"
-                  value={selectedField.fieldType}
-                  className="col-span-3 border border-gray-300 rounded-lg p-2"
-                  onChange={(e) =>
-                    setSelectedField((prev) => ({
-                      ...prev!,
-                      fieldType: e.target.value,
-                    }))
-                  }
-                >
-                  <option value="TEXT">Text</option>
-                  <option value="NUMBER">Number</option>
-                  <option value="EMAIL">Email</option>
-                  <option value="PHONE">Phone</option>
-                  <option value="DATE">Date</option>
-                  <option value="SELECT">Select</option>
-                  <option value="MULTISELECT">Multi-select</option>
-                  <option value="CHECKBOX">Checkbox</option>
-                  <option value="RADIO">Radio</option>
-                  <option value="TEXTAREA">Textarea</option>
-                  <option value="FILE">File</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="label" className="text-right">
-                  Label
+                <Label htmlFor="displayName" className="text-right">
+                  Display Name
                 </Label>
                 <Input
-                  id="label"
-                  value={selectedField.label}
+                  id="displayName"
+                  value={selectedField.displayName}
                   className="col-span-3"
                   onChange={(e) =>
                     setSelectedField((prev) => ({
@@ -329,34 +328,28 @@ export default function ConfigForm() {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="order" className="text-right">
-                  Order
+                <Label htmlFor="fieldType" className="text-right">
+                  Field Type
                 </Label>
                 <Input
-                  id="order"
-                  value={selectedField.order}
-                  type="number" // Added
+                  id="fieldType"
+                  value={selectedField.fieldType}
                   className="col-span-3"
-                  onChange={(e) =>
-                    setSelectedField((prev) => ({
-                      ...prev!,
-                      order: Number(e.target.value), // Fixed: updating order and converting to number
-                    }))
-                  }
+                  disabled
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="visible" className="text-right">
-                  Visible
+                <Label htmlFor="isHidden" className="text-right">
+                  Hidden
                 </Label>
                 <select
-                  id="visible"
-                  value={selectedField.visible ? 'True' : 'False'}
+                  id="isHidden"
+                  value={selectedField.isHidden ? 'True' : 'False'}
                   className="col-span-3 border border-gray-300 rounded-lg p-2"
                   onChange={(e) =>
                     setSelectedField((prev) => ({
                       ...prev!,
-                      visible: e.target.value === 'True', // Convert to boolean
+                      isHidden: e.target.value === 'True',
                     }))
                   }
                 >
@@ -365,23 +358,121 @@ export default function ConfigForm() {
                 </select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="mandatory" className="text-right">
+                <Label htmlFor="isMandatory" className="text-right">
                   Mandatory
                 </Label>
                 <select
-                  id="mandatory"
-                  value={selectedField.mandatory ? 'True' : 'False'} // Match option values
+                  id="isMandatory"
+                  value={selectedField.isMandatory ? 'True' : 'False'}
                   className="col-span-3 border border-gray-300 rounded-lg p-2"
                   onChange={(e) =>
                     setSelectedField((prev) => ({
                       ...prev!,
-                      mandatory: e.target.value === 'True', // Convert to boolean
+                      isMandatory: e.target.value === 'True',
                     }))
                   }
                 >
                   <option value="True">Mandatory</option>
                   <option value="False">Optional</option>
                 </select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="isDisabled" className="text-right">
+                  Disabled
+                </Label>
+                <select
+                  id="isDisabled"
+                  value={selectedField.isDisabled ? 'True' : 'False'}
+                  className="col-span-3 border border-gray-300 rounded-lg p-2"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      isDisabled: e.target.value === 'True',
+                    }))
+                  }
+                >
+                  <option value="True">True</option>
+                  <option value="False">False</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="defaultValue" className="text-right">
+                  Default Value
+                </Label>
+                <Input
+                  id="defaultValue"
+                  value={selectedField.defaultValue ?? ''}
+                  className="col-span-3"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      defaultValue: e.target.value || null,
+                    }))
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="placeholder" className="text-right">
+                  Placeholder
+                </Label>
+                <Input
+                  id="placeholder"
+                  value={selectedField.placeholder ?? ''}
+                  className="col-span-3"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      placeholder: e.target.value || null,
+                    }))
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="validations" className="text-right">
+                  Validations
+                </Label>
+                <textarea
+                  id="validations"
+                  value={
+                    selectedField.validations
+                      ? JSON.stringify(selectedField.validations, null, 2)
+                      : ''
+                  }
+                  className="col-span-3 border border-gray-300 rounded-lg p-2 h-24 resize-y"
+                  placeholder='e.g., { "minLength": 3, "maxLength": 50 }'
+                  onChange={(e) => {
+                    try {
+                      const value = e.target.value
+                        ? JSON.parse(e.target.value)
+                        : null;
+                      setSelectedField((prev) => ({
+                        ...prev!,
+                        validations: value,
+                      }));
+                    } catch (err) {
+                      console.error('Invalid JSON for validations:', err);
+                    }
+                  }}
+                />
+              </div>
+
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="order" className="text-right">
+                  Order
+                </Label>
+                <Input
+                  id="order"
+                  type="number"
+                  value={selectedField.order}
+                  className="col-span-3"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      order: Number(e.target.value),
+                    }))
+                  }
+                />
               </div>
             </div>
           )}

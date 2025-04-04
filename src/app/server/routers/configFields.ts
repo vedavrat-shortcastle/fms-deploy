@@ -101,66 +101,98 @@ export const configRouter = router({
       }
     }),
 
-  updateFormConfig: permissionProtectedProcedure(PERMISSIONS.FED_ALL)
+  updateField: protectedProcedure
     .input(
       z.object({
-        formType: z.enum(['PLAYER', 'PARENT', 'EVENT', 'CLUB', 'SUBSCRIPTION']),
-        fields: z.array(
-          z.object({
-            id: z.string(), // Ensure field ID is provided
-            isMandatory: z.boolean(),
-            isHidden: z.boolean(),
-          })
-        ),
+        formType: z.enum([
+          'PLAYER',
+          'PARENT',
+          'EVENT',
+          'CLUB',
+          'SUBSCRIPTION',
+          'MEMBERSHIP',
+        ]),
+        fieldName: z.string().min(1, 'Field name is required'), // Changed from fieldId to fieldName
+        field: z.object({
+          displayName: z.string().min(1, 'Display name is required'),
+          isHidden: z.boolean().default(false),
+          isMandatory: z.boolean().default(false),
+          isDisabled: z.boolean().default(false),
+          defaultValue: z.string().nullable().optional(),
+          placeholder: z.string().nullable().optional(),
+          validations: z.unknown().nullable().optional(),
+          order: z.number().default(0),
+          isCustomField: z.boolean().default(true),
+        }),
       })
     )
     .mutation(async ({ ctx, input }) => {
       try {
         const federationId = ctx.session.user.federationId;
 
-        await ctx.db.$transaction(async (tx) => {
-          // Get existing template with fields
-          const template = await tx.formTemplate.findUnique({
-            where: {
-              federationId_formType: {
-                federationId: federationId!,
-                formType: input.formType,
-              },
+        // Step 1: Find the FormTemplate for the given formType and federation
+        const formTemplate = await ctx.db.formTemplate.findUnique({
+          where: {
+            federationId_formType: {
+              federationId: federationId!,
+              formType: input.formType,
             },
-            include: {
-              fields: true,
-            },
-          });
-
-          if (!template) {
-            throw new TRPCError({
-              code: 'NOT_FOUND',
-              message: 'Form template not found',
-            });
-          }
-
-          // Iterate through the provided fields and update only `isMandatory` and `isHidden`
-          for (const field of input.fields) {
-            await tx.formField.update({
-              where: {
-                id: field.id, // Match field by its ID
-                formTemplateId: template.id, // Ensure it belongs to the correct form
-              },
-              data: {
-                isMandatory: field.isMandatory,
-                isHidden: field.isHidden,
-              },
-            });
-          }
+          },
         });
 
-        return {
-          success: true,
-          message: 'Form configuration updated successfully',
-        };
+        if (!formTemplate) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Form template not found for this type and federation',
+          });
+        }
+
+        // Step 2: Find the existing FormField using fieldName
+        const existingField = await ctx.db.formField.findFirst({
+          where: {
+            fieldName: input.fieldName,
+            formTemplateId: formTemplate.id,
+          },
+        });
+
+        if (!existingField) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: `Field with name "${input.fieldName}" not found in the specified form template`,
+          });
+        }
+        // Step 3: Transform validations to ensure it's Prisma-compatible
+        const validationsValue =
+          input.field.validations === undefined ||
+          input.field.validations === null
+            ? input.field.validations
+            : JSON.parse(JSON.stringify(input.field.validations)); // Ensure JSON-compatible
+
+        // Step 3: Update the FormField using the composite key [formTemplateId, fieldName]
+        const updatedField = await ctx.db.formField.update({
+          where: {
+            formTemplateId_fieldName: {
+              formTemplateId: formTemplate.id,
+              fieldName: input.fieldName,
+            },
+          },
+          data: {
+            displayName: input.field.displayName,
+            isHidden: input.field.isHidden,
+            isMandatory: input.field.isMandatory,
+            isDisabled: input.field.isDisabled,
+            defaultValue: input.field.defaultValue,
+            placeholder: input.field.placeholder,
+            validations: validationsValue,
+            order: input.field.order,
+            isCustomField: input.field.isCustomField,
+          },
+        });
+
+        return updatedField;
       } catch (error: any) {
         handleError(error, {
-          message: 'Failed to update form configuration',
+          message: 'Failed to update form field',
           cause: error.message,
         });
       }

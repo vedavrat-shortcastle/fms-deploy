@@ -17,9 +17,11 @@ export default function PlayerSelectionPage() {
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   const router = useRouter();
   const limit = 20;
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const { t } = useTranslation();
 
+  // Plan Id has been passed through search pararms
+  // plan id is required in the payment gateway
   const searchParams = useSearchParams();
   const membershipPlanId = searchParams?.get('planId') || '';
 
@@ -36,13 +38,33 @@ export default function PlayerSelectionPage() {
     return null;
   }
 
+  // Determine user role
+  const isParent = session?.user?.role === 'PARENT';
+  const isClubManager = session?.user?.role === 'CLUB_MANAGER';
+
   // Fetch players using the new endpoint
   // This is currently fetching the players list in parent profile from parent getPlayers endpoint.
-  const { data, isLoading, error } = trpc.parent.getPlayers.useQuery({
-    page: currentPage,
-    limit,
-    searchQuery: searchValue,
-  });
+  // Conditionally fetch players based on role
+  const playersQuery = isParent
+    ? trpc.parent.getPlayers.useQuery({
+        page: currentPage,
+        limit,
+        searchQuery: searchValue,
+      })
+    : isClubManager
+      ? (console.log('Fetching players for Club Manager role'),
+        trpc.club.getClubPlayers.useQuery({
+          page: currentPage,
+          limit,
+          searchQuery: searchValue,
+        }))
+      : (console.log('No valid role for fetching players'), null); // Handle other roles if needed (e.g., throw an error or redirect)
+
+  if (!isParent && !isClubManager) {
+    return <div>{t('playerSelectionPage_unauthorizedRole')}</div>;
+  }
+
+  const { data, isLoading, error } = playersQuery || {};
 
   // Handle errors
   if (error) {
