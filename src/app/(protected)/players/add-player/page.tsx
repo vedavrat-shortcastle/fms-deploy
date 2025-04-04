@@ -194,6 +194,18 @@ export default function AddPlayerPage() {
     },
   });
 
+  const addClubPlayerMutation = trpc.club.addPlayer.useMutation({
+    onSuccess: () => {
+      reset();
+      router.push('/players');
+      setIsSubmitting(false);
+    },
+    onError: (error) => {
+      console.error('Error adding player for club:', error);
+      setIsSubmitting(false);
+    },
+  });
+
   const validateTab = async (tab: FormSections) => {
     if (!config) return false;
 
@@ -245,8 +257,10 @@ export default function AddPlayerPage() {
 
       if (session?.user?.role === 'PARENT') {
         await addPlayerMutation.mutateAsync(updatedData);
-      } else {
+      } else if (session?.user.role === 'FED_ADMIN') {
         await createPlayerMutation.mutateAsync(updatedData);
+      } else {
+        await addClubPlayerMutation.mutateAsync(updatedData);
       }
     } catch (error) {
       console.error('Submission error:', error);

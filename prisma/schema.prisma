@@ -112,7 +112,7 @@ model Player {
   clubName       String?   @map("club_name")
 
   subscriptions Subscription[]
-  club          Club?          @relation(name: "ClubPlayers", fields: [clubId], references: [id])
+  club          Club?          @relation(fields: [clubId], references: [id], name: "ClubPlayers")
   clubId        String?
   parent        Parent?        @relation(fields: [parentId], references: [id], name: "ParentPlayers")
   parentId      String?

@@ -1,8 +1,14 @@
-import { publicProcedure, router } from '@/app/server/trpc';
-import { roleMap } from '@/config/permissions';
+import {
+  permissionProtectedProcedure,
+  publicProcedure,
+  router,
+} from '@/app/server/trpc';
+import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { clubOnboardingSchema } from '@/schemas/Club.schema';
+import { createPlayerSchema } from '@/schemas/Player.schema';
 import { hashPassword } from '@/utils/encoder';
 import { handleError } from '@/utils/errorHandler';
+import { generateCustomPlayerId } from '@/utils/generateCustomCode';
 import { ProfileType, Role } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 
@@ -126,6 +132,131 @@ export const clubRouter = router({
         handleError(error, {
           message: 'Failed to create club',
           cause: error.message ?? 'No error message',
+        });
+      }
+    }),
+  // Add player to club
+  addPlayer: permissionProtectedProcedure(PERMISSIONS.PLAYER_CREATE)
+    .input(createPlayerSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        if (!ctx.session.user.federationId) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'No federation context found',
+          });
+        }
+
+        const { baseUser, playerDetails } = input;
+
+        const existingUser = await ctx.db.baseUser.findUnique({
+          where: {
+            email_federationId: {
+              email: baseUser.email,
+              federationId: ctx.session.user.federationId,
+            },
+          },
+        });
+
+        if (existingUser) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: 'User already exists',
+          });
+        }
+
+        const clubManagerProfile = await ctx.db.userProfile.findFirst({
+          where: {
+            baseUserId: ctx.session.user.id,
+            profileType: ProfileType.CLUB_MANAGER,
+          },
+        });
+
+        if (!clubManagerProfile) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Not authorized as club manager',
+          });
+        }
+
+        const hashedPassword = await hashPassword(baseUser.password);
+
+        const result = await ctx.db.$transaction(async (tx) => {
+          const newBaseUser = await tx.baseUser.create({
+            data: {
+              ...baseUser,
+              password: hashedPassword,
+              role: Role.PLAYER,
+              federationId: ctx.session.user.federationId,
+            },
+          });
+
+          const customId = await generateCustomPlayerId(
+            ctx.db,
+            ctx.session.user.federationId
+          );
+
+          const clubDetails = await tx.clubManager.findFirst({
+            where: {
+              id: clubManagerProfile.profileId,
+            },
+            select: {
+              club: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          });
+
+          const newPlayer = await tx.player.create({
+            data: {
+              ...playerDetails,
+              customId,
+              club: {
+                connect: {
+                  id: clubDetails?.club.id,
+                },
+              },
+            },
+          });
+
+          const newUserProfile = await tx.userProfile.create({
+            data: {
+              profileType: ProfileType.PLAYER,
+              profileId: newPlayer.id,
+              baseUser: {
+                connect: { id: newBaseUser.id },
+              },
+            },
+          });
+
+          const playerPermissions = await tx.permission.findMany({
+            where: {
+              code: {
+                in: roleMap[Role.PLAYER],
+              },
+            },
+            select: {
+              id: true,
+            },
+          });
+
+          await tx.userPermission.createMany({
+            data: playerPermissions.map((permission) => ({
+              permissionId: permission.id,
+              userId: newUserProfile.id,
+            })),
+          });
+
+          return { ...newUserProfile, password: undefined };
+        });
+
+        return result;
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to add player',
+          cause: error.message,
         });
       }
     }),
