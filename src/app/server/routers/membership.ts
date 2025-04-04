@@ -8,7 +8,13 @@ import { handleError } from '@/utils/errorHandler';
 import { PERMISSIONS } from '@/config/permissions';
 import { z } from 'zod';
 import { addMemberSchema } from '@/schemas/Membership.schema';
-import { Prisma, PlanStatus, SubscriptionStatus } from '@prisma/client';
+import {
+  Prisma,
+  PlanStatus,
+  SubscriptionStatus,
+  SubscriptionType,
+  PaymentStatus,
+} from '@prisma/client';
 import {
   createPlanSchema,
   getPlanSchema,
@@ -285,26 +291,93 @@ export const membershipRouter = router({
 
   addMemberSubscription: permissionProtectedProcedure(PERMISSIONS.PLAN_VIEW)
     .input(addMemberSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       try {
-        // Log the input details to the console
-        console.log('addMemberSubscription input:', input);
+        // First, verify the plan exists
+        const plan = await ctx.db.membershipPlan.findUnique({
+          where: { id: input.planId },
+        });
 
-        // TODO: Implement subscription creation logic
-        // For example:
-        // const subscription = await ctx.db.subscription.create({
-        //   data: {
-        //     subscriberId: input.playerId,
-        //     planId: input.planId,
-        //     type: input.subscriptionType,
-        //     status: SubscriptionStatus.ACTIVE,
-        //     startDate: new Date(),
-        //     // Add other fields as needed
-        //   },
-        // });
+        if (!plan) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Membership plan not found',
+          });
+        }
 
-        // For now, just returning the input
-        return input;
+        // Verify the player exists
+        const player = await ctx.db.player.findUnique({
+          where: { id: input.playerId },
+        });
+
+        if (!player) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player not found',
+          });
+        }
+
+        // Check if player already has an active subscription to this plan
+        const existingSubscription = await ctx.db.subscription.findFirst({
+          where: {
+            subscriberId: input.playerId,
+            planId: input.planId,
+            status: SubscriptionStatus.ACTIVE,
+            endDate: {
+              gt: new Date(), // End date is in the future
+            },
+          },
+        });
+
+        if (existingSubscription) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: 'Player already has an active subscription to this plan',
+          });
+        }
+
+        // Calculate the end date based on plan duration
+        const startDate = new Date();
+        const endDate = new Date();
+        endDate.setDate(endDate.getDate() + (plan.duration || 365)); // Default to 365 days if duration not set
+
+        // Create the subscription
+        const subscription = await ctx.db.subscription.create({
+          data: {
+            subscriberId: input.playerId,
+            planId: input.planId,
+            type:
+              input.subscriptionType === 'INDIVIDUAL'
+                ? SubscriptionType.INDIVIDUAL
+                : SubscriptionType.EVENT,
+            status: SubscriptionStatus.ACTIVE,
+            startDate: startDate,
+            endDate: endDate,
+            federationId: ctx.session.user.federationId,
+          },
+        });
+
+        // Create a transaction record if payment was made (simplified for now)
+        if (input.paymentMode) {
+          await ctx.db.transaction.create({
+            data: {
+              subscriptionId: subscription.id,
+              gatewayTransactionId: `manual-${Date.now()}`, // Placeholder for manual entries
+              gatewayName: 'manual',
+              amount: plan.price,
+              currency: plan.currency,
+              status: PaymentStatus.COMPLETED,
+              paymentMethod: input.paymentMode,
+              metadata: {
+                addedBy: ctx.session.user.id,
+                addedAt: new Date().toISOString(),
+                note: 'Manually added via admin interface',
+              },
+            },
+          });
+        }
+
+        return subscription;
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to add member subscription',
