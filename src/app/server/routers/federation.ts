@@ -6,10 +6,19 @@ import {
 } from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
 import { hashPassword } from '@/utils/encoder';
-import { FormType, ProfileType, Role } from '@prisma/client';
+import {
+  FormType,
+  ProfileType,
+  Role,
+  SubscriptionStatus,
+} from '@prisma/client';
 import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { federationOnboardingSchema } from '@/schemas/Federation.schema';
-import { createPlayerSchema } from '@/schemas/Player.schema';
+import {
+  createPlayerSchema,
+  deletePlayerSchema,
+  editPlayerSchema,
+} from '@/schemas/Player.schema';
 import { z } from 'zod';
 import {
   generateCustomPlayerId,
@@ -320,4 +329,164 @@ export const federationRouter = router({
       });
     }
   }),
+
+  editPlayerById: permissionProtectedProcedure(
+    PERMISSIONS.PLAYER_UPDATE,
+    Role.FED_ADMIN
+  )
+    .input(editPlayerSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const { baseUser, playerDetails } = input;
+
+        const existingUser = await ctx.db.baseUser.findUnique({
+          where: {
+            id: baseUser.id,
+            federationId: ctx.session.user.federationId,
+            role: Role.PLAYER,
+          },
+          include: {
+            profile: {
+              select: {
+                profileId: true,
+                userStatus: true,
+                profileType: true,
+              },
+            },
+          },
+        });
+
+        if (!existingUser) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player not found',
+          });
+        }
+
+        if (existingUser.profile?.userStatus !== 'ACTIVE') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: `Player profile is ${existingUser.profile?.userStatus}`,
+          });
+        }
+
+        if (existingUser.profile.profileType !== ProfileType.PLAYER) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Profile is not a player',
+          });
+        }
+
+        // Check email uniqueness if email is being updated
+        if (baseUser.email && baseUser.email !== existingUser.email) {
+          const emailExists = await ctx.db.baseUser.findUnique({
+            where: {
+              email_federationId: {
+                email: baseUser.email,
+                federationId: ctx.session.user.federationId,
+              },
+            },
+          });
+
+          if (emailExists) {
+            throw new TRPCError({
+              code: 'CONFLICT',
+              message: 'Email already exists',
+            });
+          }
+        }
+
+        const [updatedBaseUser, updatedPlayer] = await ctx.db.$transaction([
+          // Update BaseUser
+          ctx.db.baseUser.update({
+            where: { id: baseUser.id },
+            data: {
+              ...baseUser,
+            },
+          }),
+
+          // Update Player
+          ctx.db.player.update({
+            where: { id: existingUser.profile.profileId },
+            data: {
+              ...playerDetails,
+            },
+          }),
+        ]);
+
+        return {
+          ...updatedBaseUser,
+          playerDetails: updatedPlayer,
+        };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to edit player',
+          cause: error.message,
+        });
+      }
+    }),
+  // Delete a player by ID
+  deletePlayerById: permissionProtectedProcedure(
+    PERMISSIONS.PLAYER_DELETE,
+    Role.FED_ADMIN
+  )
+    .input(deletePlayerSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const userProfileId = await ctx.db.baseUser.findUnique({
+          where: {
+            id: input.id,
+            role: Role.PLAYER,
+            federationId: ctx.session.user.federationId,
+          },
+          select: {
+            profile: {
+              select: {
+                id: true,
+                profileId: true,
+                profileType: true,
+                userStatus: true,
+              },
+            },
+          },
+        });
+
+        if (!userProfileId || !userProfileId.profile) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player not found',
+          });
+        }
+
+        // Check if player has active subscriptions
+        const activeSubscriptions = await ctx.db.subscription.findFirst({
+          where: {
+            subscriberId: userProfileId.profile.profileId,
+            status: SubscriptionStatus.ACTIVE,
+          },
+        });
+
+        if (activeSubscriptions) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Players with active memberships cannot be deleted',
+          });
+        }
+        await ctx.db.userProfile.update({
+          where: {
+            id: userProfileId.profile?.id,
+            profileType: ProfileType.PLAYER,
+          },
+          data: {
+            userStatus: 'DELETED',
+          },
+        });
+        return { success: true };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to delete player',
+          cause: error.message,
+        });
+      }
+    }),
 });

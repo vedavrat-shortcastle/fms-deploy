@@ -290,5 +290,12 @@
   "parentSettingsPage_cancel": "Cancelar",
   "parentSettingsPage_editDetails": "Editar detalles",
   "parentSettingsPage_missingParentId": "Falta la identificación del padre.",
-  "parentSettingsPage_loading": "Cargando..."
+  "parentSettingsPage_loading": "Cargando...",
+  "language_labels": {
+    "en": "Inglés",
+    "ar": "Árabe",
+    "fr": "Francés",
+    "es": "Español",
+    "de": "Alemán"
+  }
 }

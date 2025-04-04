@@ -24,7 +24,7 @@ import { trpc } from '@/utils/trpc';
 
 const languages = Object.values(SupportedLanguages).map((lang) => ({
   code: lang,
-  label: lang.charAt(0).toUpperCase() + lang.slice(1),
+  label: `language_labels.${lang}`, // Use translation keys
 }));
 
 const getDirection = (lang: string) => {
@@ -87,7 +87,7 @@ const LanguageSwitcher = () => {
           <SelectContent>
             {languages.map((lang) => (
               <SelectItem key={lang.code} value={lang.code}>
-                {t(lang.label)}
+                {t(lang.label)} {/* Use translation key */}
               </SelectItem>
             ))}
           </SelectContent>

@@ -6,7 +6,7 @@ import {
 } from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
 import { hashPassword } from '@/utils/encoder';
-import { ProfileType, Role, Prisma } from '@prisma/client';
+import { ProfileType, Role, Prisma, SubscriptionStatus } from '@prisma/client';
 import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { z } from 'zod';
 import { createParentSchema, editParentSchema } from '@/schemas/Parent.schema';
@@ -688,7 +688,10 @@ export const parentRouter = router({
     }),
 
   // Delete player by ID (for parent)
-  deletePlayerById: protectedProcedure
+  deletePlayerById: permissionProtectedProcedure(
+    PERMISSIONS.PLAYER_DELETE,
+    Role.PARENT
+  )
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       try {
@@ -742,6 +745,20 @@ export const parentRouter = router({
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'Not authorized to delete this player',
+          });
+        }
+
+        const activeSubscriptions = await ctx.db.subscription.findFirst({
+          where: {
+            subscriberId: playerId,
+            status: SubscriptionStatus.ACTIVE,
+          },
+        });
+
+        if (activeSubscriptions) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Players with active memberships cannot be deleted',
           });
         }
 

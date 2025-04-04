@@ -1,6 +1,7 @@
 import { authConfig } from '@/app/server/authConfig';
 import { db } from '@/lib/db';
 import { checkPermission } from '@/utils/auth';
+import { Role } from '@prisma/client';
 import { initTRPC, TRPCError } from '@trpc/server';
 import { getServerSession } from 'next-auth';
 import superjson from 'superjson';
@@ -34,10 +35,13 @@ const isAuthed = t.middleware(({ ctx, next }) => {
 });
 
 // Middleware to check specific permissions
-const hasPermission = (permission: string) => {
+const hasPermission = (permission: string, role?: Role) => {
   return t.middleware(({ ctx, next }) => {
     if (!ctx.session) {
       throw new TRPCError({ code: 'UNAUTHORIZED' });
+    }
+    if (role && ctx.session.user.role !== role) {
+      throw new TRPCError({ code: 'FORBIDDEN' });
     }
     const hasRequired = checkPermission(
       ctx.session.user.permissions.map((p) => p.code),
@@ -77,5 +81,5 @@ export const mergeRouters = t.mergeRouters;
 export const router = t.router;
 export const publicProcedure = t.procedure;
 export const protectedProcedure = t.procedure.use(isAuthed);
-export const permissionProtectedProcedure = (permission: string) =>
-  t.procedure.use(isAuthed).use(hasPermission(permission));
+export const permissionProtectedProcedure = (permission: string, role?: Role) =>
+  t.procedure.use(isAuthed).use(hasPermission(permission, role));

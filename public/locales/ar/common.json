@@ -290,5 +290,12 @@
   "parentSettingsPage_cancel": "يلغي",
   "parentSettingsPage_editDetails": "تعديل التفاصيل",
   "parentSettingsPage_missingParentId": "معرف الوالدين مفقود.",
-  "parentSettingsPage_loading": "تحميل..."
+  "parentSettingsPage_loading": "تحميل...",
+  "language_labels": {
+    "en": "الإنجليزية",
+    "ar": "العربية",
+    "fr": "الفرنسية",
+    "es": "الإسبانية",
+    "de": "الألمانية"
+  }
 }

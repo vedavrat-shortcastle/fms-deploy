@@ -298,5 +298,12 @@
   "select_language": "Select Language",
   "language_change_confirmation": "Are you sure you want to change Language Preference?",
   "confirm_language_change": "Confirm Language Change",
-  "confirm": "Confirm"
+  "confirm": "Confirm",
+  "language_labels": {
+    "en": "English",
+    "ar": "Arabic",
+    "fr": "French",
+    "es": "Spanish",
+    "de": "German"
+  }
 }

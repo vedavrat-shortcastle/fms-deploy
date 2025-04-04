@@ -5,13 +5,12 @@ import {
   protectedProcedure,
 } from '@/app/server/trpc';
 import { handleError } from '@/utils/errorHandler';
-import { ProfileType, Role, SubscriptionStatus } from '@prisma/client';
+import { ProfileType, Role } from '@prisma/client';
 import { PERMISSIONS } from '@/config/permissions';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 import {
-  deletePlayerSchema,
   editPlayerSchema,
   playerOnboardingSchema,
 } from '@/schemas/Player.schema';
@@ -184,6 +183,13 @@ export const playerRouter = router({
       try {
         const { baseUser, playerDetails } = input;
 
+        if (ctx.session.user.id !== baseUser.id) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Player not found',
+          });
+        }
+
         const existingUser = await ctx.db.baseUser.findUnique({
           where: {
             id: baseUser.id,
@@ -270,68 +276,6 @@ export const playerRouter = router({
         });
       }
     }),
-  // Delete a player by ID
-  deletePlayerById: permissionProtectedProcedure(PERMISSIONS.PLAYER_DELETE)
-    .input(deletePlayerSchema)
-    .mutation(async ({ ctx, input }) => {
-      try {
-        const userProfileId = await ctx.db.baseUser.findUnique({
-          where: {
-            id: input.id,
-            role: Role.PLAYER,
-            federationId: ctx.session.user.federationId,
-          },
-          select: {
-            profile: {
-              select: {
-                id: true,
-                profileId: true,
-                profileType: true,
-                userStatus: true,
-              },
-            },
-          },
-        });
-
-        if (!userProfileId || !userProfileId.profile) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Player not found',
-          });
-        }
-
-        // Check if player has active subscriptions
-        const activeSubscriptions = await ctx.db.subscription.findFirst({
-          where: {
-            subscriberId: userProfileId.profile.profileId,
-            status: SubscriptionStatus.ACTIVE,
-          },
-        });
-
-        if (activeSubscriptions) {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Players with active memberships cannot be deleted',
-          });
-        }
-        await ctx.db.userProfile.update({
-          where: {
-            id: userProfileId.profile?.id,
-            profileType: ProfileType.PLAYER,
-          },
-          data: {
-            userStatus: 'DELETED',
-          },
-        });
-        return { success: true };
-      } catch (error: any) {
-        handleError(error, {
-          message: 'Failed to delete player',
-          cause: error.message,
-        });
-      }
-    }),
-
   onboardPlayer: protectedProcedure
     .input(playerOnboardingSchema)
     .mutation(async ({ ctx, input }) => {

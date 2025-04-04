@@ -6,7 +6,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { useSession } from 'next-auth/react';
-import { trpc } from '@/utils/trpc';
+import { usePlayerApi } from '@/hooks/usePlayerApi';
 import Loader from '@/components/Loader';
 import { useToast } from '@/hooks/useToast';
 import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
@@ -30,7 +30,10 @@ export default function Profile() {
   const { data: sessionData } = useSession();
   const { toast } = useToast();
   const params = useParams<{ playerId: string }>();
-  const playerId = params?.playerId ?? '';
+  const playerId = params?.playerId ?? sessionData?.user?.id;
+  const role = sessionData?.user?.role ?? 'PLAYER';
+
+  const { fetchPlayer, editPlayer, deletePlayer } = usePlayerApi(role);
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,44 +50,25 @@ export default function Profile() {
   const watchState = watch('playerDetails.state');
 
   const { config, isLoading: isConfigLoading } = useFormConfig('PLAYER');
-  const isParent = sessionData?.user?.role === 'PARENT';
-  const isPlayerViewing = sessionData?.user?.id === playerId;
+  const isPlayerViewing =
+    role === 'PLAYER' && sessionData?.user?.id === playerId;
 
   const {
     data: playerData,
     error,
     isLoading,
     refetch,
-  } = isParent
-    ? trpc.parent.getPlayerById.useQuery(
-        { id: playerId },
-        { enabled: !!playerId }
-      )
-    : trpc.player.getPlayerById.useQuery(
-        { id: playerId },
-        { enabled: !!playerId }
-      );
+  } = fetchPlayer({ id: playerId! }, { enabled: !!playerId });
 
-  const editPlayerMutation = isParent
-    ? trpc.parent.editPlayerById.useMutation({
-        onSuccess: () => handleMutationSuccess(),
-        onError: (error) => handleMutationError(error, 'update'),
-      })
-    : trpc.player.editPlayerById.useMutation({
-        onSuccess: () => handleMutationSuccess(),
-        onError: (error) => handleMutationError(error, 'update'),
-      });
+  const editPlayerMutation = editPlayer({
+    onSuccess: () => handleMutationSuccess(),
+    onError: (error: any) => handleMutationError(error, 'update'),
+  });
 
-  const deletePlayerMutation = isParent
-    ? trpc.parent.deletePlayerById.useMutation({
-        onSuccess: () => router.push('/players'),
-        onError: (error) => handleMutationError(error, 'delete'),
-      })
-    : trpc.player.deletePlayerById.useMutation({
-        onSuccess: () => router.push('/players'),
-        onError: (error) => handleMutationError(error, 'delete'),
-      });
-
+  const deletePlayerMutation = deletePlayer({
+    onSuccess: () => router.push('/players'),
+    onError: (error: any) => handleMutationError(error, 'delete'),
+  });
   const handleMutationSuccess = () => {
     setIsEditing(false);
     refetch();
@@ -122,12 +106,12 @@ export default function Profile() {
 
   const handleDelete = () => {
     setIsSubmitting(true);
-    deletePlayerMutation.mutate({ id: playerId });
+    deletePlayerMutation?.mutate({ id: playerId });
   };
 
   const onSubmit = (formData: EditPlayerFormValues) => {
     setIsSubmitting(true);
-    editPlayerMutation.mutate(formData);
+    editPlayerMutation?.mutate(formData);
   };
 
   useEffect(() => {
@@ -174,7 +158,7 @@ export default function Profile() {
             fields: baseUserFieldsConfig,
           }}
           control={control}
-          basePrefix="baseUser." // Pass correct prefix for baseUser fields
+          basePrefix="baseUser."
         />
         <FormBuilder
           config={{
@@ -182,7 +166,7 @@ export default function Profile() {
             fields: playerDetailsFieldsConfig,
           }}
           control={control}
-          basePrefix="playerDetails." // Pass correct prefix for playerDetails fields
+          basePrefix="playerDetails."
         />
       </>
     );
@@ -200,7 +184,6 @@ export default function Profile() {
     <FormProvider {...form}>
       <div className="flex min-h-svh bg-[#f6f6f6]">
         <div className="flex-1 p-8 flex gap-8">
-          {/* Left Column: Profile Avatar and Buttons */}
           <div className="w-1/4 flex flex-col items-center">
             <div className="w-full max-w-xs aspect-square rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
               {playerData?.avatarUrl ? (
@@ -221,15 +204,6 @@ export default function Profile() {
               >
                 {isEditing ? t('save') : t('edit')}
               </Button>
-              {isPlayerViewing && (
-                <Button
-                  variant="default"
-                  onClick={() => router.push('/change-password')}
-                  disabled={isSubmitting}
-                >
-                  {t('changePassword')}
-                </Button>
-              )}
               <Button
                 variant="destructive"
                 onClick={() => setShowDeleteConfirm(true)}
@@ -239,11 +213,22 @@ export default function Profile() {
               </Button>
             </div>
           </div>
-
-          {/* Right Column: Form */}
           <div className="w-3/4 bg-white p-6 rounded-lg shadow">
             <fieldset disabled={!isEditing}>{renderFormFields()}</fieldset>
-            <LanguageSwitcher />
+            {isPlayerViewing && (
+              <>
+                <LanguageSwitcher />
+                {/* 
+                //TODO: Implement password change functionality
+                <Input
+                  type="password"
+                  placeholder={t('changePassword')}
+                  className="mt-4"
+                  disabled={!isEditing}
+                  {...form.register('password')}
+                /> */}
+              </>
+            )}
             {isEditing && (
               <div className="flex justify-end gap-4 mt-6">
                 <Button variant="ghost" onClick={handleCancel}>
@@ -253,7 +238,6 @@ export default function Profile() {
             )}
           </div>
         </div>
-
         <DeleteConfirmDialog
           open={showDeleteConfirm}
           onOpenChange={setShowDeleteConfirm}
