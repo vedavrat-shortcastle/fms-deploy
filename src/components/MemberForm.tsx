@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormBuilder } from '@/components/forms/FormBuilder';
@@ -13,6 +13,7 @@ import {
 } from '@/schemas/Membership.schema';
 import { sanitizeFields } from '@/utils/sanitize';
 import { AddMemberFormConfig } from '@/config/staticFormConfigs';
+import { debounce } from 'lodash';
 
 interface MemberFormProps {
   onClose: () => void;
@@ -20,6 +21,12 @@ interface MemberFormProps {
 }
 
 export default function MemberForm({ onClose, onSuccess }: MemberFormProps) {
+  // State for search terms
+  const [playerSearchTerm, setPlayerSearchTerm] = useState('');
+  const [planSearchTerm, setPlanSearchTerm] = useState('');
+  const [debouncedPlayerSearch, setDebouncedPlayerSearch] = useState('');
+  const [debouncedPlanSearch, setDebouncedPlanSearch] = useState('');
+
   const form = useForm<AddMemberFormValues>({
     resolver: zodResolver(addMemberSchema),
     mode: 'onChange',
@@ -38,20 +45,47 @@ export default function MemberForm({ onClose, onSuccess }: MemberFormProps) {
     formState: { isSubmitting },
   } = form;
 
-  // Fetch players for dropdown
+  // Create debounced search functions
+  const debouncedPlayerSearchHandler = useCallback(
+    debounce((value: string) => {
+      setDebouncedPlayerSearch(value);
+    }, 300),
+    []
+  );
+
+  const debouncedPlanSearchHandler = useCallback(
+    debounce((value: string) => {
+      setDebouncedPlanSearch(value);
+    }, 300),
+    []
+  );
+
+  // Handler for player search input
+  const handlePlayerSearchChange = (value: string) => {
+    setPlayerSearchTerm(value);
+    debouncedPlayerSearchHandler(value);
+  };
+
+  // Handler for plan search input
+  const handlePlanSearchChange = (value: string) => {
+    setPlanSearchTerm(value);
+    debouncedPlanSearchHandler(value);
+  };
+
+  // Fetch players for dropdown using debounced search term
   const { data: playersData, isLoading: playersLoading } =
     trpc.player.getPlayers.useQuery({
       page: 1,
       limit: 100,
-      searchQuery: '',
+      searchQuery: debouncedPlayerSearch,
     });
 
-  // Fetch subscription plans for dropdown
+  // Fetch subscription plans for dropdown using debounced search term
   const { data: plansData, isLoading: plansLoading } =
     trpc.membership.getPlans.useQuery({
       page: 1,
       limit: 10,
-      searchQuery: '',
+      searchQuery: debouncedPlanSearch,
     });
 
   // Use the mutation
@@ -139,6 +173,9 @@ export default function MemberForm({ onClose, onSuccess }: MemberFormProps) {
                 options: availablePlayers,
               },
               isDisabled: playersLoading,
+              // Add search capability for players
+              onSearchChange: handlePlayerSearchChange,
+              searchValue: playerSearchTerm,
             };
           }
           if (field.fieldName === 'planId') {
@@ -149,13 +186,23 @@ export default function MemberForm({ onClose, onSuccess }: MemberFormProps) {
                 options: availablePlans,
               },
               isDisabled: plansLoading,
+              // Add search capability for plans
+              onSearchChange: handlePlanSearchChange,
+              searchValue: planSearchTerm,
             };
           }
           return field;
         })
       ),
     };
-  }, [availablePlayers, availablePlans, playersLoading, plansLoading]);
+  }, [
+    availablePlayers,
+    availablePlans,
+    playersLoading,
+    plansLoading,
+    playerSearchTerm,
+    planSearchTerm,
+  ]);
 
   return (
     <div className="max-w-3xl mx-auto">
