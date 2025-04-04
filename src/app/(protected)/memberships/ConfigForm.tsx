@@ -81,10 +81,6 @@ export default function ConfigForm() {
     refetch();
   }, [selectedForm, refetch]);
 
-  useEffect(() => {
-    console.log('Updated fields:', fields);
-  }, [fields]);
-
   // What this does?
   // Creates an array called mappedfields and passes all the field values recieved from api for a form type.
   // e.g - All the form fields for PLAYER gets passed into mappedfield array.
@@ -278,12 +274,6 @@ export default function ConfigForm() {
             ))}
           </TableBody>
         </Table>
-        {/* <button
-          // onClick={handleSave}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Save Changes
-        </button> */}
       </div>
       {/* View Field Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>

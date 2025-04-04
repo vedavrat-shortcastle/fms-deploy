@@ -8,31 +8,25 @@ import { useEffect, useState } from 'react';
 import { trpc } from '@/utils/trpc';
 import { Button } from '@/components/ui/button';
 import { sanitizeFields } from '@/utils/sanitize';
-import { z } from 'zod';
-import { SupportedLanguages } from '@prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-const adminProfileSchema = z.object({
-  firstName: z.string().min(2).max(50).optional(),
-  lastName: z.string().min(2).max(50).optional(),
-  middleName: z.string().nullable(),
-  password: z.string().min(8).optional(),
-  nameSuffix: z.string().nullable(),
-  email: z.string().email().optional(),
-  language: z.nativeEnum(SupportedLanguages),
-});
-
-type AdminProfileFormValues = z.infer<typeof adminProfileSchema>;
+import { EditAdminFormValues, editAdminSchema } from '@/schemas/Player.schema';
+import { useToast } from '@/hooks/useToast';
+import { useTranslation } from 'react-i18next';
 
 const AdminSetting = () => {
-  const form = useForm<AdminProfileFormValues>({
-    resolver: zodResolver(adminProfileSchema),
+  const form = useForm<EditAdminFormValues>({
+    resolver: zodResolver(editAdminSchema),
     mode: 'onChange',
   });
+  const { t } = useTranslation();
 
   const { control, handleSubmit, reset } = form;
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false); // Edit state
   const { data: adminDetails, refetch } = trpc.user.getAdminDetails.useQuery();
+  const updateAdminProfile = trpc.federation.updateAdminProfile.useMutation();
+
+  const { toast } = useToast();
 
   useEffect(() => {
     if (adminDetails) {
@@ -41,11 +35,24 @@ const AdminSetting = () => {
     }
   }, [adminDetails, reset]);
 
-  const onSubmit = async (formData: AdminProfileFormValues) => {
-    console.log('Form Data:', formData);
-    // Call API to update admin profile
-    // await updateAdminProfile(formData);
-    refetch(); // Refetch updated details
+  const onSubmit = async (formData: EditAdminFormValues) => {
+    try {
+      await updateAdminProfile.mutateAsync(formData);
+      refetch(); // Refetch updated details
+      setIsEditing(false); // Exit edit mode
+      toast({
+        title: t('success'),
+        description: t('admin_update_success'),
+        variant: 'default',
+      });
+    } catch (error) {
+      console.error('Failed to update admin profile:', error);
+      toast({
+        title: t('success'),
+        description: t('admin_update_failed'),
+        variant: 'destructive',
+      });
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -59,16 +66,42 @@ const AdminSetting = () => {
         <CardContent>
           <FormProvider {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <FormBuilder
-                config={{
-                  id: 'admin-profile-form',
-                  isActive: true,
-                  fields: sanitizeFields(AdminProfileFormConfig),
-                }}
-                control={control}
-              />
+              <fieldset disabled={!isEditing} className="space-y-6">
+                <FormBuilder
+                  config={{
+                    id: 'admin-profile-form',
+                    isActive: true,
+                    fields: sanitizeFields(AdminProfileFormConfig),
+                  }}
+                  control={control}
+                />
+              </fieldset>
               <div className="flex justify-end gap-4">
-                <Button type="submit">Save Changes</Button>
+                {isEditing ? (
+                  <>
+                    <Button type="submit">Save Changes</Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => {
+                        reset(adminDetails); // Reset form to initial values
+                        setIsEditing(false); // Exit edit mode
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsEditing(true); // Enter edit mode
+                    }}
+                  >
+                    Edit
+                  </Button>
+                )}
               </div>
             </form>
           </FormProvider>

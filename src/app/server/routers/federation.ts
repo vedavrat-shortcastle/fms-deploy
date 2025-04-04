@@ -17,6 +17,7 @@ import { federationOnboardingSchema } from '@/schemas/Federation.schema';
 import {
   createPlayerSchema,
   deletePlayerSchema,
+  editAdminSchema,
   editPlayerSchema,
 } from '@/schemas/Player.schema';
 import { z } from 'zod';
@@ -26,6 +27,7 @@ import {
 } from '@/utils/generateCustomCode';
 import { defaultFormConfigs } from '@/config/defaultFormConfigs';
 import { getDirection } from '@/utils/getLanguageDirection';
+import i18next from 'i18next';
 
 export const federationRouter = router({
   federationOnboarding: publicProcedure
@@ -110,6 +112,8 @@ export const federationRouter = router({
               },
               profileType: ProfileType.FEDERATION_ADMIN,
               profileId: newFederationAdmin.id,
+              language: input.language,
+              isRtl: i18next.dir(input.language) === 'rtl' ? true : false,
             },
           });
 
@@ -485,6 +489,46 @@ export const federationRouter = router({
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to delete player',
+          cause: error.message,
+        });
+      }
+    }),
+  updateAdminProfile: permissionProtectedProcedure(
+    PERMISSIONS.FED_ALL,
+    Role.FED_ADMIN
+  )
+    .input(editAdminSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const adminId = ctx.session.user.id;
+
+        const { language, ...baseUserData } = input; // Separate language from other fields
+
+        const result = await ctx.db.$transaction(async (tx) => {
+          const updatedBaseUser = await tx.baseUser.update({
+            where: { id: adminId },
+            data: {
+              ...baseUserData,
+              ...(baseUserData.password && {
+                password: await hashPassword(baseUserData.password),
+              }),
+            },
+          });
+
+          if (language) {
+            await tx.userProfile.update({
+              where: { baseUserId: adminId },
+              data: { language, isRtl: i18next.dir(language) === 'rtl' },
+            });
+          }
+
+          return updatedBaseUser;
+        });
+
+        return { success: true, admin: result };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to update admin profile',
           cause: error.message,
         });
       }

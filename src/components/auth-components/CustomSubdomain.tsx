@@ -1,51 +1,39 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense } from 'react';
 import { AuthLayout } from '@/components/layouts/AuthLayout';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Logo } from '@/components/Logo';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import Loader from '../Loader';
 import { trpc } from '@/utils/trpc';
+import { FormProvider, useForm } from 'react-hook-form';
 import {
   FederationOnboardingFormValues,
   federationOnboardingSchema,
 } from '@/schemas/Federation.schema';
-import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
-import Loader from '../Loader';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { FormBuilder } from '@/components/forms/FormBuilder';
+import { sanitizeFields } from '@/utils/sanitize';
+import { federationDomainOnboardConfig } from '@/config/staticFormConfigs';
+import { FormLabel } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
-// Import Country from the country-state-city library
-import { Country } from 'country-state-city';
-import { SupportedLanguages } from '@prisma/client';
-
-interface CustomSubdomainProps {
+interface SignupProps {
   imageSrc: string;
 }
 
-export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
+const CustomSubdomain = ({ imageSrc }: SignupProps) => {
   const router = useRouter();
 
   return (
     <AuthLayout imageSrc={imageSrc}>
-      <Logo path="/onboarding-federation" />
-      <div className="mx-auto mt-16 p-10 max-w-xl w-full">
+      <Logo path="/login" />
+      <div className="sm:px-20 md:px-10 md:py-10">
+        <h1 className="text-xl md:text-2xl font-bold my-10">
+          Tell us a bit about yourself.
+        </h1>
         <Suspense fallback={<Loader />}>
           <CustomSubdomainForm router={router} />
         </Suspense>
@@ -54,7 +42,13 @@ export const CustomSubdomain = ({ imageSrc }: CustomSubdomainProps) => {
   );
 };
 
-const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
+export default CustomSubdomain;
+
+interface CustomSubdomainFormProps {
+  router: ReturnType<typeof useRouter>;
+}
+
+const CustomSubdomainForm = ({ router }: CustomSubdomainFormProps) => {
   const searchParams = useSearchParams();
   const mutation = trpc.federation.federationOnboarding.useMutation();
 
@@ -70,13 +64,6 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
   } else {
     router.push('/onboarding-federation');
   }
-
-  // Local state to store country options
-  const [countryOptions, setCountryOptions] = useState<
-    { value: string; label: string }[]
-  >([]);
-
-  // React Hook Form setup
   const form = useForm<FederationOnboardingFormValues>({
     resolver: zodResolver(
       federationOnboardingSchema.pick({
@@ -112,193 +99,43 @@ const CustomSubdomainForm = ({ router }: { router: AppRouterInstance }) => {
     }
   };
 
-  // Load country options on component mount
-  useEffect(() => {
-    const countries = Country.getAllCountries().map((country) => ({
-      value: country.isoCode, // Use ISO code as value
-      label: country.name,
-    }));
-    setCountryOptions(countries);
-  }, []);
-
-  // Fetch existing short codes
-  const { data: existingShortCodes } =
-    trpc.federation.getExistingShortCodes.useQuery();
+  const { control, handleSubmit } = form;
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-        <h2 className="text-2xl font-semibold pt-2">Federation details</h2>
-        {/* Type Field */}
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-input-grey">Type</FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="NATIONAL">National</SelectItem>
-                    <SelectItem value="REGIONAL">Regional</SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage /> {/* Error message should go here */}
-            </FormItem>
-          )}
-        />
-        {/* Federation Name Field */}
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-input-grey">Federation Name</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Federation name"
-                  className="w-full"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage /> {/* Error message should go here */}
-            </FormItem>
-          )}
-        />
-
-        {/* Federation Short Code Field */}
-        <FormField
-          control={form.control}
-          name="shortCode"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-input-grey">
-                Federation Short code
-              </FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Federation short name"
-                  className="w-full"
-                  {...field}
-                  onBlur={() => {
-                    if (existingShortCodes?.includes(field.value)) {
-                      form.setError('shortCode', {
-                        type: 'manual',
-                        message: 'Short code already exists',
-                      });
-                    }
-                  }}
-                />
-              </FormControl>
-              <FormMessage /> {/* Error message should go here */}
-            </FormItem>
-          )}
-        />
-
-        {/* Federation Country Field - Dynamic Country Selection */}
-        <FormField
-          control={form.control}
-          name="country"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-input-grey">
-                Federation Country
-              </FormLabel>
-              <FormControl>
-                <Select
-                  value={field.value || ''}
-                  onValueChange={field.onChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countryOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage /> {/* Error message should go here */}
-            </FormItem>
-          )}
-        />
-
-        {/* Federation Language Field - Language Selection */}
-        <FormField
-          control={form.control}
-          name="language"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-input-grey">
-                Federation Language
-              </FormLabel>
-              <FormControl>
-                <Select
-                  value={field.value || ''}
-                  onValueChange={field.onChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(SupportedLanguages).map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage /> {/* Error message should go here */}
-            </FormItem>
-          )}
-        />
-
-        {/* Domain Field */}
-        <FormField
-          control={form.control}
-          name="domain"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-input-grey">Domain</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter Domain"
-                  className="px-4 text-lg w-full"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage /> {/* Error message should go here */}
-            </FormItem>
-          )}
-        />
-        <div>
-          <FormLabel className="text-input-grey">URL</FormLabel>
-          <div className="flex items-center border rounded px-2 py-1">
-            <span className="text-gray-800">https://</span>
-            <Input
-              className="border-0 bg-transparent focus:ring-0 w-full pl-4 bg-white"
-              disabled
-              value={`${form.watch('domain')}`}
+    <Card className="w-full max-w-3xl">
+      <CardHeader>
+        <CardTitle>Onboarding Federation</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <FormProvider {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <FormBuilder
+              config={{
+                id: 'federation-domain-onboard-form',
+                isActive: true,
+                fields: sanitizeFields(federationDomainOnboardConfig),
+              }}
+              control={control}
             />
-          </div>
-        </div>
-        <Button type="submit" className="w-full bg-primary text-black">
-          Next →
-        </Button>
-      </form>
-    </Form>
+            <div>
+              <FormLabel className="text-input-grey">URL</FormLabel>
+              <div className="flex items-center border rounded px-2 py-1">
+                <span className="text-gray-800">https://</span>
+                <Input
+                  className="border-0 bg-transparent focus:ring-0 w-full pl-4 bg-white"
+                  disabled
+                  value={`${form.watch('domain')}`}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-4">
+              <Button type="submit" disabled={mutation.isLoading}>
+                {mutation.isLoading ? <Loader /> : 'Submit'}
+              </Button>
+            </div>
+          </form>
+        </FormProvider>
+      </CardContent>
+    </Card>
   );
 };
-
-export default CustomSubdomain;

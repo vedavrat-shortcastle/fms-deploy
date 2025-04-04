@@ -299,6 +299,8 @@
   "language_change_confirmation": "Are you sure you want to change Language Preference?",
   "confirm_language_change": "Confirm Language Change",
   "confirm": "Confirm",
+  "admin_update_success": "Profile updated successfully",
+  "admin_update_failed": "Failed to update profile",
   "language_labels": {
     "en": "English",
     "ar": "Arabic",
