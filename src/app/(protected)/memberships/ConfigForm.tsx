@@ -156,7 +156,7 @@ export default function ConfigForm() {
   const handleSave = async () => {
     if (selectedField) {
       try {
-        const updatedField = await updateFieldMutation.mutateAsync({
+        await updateFieldMutation.mutateAsync({
           formType: selectedForm,
           fieldName: selectedField.fieldName, // Changed from fieldId to fieldName
           field: {
@@ -169,13 +169,6 @@ export default function ConfigForm() {
             isCustomField: selectedField.isCustomField,
           },
         });
-
-        // Update local state with the updated field
-        setFields((prevFields) =>
-          prevFields.map((field) =>
-            field.id === updatedField.id ? updatedField : field
-          )
-        );
 
         setIsEditModalOpen(false);
         setSelectedField(null);
