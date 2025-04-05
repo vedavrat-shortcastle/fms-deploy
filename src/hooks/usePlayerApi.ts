@@ -64,6 +64,15 @@ export function usePlayerApi(role: Role) {
           refetch: query.refetch,
         };
       }
+      case 'CLUB_MANAGER': {
+        const query = trpc.club.getClubPlayerById.useQuery({ id }, { enabled });
+        return {
+          data: query.data,
+          error: query.error,
+          isLoading: query.isLoading,
+          refetch: query.refetch,
+        };
+      }
       default:
         return createNoOpQuery();
     }
@@ -108,6 +117,13 @@ export function usePlayerApi(role: Role) {
       }
       case 'FED_ADMIN': {
         const mutation = trpc.federation.deletePlayerById.useMutation(options);
+        return {
+          mutate: mutation.mutate,
+          isLoading: mutation.isLoading,
+        };
+      }
+      case 'CLUB_MANAGER': {
+        const mutation = trpc.club.deletePlayerById.useMutation(options);
         return {
           mutate: mutation.mutate,
           isLoading: mutation.isLoading,

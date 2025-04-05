@@ -34,21 +34,23 @@ import { Label } from '@/components/ui/label';
 
 interface FormField {
   id: string;
-  name: string;
-  visible: boolean;
-  mandatory: boolean;
-  label: string;
+  fieldName: string;
+  displayName: string;
   fieldType: string;
+  isHidden: boolean;
+  isMandatory: boolean;
+  isDisabled: boolean;
+  defaultValue: string | null;
+  placeholder: string | null;
+  validations: any; // Changed from object | null to any
   order: number;
+  isCustomField: boolean;
 }
 
 export default function ConfigForm() {
   // Define a union type for the form types
   type FormType = 'PLAYER' | 'PARENT' | 'EVENT' | 'CLUB' | 'SUBSCRIPTION';
   const [selectedForm, setSelectedForm] = useState<FormType>('PLAYER');
-
-  // Update endpoint
-  // const updateMutation = trpc.config.updateFormConfig.useMutation();
 
   //   Main list to show all the fields recieved by api for a form type.
   const [fields, setFields] = useState<FormField[]>([]);
@@ -57,16 +59,6 @@ export default function ConfigForm() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for edit field modal button
   const [selectedField, setSelectedField] = useState<FormField | null>(null);
   const [isAddFieldOpen, setIsAddFieldOpen] = useState(false); // State for Add field modal button
-
-  // New field state for the add field dialog.
-  const [newField, setNewField] = useState<Partial<FormField>>({
-    name: '',
-    fieldType: 'TEXT',
-    label: '',
-    mandatory: false,
-    visible: true,
-    order: 0,
-  });
 
   // We disable the query initially so that it only runs when selectedForm changes.
   const {
@@ -78,6 +70,8 @@ export default function ConfigForm() {
     { formType: selectedForm },
     { enabled: false } // initially disabled
   );
+
+  const updateFieldMutation = trpc.config.updateField.useMutation();
 
   // Trigger refetch when selectedForm changes
   useEffect(() => {
@@ -92,12 +86,17 @@ export default function ConfigForm() {
     if (formConfig?.fields) {
       const mappedFields: FormField[] = formConfig.fields.map((field) => ({
         id: field.id,
-        name: field.fieldName, // mapping fieldName from API to name
-        label: field.displayName, // mapping displayName to label
-        visible: !field.isHidden, // assuming true means visible, so invert isHidden
-        mandatory: field.isMandatory, // mapping directly
-        fieldType: field.fieldType, // NEW: mapping fieldType from API
+        fieldName: field.fieldName,
+        displayName: field.displayName,
+        fieldType: field.fieldType,
+        isHidden: field.isHidden,
+        isMandatory: field.isMandatory,
+        isDisabled: field.isDisabled,
+        defaultValue: field.defaultValue,
+        placeholder: field.placeholder,
+        validations: field.validations,
         order: field.order,
+        isCustomField: field.isCustomField,
       }));
       setFields(mappedFields);
       // update the main arrays with mapped fields array.
@@ -113,89 +112,30 @@ export default function ConfigForm() {
     }
   };
 
-  // Function to update the array on switching the toggle for mandator and visible.
-  //   const updateField = (id: string, key: keyof FormField, value: any) => {
-  //     setFields(
-  //       fields.map((field) =>
-  //         field.id === id ? { ...field, [key]: value } : field
-  //       )
-  //     );
-  //   };
-
-  // save function - calls the update endpoint
-  //   const handleSave = () => {
-  //     const updatedFields = fields.map(({ id, visible, mandatory }) => ({
-  //       id: id, // Required for identifying the field
-  //       isHidden: !visible, // Convert 'visible' to 'isHidden'
-  //       isMandatory: mandatory, // Keep isMandatory unchanged
-  //     }));
-
-  //     updateMutation.mutate(
-  //       {
-  //         formType: selectedForm,
-  //         fields: updatedFields,
-  //       },
-  //       {
-  //         onSuccess: () => {
-  //           alert('Form updated successfully!');
-  //           refetch(); // Refresh form configuration
-  //         },
-  //         onError: (error) => {
-  //           alert(`Error: ${error.message}`);
-  //         },
-  //       }
-  //     );
-  //   };
-  const handleEditSave = () => {
+  // Handle save for edit modal (updateField)
+  const handleSave = async () => {
     if (selectedField) {
-      setFields((prevFields) =>
-        prevFields.map((field) =>
-          field.id === selectedField.id ? { ...selectedField } : field
-        )
-      );
-    }
-    setIsEditModalOpen(false);
-    setSelectedField(null);
-  };
+      try {
+        await updateFieldMutation.mutateAsync({
+          formType: selectedForm,
+          fieldName: selectedField.fieldName, // Changed from fieldId to fieldName
+          field: {
+            displayName: selectedField.displayName,
+            isHidden: selectedField.isHidden,
+            isMandatory: selectedField.isMandatory,
+            isDisabled: selectedField.isDisabled,
+            defaultValue: selectedField.defaultValue,
+            placeholder: selectedField.placeholder,
+            isCustomField: selectedField.isCustomField,
+          },
+        });
 
-  // Function to handle adding a new field.
-  const handleAddField = () => {
-    // Generate a unique ID for the new field (simple example using Date.now())
-    const newFieldWithId: FormField = {
-      id: Date.now().toString(),
-      name: newField.name || 'New Field',
-      fieldType: newField.fieldType || 'TEXT',
-      label: newField.label || 'New Label',
-      mandatory: newField.mandatory ?? false,
-      visible: newField.visible ?? true,
-      order: newField.order ?? 0,
-    };
-    // Add the new field to the array.
-    setFields((prev) => [...prev, newFieldWithId]);
-    // Reset new field state.
-    setNewField({
-      name: '',
-      fieldType: 'TEXT',
-      label: '',
-      mandatory: false,
-      visible: true,
-      order: 0,
-    });
-    // Close the add field dialog.
-    setIsAddFieldOpen(false);
-  };
-
-  const handleNewFieldChange = (
-    key: keyof FormField,
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    let value: any = event.target.value;
-    if (key === 'order') {
-      value = Number(value);
-    } else if (key === 'visible' || key === 'mandatory') {
-      value = value === 'True';
+        setIsEditModalOpen(false);
+        setSelectedField(null);
+      } catch (error: any) {
+        alert(`Error updating field: ${error.message}`);
+      }
     }
-    setNewField((prev) => ({ ...prev, [key]: value }));
   };
 
   const selectOptions = [
@@ -214,29 +154,6 @@ export default function ConfigForm() {
     { label: 'Mandatory' },
     { label: 'Edit' },
   ];
-
-  const editFieldChange = (
-    key: keyof FormField,
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    let value: any = event.target.value;
-    if (key === 'order') {
-      value = Number(value);
-    } else if (key === 'visible' || key === 'mandatory') {
-      value = value === 'True';
-    }
-    setSelectedField((prev) => (prev ? { ...prev, [key]: value } : prev));
-  };
-
-  const handleDeleteField = (id: string) => {
-    // Remove the field with the given id.
-    setFields((prevFields) => prevFields.filter((field) => field.id !== id));
-    // Optionally, if the field being deleted is the currently selected field, close the modal.
-    if (selectedField && selectedField.id === id) {
-      setSelectedField(null);
-      setIsEditModalOpen(false);
-    }
-  };
 
   return (
     <div>
@@ -295,14 +212,14 @@ export default function ConfigForm() {
           <TableBody>
             {fields.map((field) => (
               <TableRow key={field.id} className="border-t">
-                <TableCell className="font-medium">{field.name}</TableCell>
+                <TableCell className="font-medium">{field.fieldName}</TableCell>
                 <TableCell className="font-medium">{field.fieldType}</TableCell>
-                <TableCell>{field.label}</TableCell>
+                <TableCell>{field.displayName}</TableCell>
                 <TableCell className="font-medium">
-                  {field.visible ? 'True' : 'False'}
+                  {field.isHidden ? 'True' : 'False'}
                 </TableCell>
                 <TableCell className="font-medium">
-                  {field.mandatory ? 'True' : 'False'}
+                  {field.isMandatory ? 'True' : 'False'}
                 </TableCell>
 
                 {/* New Edit cell with icon */}
@@ -314,7 +231,7 @@ export default function ConfigForm() {
                     className="h-8 w-8"
                   >
                     <Pencil className="h-4 w-4" />
-                    <span className="sr-only">Edit {field.name}</span>
+                    <span className="sr-only">Edit {field.fieldName}</span>
                   </Button>
                 </TableCell>
               </TableRow>
@@ -322,8 +239,7 @@ export default function ConfigForm() {
           </TableBody>
         </Table>
       </div>
-
-      {/* Edit Field Modal */}
+      {/* View Field Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -332,102 +248,184 @@ export default function ConfigForm() {
           {selectedField && (
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
+                <Label htmlFor="fieldName" className="text-right">
                   Field-Name
                 </Label>
                 <Input
-                  id="name"
-                  value={selectedField.name}
+                  id="fieldName"
+                  value={selectedField.fieldName}
                   className="col-span-3"
-                  onChange={(e) => editFieldChange('name', e)}
+                  disabled
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="displayName" className="text-right">
+                  Display Name
+                </Label>
+                <Input
+                  id="displayName"
+                  value={selectedField.displayName}
+                  className="col-span-3"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      label: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="fieldType" className="text-right">
                   Field Type
                 </Label>
-                <select
+                <Input
                   id="fieldType"
                   value={selectedField.fieldType}
-                  className="col-span-3 border border-gray-300 rounded-lg p-2"
-                  onChange={(e) => editFieldChange('fieldType', e)}
-                >
-                  <option value="TEXT">Text</option>
-                  <option value="NUMBER">Number</option>
-                  <option value="EMAIL">Email</option>
-                  <option value="PHONE">Phone</option>
-                  <option value="DATE">Date</option>
-                  <option value="SELECT">Select</option>
-                  <option value="MULTISELECT">Multi-select</option>
-                  <option value="CHECKBOX">Checkbox</option>
-                  <option value="RADIO">Radio</option>
-                  <option value="TEXTAREA">Textarea</option>
-                  <option value="FILE">File</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="label" className="text-right">
-                  Label
-                </Label>
-                <Input
-                  id="label"
-                  value={selectedField.label}
                   className="col-span-3"
-                  onChange={(e) => editFieldChange('label', e)}
+                  disabled
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="order" className="text-right">
-                  Order
-                </Label>
-                <Input
-                  id="order"
-                  value={selectedField.order}
-                  type="number" // Added
-                  className="col-span-3"
-                  onChange={(e) => editFieldChange('order', e)}
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="visible" className="text-right">
-                  Visible
+                <Label htmlFor="isHidden" className="text-right">
+                  Hidden
                 </Label>
                 <select
-                  id="visible"
-                  value={selectedField.visible ? 'True' : 'False'}
+                  id="isHidden"
+                  value={selectedField.isHidden ? 'True' : 'False'}
                   className="col-span-3 border border-gray-300 rounded-lg p-2"
-                  onChange={(e) => editFieldChange('visible', e)}
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      isHidden: e.target.value === 'True',
+                    }))
+                  }
                 >
                   <option value="True">True</option>
                   <option value="False">False</option>
                 </select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="mandatory" className="text-right">
+                <Label htmlFor="isMandatory" className="text-right">
                   Mandatory
                 </Label>
                 <select
-                  id="mandatory"
-                  value={selectedField.mandatory ? 'True' : 'False'} // Match option values
+                  id="isMandatory"
+                  value={selectedField.isMandatory ? 'True' : 'False'}
                   className="col-span-3 border border-gray-300 rounded-lg p-2"
-                  onChange={(e) => editFieldChange('mandatory', e)}
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      isMandatory: e.target.value === 'True',
+                    }))
+                  }
                 >
                   <option value="True">Mandatory</option>
                   <option value="False">Optional</option>
                 </select>
               </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="isDisabled" className="text-right">
+                  Disabled
+                </Label>
+                <select
+                  id="isDisabled"
+                  value={selectedField.isDisabled ? 'True' : 'False'}
+                  className="col-span-3 border border-gray-300 rounded-lg p-2"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      isDisabled: e.target.value === 'True',
+                    }))
+                  }
+                >
+                  <option value="True">True</option>
+                  <option value="False">False</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="defaultValue" className="text-right">
+                  Default Value
+                </Label>
+                <Input
+                  id="defaultValue"
+                  value={selectedField.defaultValue ?? ''}
+                  className="col-span-3"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      defaultValue: e.target.value || null,
+                    }))
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="placeholder" className="text-right">
+                  Placeholder
+                </Label>
+                <Input
+                  id="placeholder"
+                  value={selectedField.placeholder ?? ''}
+                  className="col-span-3"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      placeholder: e.target.value || null,
+                    }))
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="validations" className="text-right">
+                  Validations
+                </Label>
+                <textarea
+                  id="validations"
+                  value={
+                    selectedField.validations
+                      ? JSON.stringify(selectedField.validations, null, 2)
+                      : ''
+                  }
+                  className="col-span-3 border border-gray-300 rounded-lg p-2 h-24 resize-y"
+                  placeholder='e.g., { "minLength": 3, "maxLength": 50 }'
+                  onChange={(e) => {
+                    try {
+                      const value = e.target.value
+                        ? JSON.parse(e.target.value)
+                        : null;
+                      setSelectedField((prev) => ({
+                        ...prev!,
+                        validations: value,
+                      }));
+                    } catch (err) {
+                      console.error('Invalid JSON for validations:', err);
+                    }
+                  }}
+                />
+              </div>
+
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="order" className="text-right">
+                  Order
+                </Label>
+                <Input
+                  id="order"
+                  type="number"
+                  value={selectedField.order}
+                  className="col-span-3"
+                  onChange={(e) =>
+                    setSelectedField((prev) => ({
+                      ...prev!,
+                      order: Number(e.target.value),
+                    }))
+                  }
+                />
+              </div>
             </div>
           )}
           <DialogFooter>
-            <Button onClick={() => handleDeleteField(selectedField!.id)}>
-              Delete Field
-            </Button>
-            <Button
-              type="submit"
-              onClick={handleEditSave}
-              className="bg-secondary"
-            >
+            <Button>Delete Field</Button>
+            <Button type="submit" onClick={handleSave} className="bg-secondary">
               Save changes
             </Button>
           </DialogFooter>
@@ -446,11 +444,9 @@ export default function ConfigForm() {
                 Field Name
               </Label>
               <Input
-                id="newName"
+                id="id1"
                 placeholder="Enter Field Name"
                 className="col-span-3"
-                value={newField.name || ''}
-                onChange={(e) => handleNewFieldChange('name', e)}
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -458,10 +454,9 @@ export default function ConfigForm() {
                 Field Type
               </Label>
               <select
-                id="newFieldType"
+                id="id2"
+                value="TEXT"
                 className="col-span-3 border border-gray-300 rounded-lg p-2"
-                value={newField.fieldType || 'TEXT'}
-                onChange={(e) => handleNewFieldChange('fieldType', e)}
               >
                 <option value="TEXT">Text</option>
                 <option value="NUMBER">Number</option>
@@ -481,22 +476,25 @@ export default function ConfigForm() {
                 Label
               </Label>
               <Input
-                id="newLabel"
-                placeholder="Enter Label"
+                id="id3"
                 className="col-span-3"
-                value={newField.label || ''}
-                onChange={(e) => handleNewFieldChange('label', e)}
+                placeholder="Enter Label"
               />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="placeholder4" className="text-right">
+                Order
+              </Label>
+              <Input id="id4" value="1" className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="mandatory" className="text-right">
                 Mandatory
               </Label>
               <select
-                id="newMandatory"
+                id="id5"
+                value="Optional"
                 className="col-span-3 border border-gray-300 rounded-lg p-2"
-                value={newField.mandatory ? 'True' : 'False'}
-                onChange={(e) => handleNewFieldChange('mandatory', e)}
               >
                 <option value="True">Mandatory</option>
                 <option value="False">Optional</option>
@@ -507,10 +505,9 @@ export default function ConfigForm() {
                 Visible
               </Label>
               <select
-                id="newVisible"
+                id="id6"
+                value="True"
                 className="col-span-3 border border-gray-300 rounded-lg p-2"
-                value={newField.visible ? 'True' : 'False'}
-                onChange={(e) => handleNewFieldChange('visible', e)}
               >
                 <option value="True">True</option>
                 <option value="False">False</option>
@@ -519,11 +516,7 @@ export default function ConfigForm() {
           </div>
           <DialogFooter>
             <Button onClick={() => setIsAddFieldOpen(false)}>Cancel</Button>
-            <Button
-              type="submit"
-              onClick={handleAddField}
-              className="bg-secondary"
-            >
+            <Button type="submit" className="bg-secondary">
               Confirm
             </Button>
           </DialogFooter>
