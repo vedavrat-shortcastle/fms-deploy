@@ -94,6 +94,13 @@ export function usePlayerApi(role: Role) {
           isLoading: mutation.isLoading,
         };
       }
+      case 'CLUB_MANAGER': {
+        const mutation = trpc.club.editPlayerById.useMutation(options);
+        return {
+          mutate: mutation.mutate,
+          isLoading: mutation.isLoading,
+        };
+      }
       case 'FED_ADMIN': {
         const mutation = trpc.federation.editPlayerById.useMutation(options);
         return {
