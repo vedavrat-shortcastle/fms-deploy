@@ -323,7 +323,7 @@ export const defaultFormConfigs = {
         },
       },
       {
-        fieldName: 'managerEmail',
+        fieldName: 'email',
         displayName: 'Manager Email',
         placeholder: 'Enter Manager Email',
         fieldType: FieldType.EMAIL,
@@ -334,9 +334,9 @@ export const defaultFormConfigs = {
         fieldName: 'firstName',
         displayName: 'Manager First Email',
         placeholder: 'Enter First Name',
-        fieldType: FieldType.EMAIL,
+        fieldType: FieldType.TEXT,
         isMandatory: true,
-        order: 2,
+        order: 3,
       },
       {
         fieldName: 'lastName',
@@ -344,7 +344,7 @@ export const defaultFormConfigs = {
         placeholder: 'Enter Last Name',
         fieldType: FieldType.TEXT,
         isMandatory: true,
-        order: 3,
+        order: 4,
       },
       {
         fieldName: 'middleName',
@@ -352,7 +352,7 @@ export const defaultFormConfigs = {
         placeholder: 'Enter Middle Name',
         fieldType: FieldType.TEXT,
         isMandatory: false,
-        order: 3,
+        order: 5,
       },
       {
         fieldName: 'nameSuffix',
@@ -360,7 +360,7 @@ export const defaultFormConfigs = {
         placeholder: 'Enter Name Suffix',
         fieldType: FieldType.TEXT,
         isMandatory: false,
-        order: 3,
+        order: 6,
       },
       {
         fieldName: 'phoneNumber',
@@ -368,7 +368,7 @@ export const defaultFormConfigs = {
         placeholder: 'Enter Phone Number',
         fieldType: FieldType.NUMBER,
         isMandatory: true,
-        order: 3,
+        order: 7,
       },
       {
         fieldName: 'streetAddress',
@@ -376,7 +376,7 @@ export const defaultFormConfigs = {
         placeholder: 'Enter Street Address',
         fieldType: FieldType.TEXT,
         isMandatory: true,
-        order: 3,
+        order: 8,
       },
       {
         fieldName: 'streetAddress2',
@@ -384,7 +384,7 @@ export const defaultFormConfigs = {
         placeholder: 'Enter Street Address 2',
         fieldType: FieldType.TEXT,
         isMandatory: false,
-        order: 3,
+        order: 9,
       },
       {
         fieldName: 'country',
@@ -392,7 +392,7 @@ export const defaultFormConfigs = {
         placeholder: 'Enter Country',
         fieldType: FieldType.TEXT,
         isMandatory: true,
-        order: 3,
+        order: 10,
       },
       {
         fieldName: 'state',
@@ -400,7 +400,7 @@ export const defaultFormConfigs = {
         placeholder: 'Enter State Name',
         fieldType: FieldType.TEXT,
         isMandatory: false,
-        order: 3,
+        order: 11,
       },
       {
         fieldName: 'city',
@@ -408,7 +408,7 @@ export const defaultFormConfigs = {
         placeholder: 'Enter City',
         fieldType: FieldType.TEXT,
         isMandatory: false,
-        order: 3,
+        order: 12,
       },
       {
         fieldName: 'postalCode',
@@ -416,7 +416,7 @@ export const defaultFormConfigs = {
         placeholder: 'Enter Postal Code',
         fieldType: FieldType.TEXT,
         isMandatory: true,
-        order: 3,
+        order: 13,
       },
     ],
   },

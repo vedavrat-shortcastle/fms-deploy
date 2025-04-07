@@ -43,13 +43,14 @@ export default function ClubManagerSettings() {
   const watchState = watch('clubManagerDetails.state');
   // Fetch form configuration using the custom hook
   const { config, isLoading: isConfigLoading } = useFormConfig('CLUB');
-
+  console.log('config', config);
   // Fetch clubManage details using tRPC
   const { data, error, isLoading, refetch } =
     trpc.club.getClubMangerById.useQuery(
       { id: clubManagerId! },
       { enabled: !!clubManagerId }
     );
+  console.log('data', data);
 
   // Map clubManage data similar to the player implementation
   const mapClubManageData = (data: any): EditClubManagerFormValues => ({
@@ -73,7 +74,8 @@ export default function ClubManagerSettings() {
   useEffect(() => {
     if (data) {
       const mappedClubManage = mapClubManageData(data);
-      reset(mappedClubManage);
+      reset(mapClubManageData(data));
+      console.log('method', mappedClubManage);
     }
 
     if (error) {
@@ -168,7 +170,7 @@ export default function ClubManagerSettings() {
         ...field,
         prefix: baseUserFields.includes(field.fieldName)
           ? 'baseUser'
-          : 'clubManageDetails',
+          : 'clubManagerDetails',
         dependentValue: {
           country: watchCountry,
           state: watchState,
@@ -180,7 +182,7 @@ export default function ClubManagerSettings() {
       (field) => field.prefix === 'baseUser'
     );
     const clubManageDetailsFieldsConfig = sanitizedFields.filter(
-      (field) => field.prefix === 'clubManageDetails'
+      (field) => field.prefix === 'clubManagerDetails'
     );
 
     return (
@@ -199,7 +201,7 @@ export default function ClubManagerSettings() {
             fields: clubManageDetailsFieldsConfig,
           }}
           control={control}
-          basePrefix="clubManageDetails." // Pass correct prefix for clubManageDetails fields
+          basePrefix="clubManagerDetails" // Pass correct prefix for clubManageDetails fields
         />
       </>
     );
