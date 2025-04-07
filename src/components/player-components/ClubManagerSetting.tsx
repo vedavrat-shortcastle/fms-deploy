@@ -19,7 +19,15 @@ import {
 } from '@/schemas/Club.schema';
 
 // Define base user fields similar to the player implementation
-const baseUserFields = ['id', 'email', 'firstName', 'lastName'];
+const baseUserFields = [
+  'id',
+  'email',
+  'firstName',
+  'lastName',
+  'middleName',
+  'nameSuffix',
+  'phoneNumber',
+];
 
 export default function ClubManagerSettings() {
   const session = useSession();
@@ -39,43 +47,44 @@ export default function ClubManagerSettings() {
 
   const { handleSubmit, reset, control, watch } = methods;
 
-  const watchCountry = watch('clubManagerDetails.country');
-  const watchState = watch('clubManagerDetails.state');
+  const watchCountry = watch('clubDetails.country');
+  const watchState = watch('clubDetails.state');
   // Fetch form configuration using the custom hook
   const { config, isLoading: isConfigLoading } = useFormConfig('CLUB');
-  console.log('config', config);
+
   // Fetch clubManage details using tRPC
   const { data, error, isLoading, refetch } =
     trpc.club.getClubMangerById.useQuery(
       { id: clubManagerId! },
       { enabled: !!clubManagerId }
     );
-  console.log('data', data);
 
   // Map clubManage data similar to the player implementation
-  const mapClubManageData = (data: any): EditClubManagerFormValues => ({
-    baseUser: {
+  const mapClubManagerData = (data: any): EditClubManagerFormValues => ({
+    clubManagerDetails: {
       id: data.id,
       email: data.email,
       firstName: data.firstName,
       lastName: data.lastName,
+      middleName: data.middleName ?? '',
+      nameSuffix: data.nameSuffix ?? '',
+      phoneNumber: data.phoneNumber ?? '',
     },
-    clubManagerDetails: {
+    clubDetails: {
+      name: data.name,
       streetAddress: data.streetAddress || '',
       streetAddress2: data.streetAddress2 || '',
       city: data.city || '',
       state: data.state || '',
       postalCode: data.postalCode || '',
       country: data.country || '',
-      phoneNumber: data.phoneNumber ?? '',
     },
   });
 
   useEffect(() => {
     if (data) {
-      const mappedClubManage = mapClubManageData(data);
-      reset(mapClubManageData(data));
-      console.log('method', mappedClubManage);
+      const mappedClubManager = mapClubManagerData(data);
+      reset(mappedClubManager);
     }
 
     if (error) {
@@ -115,8 +124,8 @@ export default function ClubManagerSettings() {
     setIsSubmitting(true);
     if (!clubManagerId) {
       toast({
-        title: t('clubManageSettingsPage_error'),
-        description: t('clubManageSettingsPage_missingclubManageId'),
+        title: t('clubManagerSettingsPage_error'),
+        description: t('clubManagerSettingsPage_missingclubManageId'),
         variant: 'destructive',
       });
       setIsSubmitting(false);
@@ -124,12 +133,12 @@ export default function ClubManagerSettings() {
     }
 
     const updatedFormData = {
-      baseUser: {
-        ...formData.baseUser,
-        id: clubManagerId,
-      },
       clubManagerDetails: {
         ...formData.clubManagerDetails,
+        id: clubManagerId,
+      },
+      clubDetails: {
+        ...formData.clubDetails,
       },
     };
 
@@ -146,7 +155,7 @@ export default function ClubManagerSettings() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    if (data) reset(mapClubManageData(data));
+    if (data) reset(mapClubManagerData(data));
   };
 
   // Sanitize fields similar to the player implementation
@@ -169,8 +178,8 @@ export default function ClubManagerSettings() {
       config.fields.map((field) => ({
         ...field,
         prefix: baseUserFields.includes(field.fieldName)
-          ? 'baseUser'
-          : 'clubManagerDetails',
+          ? 'clubManagerDetails'
+          : 'clubDetails',
         dependentValue: {
           country: watchCountry,
           state: watchState,
@@ -179,31 +188,39 @@ export default function ClubManagerSettings() {
     );
 
     const baseUserFieldsConfig = sanitizedFields.filter(
-      (field) => field.prefix === 'baseUser'
+      (field) => field.prefix === 'clubManagerDetails'
     );
     const clubManageDetailsFieldsConfig = sanitizedFields.filter(
-      (field) => field.prefix === 'clubManagerDetails'
+      (field) => field.prefix === 'clubDetails'
     );
 
     return (
-      <>
-        <FormBuilder
-          config={{
-            ...config,
-            fields: baseUserFieldsConfig,
-          }}
-          control={control}
-          basePrefix="baseUser." // Pass correct prefix for baseUser fields
-        />
-        <FormBuilder
-          config={{
-            ...config,
-            fields: clubManageDetailsFieldsConfig,
-          }}
-          control={control}
-          basePrefix="clubManagerDetails" // Pass correct prefix for clubManageDetails fields
-        />
-      </>
+      <div className="space-y-6">
+        <div className="mb-6 p-4 border border-current">
+          <h2 className="text-lg font-semibold mb-4">
+            {t('Club Manager Details')}
+          </h2>
+          <FormBuilder
+            config={{
+              ...config,
+              fields: baseUserFieldsConfig,
+            }}
+            control={control}
+            basePrefix="clubManagerDetails." // Pass correct prefix for baseUser fields
+          />
+        </div>
+        <div className="mt-6 p-4 border border-current">
+          <h2 className="text-lg font-semibold mb-4">{t('Club Details')}</h2>
+          <FormBuilder
+            config={{
+              ...config,
+              fields: clubManageDetailsFieldsConfig,
+            }}
+            control={control}
+            basePrefix="clubDetails." // Pass correct prefix for clubManagerDetails fields
+          />
+        </div>
+      </div>
     );
   };
 
@@ -225,7 +242,7 @@ export default function ClubManagerSettings() {
             onClick={() => router.push('/clubManages')}
             disabled={isSubmitting}
           >
-            {t('clubManageSettingsPage_back')}
+            {t('clubManagerSettingsPage_back')}
           </Button>
 
           <div className="bg-white p-6 rounded-lg shadow">
@@ -238,7 +255,7 @@ export default function ClubManagerSettings() {
                   onClick={handleCancel}
                   disabled={isSubmitting}
                 >
-                  {t('clubManageSettingsPage_cancel')}
+                  {t('clubManagerSettingsPage_cancel')}
                 </Button>
                 <Button
                   type="submit"
@@ -246,14 +263,14 @@ export default function ClubManagerSettings() {
                   disabled={isSubmitting}
                 >
                   {isSubmitting
-                    ? t('clubManageSettingsPage_saving')
-                    : t('clubManageSettingsPage_saveChanges')}
+                    ? t('clubManagerSettingsPage_saving')
+                    : t('clubManagerSettingsPage_saveChanges')}
                 </Button>
               </div>
             ) : (
               <div className="flex flex-col gap-4 mt-6">
                 <Button variant="outline" onClick={handleEditToggle}>
-                  {t('clubManageSettingsPage_editDetails')}
+                  {t('clubManagerSettingsPage_editDetails')}
                 </Button>
               </div>
             )}

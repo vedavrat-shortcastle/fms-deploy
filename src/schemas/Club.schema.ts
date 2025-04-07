@@ -36,7 +36,7 @@ export const clubOnboardingSchema = z.object({
 export type ClubOnboardingFormValues = z.infer<typeof clubOnboardingSchema>;
 
 export const editclubManagerSchema = z.object({
-  baseUser: z.object({
+  clubManagerDetails: z.object({
     id: z.string().min(1, { message: 'User ID is required' }),
     email: z.string().email({ message: 'Invalid email address' }),
     firstName: z
@@ -47,8 +47,15 @@ export const editclubManagerSchema = z.object({
       .string()
       .min(1, { message: 'Last Name is required' })
       .max(100, { message: 'Last Name cannot exceed 100 characters' }),
+    middleName: z.string().optional(),
+    nameSuffix: z.string().optional(),
+    phoneNumber: z
+      .string()
+      .max(15, { message: 'Phone Number cannot exceed 15 digits' })
+      .optional(),
   }),
-  clubManagerDetails: z.object({
+  clubDetails: z.object({
+    name: z.string().min(1, { message: 'Club Name is required' }),
     streetAddress: z
       .string()
       .min(1, { message: 'Street Address is required' })

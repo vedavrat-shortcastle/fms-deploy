@@ -280,6 +280,8 @@ export const clubRouter = router({
             email: true,
             firstName: true,
             lastName: true,
+            middleName: true,
+            nameSuffix: true,
             role: true,
             profile: {
               select: {
@@ -346,11 +348,12 @@ export const clubRouter = router({
     .input(editclubManagerSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        const { baseUser, clubManagerDetails } = input;
+        console.log('input', input);
+        const { clubManagerDetails, clubDetails } = input;
         // Find the existing user
         const existingUser = await ctx.db.baseUser.findUnique({
           where: {
-            id: baseUser.id,
+            id: clubManagerDetails.id,
             federationId: ctx.session.user.federationId,
             role: Role.CLUB_MANAGER,
           },
@@ -386,12 +389,28 @@ export const clubRouter = router({
           });
         }
 
+        const existingClubManager = await ctx.db.clubManager.findUnique({
+          where: { id: existingUser.profile.profileId },
+          select: {
+            clubId: true,
+          },
+        });
+        if (!existingClubManager) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'club manager details not found',
+          });
+        }
+
         // Check email uniqueness if email is being updated
-        if (baseUser.email && baseUser.email !== existingUser.email) {
+        if (
+          clubManagerDetails.email &&
+          clubManagerDetails.email !== existingUser.email
+        ) {
           const emailExists = await ctx.db.baseUser.findUnique({
             where: {
               email_federationId: {
-                email: baseUser.email,
+                email: clubManagerDetails.email,
                 federationId: ctx.session.user.federationId,
               },
             },
@@ -406,27 +425,40 @@ export const clubRouter = router({
         }
 
         // Perform the update in a transaction
-        const [updatedBaseUser, updatedClubManage] = await ctx.db.$transaction([
-          // Update BaseUser
-          ctx.db.baseUser.update({
-            where: { id: baseUser.id },
-            data: {
-              ...baseUser,
-            },
-          }),
+        const [updatedBaseUser, updatedclubManagerPhoneNumber] =
+          await ctx.db.$transaction([
+            // Update clubManagerDetails
+            ctx.db.baseUser.update({
+              where: { id: clubManagerDetails.id },
+              data: {
+                email: clubManagerDetails.email,
+                firstName: clubManagerDetails.firstName,
+                lastName: clubManagerDetails.lastName,
+                middleName: clubManagerDetails.middleName,
+                nameSuffix: clubManagerDetails.nameSuffix,
+              },
+            }),
+            // Update clubManager phone number
+            ctx.db.clubManager.update({
+              where: { id: existingUser.profile.profileId },
+              data: {
+                phoneNumber: clubManagerDetails.phoneNumber,
+              },
+            }),
 
-          // Update Parent (using parentDetails)
-          ctx.db.clubManager.update({
-            where: { id: existingUser.profile.profileId },
-            data: {
-              ...clubManagerDetails,
-            },
-          }),
-        ]);
+            // Update Parent (using parentDetails)
+            ctx.db.club.update({
+              where: { id: existingClubManager.clubId },
+              data: {
+                ...clubDetails,
+              },
+            }),
+          ]);
 
         return {
           ...updatedBaseUser,
-          parentDetails: updatedClubManage,
+          ...updatedclubManagerPhoneNumber,
+          // ... updatedClubDetails,
         };
       } catch (error: any) {
         handleError(error, {

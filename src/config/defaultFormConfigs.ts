@@ -366,7 +366,7 @@ export const defaultFormConfigs = {
         fieldName: 'phoneNumber',
         displayName: 'Manager Phone Number',
         placeholder: 'Enter Phone Number',
-        fieldType: FieldType.NUMBER,
+        fieldType: FieldType.TEXT,
         isMandatory: true,
         order: 7,
       },
