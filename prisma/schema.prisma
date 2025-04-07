@@ -411,7 +411,7 @@ enum FedType {
   REGIONAL
 }
 
-enum ProfileType {
+enum  ProfileType {
   PARENT
   PLAYER
   FEDERATION_ADMIN
