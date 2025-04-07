@@ -345,25 +345,25 @@ export const membershipRouter = router({
         const endDate = new Date();
         endDate.setDate(endDate.getDate() + (plan.duration || 365)); // Default to 365 days if duration not set
 
-        // Create the subscription
-        const subscription = await ctx.db.subscription.create({
-          data: {
-            subscriberId: input.playerId,
-            planId: input.planId,
-            type:
-              input.subscriptionType === 'INDIVIDUAL'
-                ? SubscriptionType.INDIVIDUAL
-                : SubscriptionType.EVENT,
-            status: SubscriptionStatus.ACTIVE,
-            startDate: startDate,
-            endDate: endDate,
-            federationId: ctx.session.user.federationId,
-          },
-        });
+        return await ctx.db.$transaction(async (tx) => {
+          // Create the subscription
+          const subscription = await tx.subscription.create({
+            data: {
+              subscriberId: input.playerId,
+              planId: input.planId,
+              type:
+                input.subscriptionType === 'INDIVIDUAL'
+                  ? SubscriptionType.INDIVIDUAL
+                  : SubscriptionType.EVENT,
+              status: SubscriptionStatus.ACTIVE,
+              startDate: startDate,
+              endDate: endDate,
+              federationId: ctx.session.user.federationId,
+            },
+          });
 
-        // Create a transaction record if payment was made (simplified for now)
-        if (input.paymentMode) {
-          await ctx.db.transaction.create({
+          // Create a transaction record (no conditional check since payment mode is always true)
+          await tx.transaction.create({
             data: {
               subscriptionId: subscription.id,
               gatewayTransactionId: `manual-${Date.now()}`, // Placeholder for manual entries
@@ -379,9 +379,9 @@ export const membershipRouter = router({
               },
             },
           });
-        }
 
-        return subscription;
+          return subscription;
+        });
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to add member subscription',
