@@ -34,3 +34,59 @@ export const clubOnboardingSchema = z.object({
 
 // Type for form values derived from the schema
 export type ClubOnboardingFormValues = z.infer<typeof clubOnboardingSchema>;
+
+export const editclubManagerSchema = z.object({
+  clubManagerDetails: z.object({
+    id: z.string().min(1, { message: 'User ID is required' }),
+    email: z.string().email({ message: 'Invalid email address' }),
+    firstName: z
+      .string()
+      .min(1, { message: 'First Name is required' })
+      .max(100, { message: 'First Name cannot exceed 100 characters' }),
+    lastName: z
+      .string()
+      .min(1, { message: 'Last Name is required' })
+      .max(100, { message: 'Last Name cannot exceed 100 characters' }),
+    middleName: z.string().optional(),
+    nameSuffix: z.string().optional(),
+    phoneNumber: z
+      .string()
+      .max(15, { message: 'Phone Number cannot exceed 15 digits' })
+      .optional(),
+  }),
+  clubDetails: z.object({
+    name: z.string().min(1, { message: 'Club Name is required' }),
+    streetAddress: z
+      .string()
+      .min(1, { message: 'Street Address is required' })
+      .max(100, { message: 'Street Address cannot exceed 100 characters' }),
+    streetAddress2: z
+      .string()
+      .max(100, { message: 'Street Address 2 cannot exceed 100 characters' })
+      .optional(),
+    country: z
+      .string()
+      .min(1, { message: 'Country is required' })
+      .max(50, { message: 'Country cannot exceed 50 characters' }),
+    state: z
+      .string()
+      .min(1, { message: 'State is required' })
+      .max(50, { message: 'State cannot exceed 50 characters' })
+      .optional(),
+    city: z
+      .string()
+      .min(1, { message: 'City is required' })
+      .max(50, { message: 'City cannot exceed 50 characters' })
+      .optional(),
+    postalCode: z
+      .string()
+      .min(1, { message: 'Postal Code is required' })
+      .max(20, { message: 'Postal Code cannot exceed 20 characters' }),
+    phoneNumber: z
+      .string()
+      .max(15, { message: 'Phone Number cannot exceed 15 digits' })
+      .optional(),
+  }),
+});
+
+export type EditClubManagerFormValues = z.infer<typeof editclubManagerSchema>;
