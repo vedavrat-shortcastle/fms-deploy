@@ -1,3 +1,4 @@
+import { SupportedLanguages } from '@prisma/client';
 import { z } from 'zod';
 
 export const createParentSchema = z.object({
@@ -45,6 +46,9 @@ export const editParentSchema = z.object({
       .string()
       .min(1, { message: 'Last Name is required' })
       .max(100, { message: 'Last Name cannot exceed 100 characters' }),
+  }),
+  parentUserProfile: z.object({
+    language: z.nativeEnum(SupportedLanguages),
   }),
   parentDetails: z.object({
     streetAddress: z

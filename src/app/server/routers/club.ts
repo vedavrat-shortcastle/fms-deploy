@@ -468,29 +468,17 @@ export const clubRouter = router({
         // Step 4: Verify the player belongs to the club
         const playerId = playerBaseUser.profile?.profileId;
 
-        const playerBelongsToClub = await ctx.db.player.findFirst({
+        const playerDetails = await ctx.db.player.findFirst({
           where: {
             id: playerId,
             clubId: clubId,
           },
         });
 
-        if (!playerBelongsToClub) {
+        if (!playerDetails) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'Player not found or not authorized to view this player',
-          });
-        }
-
-        // Step 5: Fetch detailed player information
-        const playerDetails = await ctx.db.player.findUnique({
-          where: { id: playerId },
-        });
-
-        if (!playerDetails) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Player details not found',
           });
         }
 

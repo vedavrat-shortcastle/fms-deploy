@@ -2,10 +2,7 @@
 
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormBuilder } from '@/components/forms/FormBuilder';
-import { federationOnboardingFormConfig } from '@/config/staticFormConfigs';
 import { Button } from '@/components/ui/button';
-import { sanitizeFields } from '@/utils/sanitize';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FederationOnboardingFormValues,
@@ -39,7 +36,7 @@ const OnboardingFederation = ({ imageSrc }: SignupProps) => {
     },
   });
 
-  const { control, handleSubmit } = form;
+  const { handleSubmit } = form;
 
   const onSubmit = async (formData: FederationOnboardingFormValues) => {
     const queryData = encodeURIComponent(JSON.stringify(formData));
@@ -61,14 +58,14 @@ const OnboardingFederation = ({ imageSrc }: SignupProps) => {
           <CardContent>
             <FormProvider {...form}>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <FormBuilder
+                {/* <FormBuilder
                   config={{
                     id: 'federation-onboarding-form',
                     isActive: true,
                     fields: sanitizeFields(federationOnboardingFormConfig),
                   }}
                   control={control}
-                />
+                /> */}
                 <div className="flex justify-end gap-4">
                   <Button type="submit">Next</Button>
                 </div>

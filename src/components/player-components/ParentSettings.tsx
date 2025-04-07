@@ -16,15 +16,15 @@ import {
   editParentSchema,
 } from '@/schemas/Parent.schema';
 import { useTranslation } from 'react-i18next';
-import LanguagueSwitcher from '@/components/LanguageSwitcher';
+import { SupportedLanguages } from '@prisma/client';
 
 // Define base user fields similar to the player implementation
 const baseUserFields = ['id', 'email', 'firstName', 'lastName'];
 
 export default function ParentSettings() {
-  const session = useSession();
+  const { data: session, update } = useSession();
   const router = useRouter();
-  const parentId = session.data?.user.id;
+  const parentId = session?.user.id;
   const { toast } = useToast();
   const { t } = useTranslation();
 
@@ -68,6 +68,9 @@ export default function ParentSettings() {
       country: data.country || '',
       phoneNumber: data.phoneNumber ?? '',
     },
+    parentUserProfile: {
+      language: data.language || SupportedLanguages.en,
+    },
   });
 
   useEffect(() => {
@@ -75,7 +78,6 @@ export default function ParentSettings() {
       const mappedParent = mapParentData(data);
       reset(mappedParent);
     }
-
     if (error) {
       console.error('Error fetching parent details:', error);
       toast({
@@ -88,15 +90,27 @@ export default function ParentSettings() {
 
   // Mutation for editing parent details
   const editParentMutation = trpc.parent.editParentById.useMutation({
-    onSuccess: () => {
+    onSuccess: async (data) => {
+      const newLang = data?.parentUserProfile.language;
+      const isRtl = data?.parentUserProfile.isRtl;
+      await update({
+        user: {
+          ...session?.user,
+          language: newLang,
+          isRtl: isRtl,
+        },
+      });
+
       setIsEditing(false);
       refetch();
+
       toast({
         title: t('parentSettingsPage_success'),
         description: t('parentSettingsPage_detailsUpdated'),
         variant: 'default',
       });
       setIsSubmitting(false);
+      router.refresh();
     },
     onError: (err: any) => {
       console.error('Failed to update parent details:', err.message);
@@ -110,6 +124,7 @@ export default function ParentSettings() {
   });
 
   const onSubmit = (formData: EditParentFormValues) => {
+    console.log('data submitted', formData);
     setIsSubmitting(true);
     if (!parentId) {
       toast({
@@ -128,6 +143,9 @@ export default function ParentSettings() {
       },
       parentDetails: {
         ...formData.parentDetails,
+      },
+      parentUserProfile: {
+        language: formData.parentUserProfile.language,
       },
     };
 
@@ -168,7 +186,9 @@ export default function ParentSettings() {
         ...field,
         prefix: baseUserFields.includes(field.fieldName)
           ? 'baseUser'
-          : 'parentDetails',
+          : field.fieldName === 'language'
+            ? 'parentUserProfile'
+            : 'parentDetails',
         dependentValue: {
           country: watchCountry,
           state: watchState,
@@ -181,6 +201,9 @@ export default function ParentSettings() {
     );
     const parentDetailsFieldsConfig = sanitizedFields.filter(
       (field) => field.prefix === 'parentDetails'
+    );
+    const parentUserProfileFieldsConfig = sanitizedFields.filter(
+      (field) => field.prefix === 'parentUserProfile'
     );
 
     return (
@@ -200,6 +223,14 @@ export default function ParentSettings() {
           }}
           control={control}
           basePrefix="parentDetails." // Pass correct prefix for parentDetails fields
+        />
+        <FormBuilder
+          config={{
+            ...config,
+            fields: parentUserProfileFieldsConfig,
+          }}
+          control={control}
+          basePrefix="parentUserProfile." // Pass correct prefix for parentUserProfile fields
         />
       </>
     );
@@ -228,7 +259,7 @@ export default function ParentSettings() {
 
           <div className="bg-white p-6 rounded-lg shadow">
             <fieldset disabled={!isEditing}>{renderFormFields()}</fieldset>
-            <LanguagueSwitcher />
+            {/* <LanguagueSwitcher /> Keep the separate language switcher or integrate in FormBuilder */}
             {isEditing ? (
               <div className="flex justify-end gap-4 mt-6">
                 <Button
