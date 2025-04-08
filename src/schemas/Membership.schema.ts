@@ -91,3 +91,19 @@ export const updatePlanSchema = z.object({
   status: z.nativeEnum(PlanStatus).optional(),
   criteria: z.object({}).passthrough().optional(),
 });
+
+export const addMemberSchema = z.object({
+  playerId: z.string().min(1, 'Player ID is required'),
+  planId: z.string().min(1, 'Plan ID is required'),
+  subscriptionType: z.string().min(1, 'Subscription Type is required'),
+  paymentMode: z.enum([
+    'Credit Card',
+    'Debit Card',
+    'UPI',
+    'Net Banking',
+    'Wallet',
+    'Cash',
+  ]),
+});
+
+export type AddMemberFormValues = z.infer<typeof addMemberSchema>;

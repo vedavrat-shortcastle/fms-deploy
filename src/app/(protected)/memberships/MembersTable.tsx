@@ -11,21 +11,28 @@ import {
 import { Pagination } from '@/components/ui/pagination';
 import { trpc } from '@/utils/trpc';
 import Loader from '@/components/Loader';
-import { Badge } from '@/components/ui/badge'; // colored badge for status
-
-import { useState } from 'react';
-
+import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import MemberForm from '@/components/MemberForm';
 export default function MembersTable() {
   const [page, setPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [memberFormOpen, setMemberFormOpen] = useState<boolean>(false);
 
-  // Call the API endpoint using tRPC
-  const { data, isLoading, error } =
+  // Fetch members data using tRPC query
+  const { data, isLoading, error, refetch } =
     trpc.membership.getFederationSubscribers.useQuery({
       page,
       limit: itemsPerPage,
     });
-  // const totalPages = data ? Math.ceil(data.total / itemsPerPage) : 1;
 
   // Handler for page changes
   const handlePageChange = (newPage: number) => {
@@ -35,8 +42,13 @@ export default function MembersTable() {
   // Handler for items per page changes (resets to page 1)
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
     setItemsPerPage(newItemsPerPage);
-    setPage(1); // Reset to first page when items per page changes
+    setPage(1);
   };
+
+  // Optionally, refetch on page or itemsPerPage change
+  useEffect(() => {
+    refetch();
+  }, [page, itemsPerPage, refetch]);
 
   if (isLoading)
     return (
@@ -51,21 +63,57 @@ export default function MembersTable() {
       </div>
     );
 
-  // The API returns an object with subscriptions and total.
-  // Each subscription includes subscriberId, type, status, startDate, and endDate.
   const subscriptions = data?.subscriptions || [];
 
-  // Display a message if no members are found
   if (subscriptions.length === 0) {
     return (
-      <div className="flex justify-center min-h-screen text-2xl text-primary">
-        No members found
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <p className="text-2xl text-primary">No members found</p>
+        {/* Show dialog trigger even if no members exist */}
+        <Dialog open={memberFormOpen} onOpenChange={setMemberFormOpen}>
+          <DialogTrigger asChild>
+            <Button className="mt-4">Add Member</Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold">
+                Add Member
+              </DialogTitle>
+            </DialogHeader>
+            <div
+              style={{ maxHeight: 'calc(100vh - 140px)', overflowY: 'auto' }}
+            >
+              <MemberForm onClose={() => setMemberFormOpen(false)} />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
 
   return (
     <div className="overflow-x-auto">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold">Members</h2>
+        {/* Dialog for Adding a Member */}
+        <Dialog open={memberFormOpen} onOpenChange={setMemberFormOpen}>
+          <DialogTrigger asChild>
+            <Button>Add Member</Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold">
+                Add Member
+              </DialogTitle>
+            </DialogHeader>
+            <div
+              style={{ maxHeight: 'calc(100vh - 140px)', overflowY: 'auto' }}
+            >
+              <MemberForm onClose={() => setMemberFormOpen(false)} />
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
       <Table className="min-w-full">
         <TableHeader>
           <TableRow>
@@ -74,17 +122,12 @@ export default function MembersTable() {
             <TableHead>Status</TableHead>
             <TableHead>Start Date</TableHead>
             <TableHead>End Date</TableHead>
-            {/* New columns for plan details */}
             <TableHead>Plan Name</TableHead>
             <TableHead>Plan Price</TableHead>
             <TableHead>Plan Currency</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {/* Simple condition to show "No members found" */}
-          {subscriptions.length === 0 && (
-            <p className="text-primary text-2xl">No members found</p>
-          )}
           {subscriptions.map((sub) => (
             <TableRow key={sub.subscriberId}>
               <TableCell>{sub.subscriberId}</TableCell>
@@ -106,7 +149,6 @@ export default function MembersTable() {
               <TableCell>
                 {new Date(sub.endDate).toLocaleDateString()}
               </TableCell>
-              {/* New plan detail cells */}
               <TableCell>{sub.plan ? sub.plan.name : 'N/A'}</TableCell>
               <TableCell>{sub.plan ? sub.plan.price : 'N/A'}</TableCell>
               <TableCell>{sub.plan ? sub.plan.currency : 'N/A'}</TableCell>
@@ -114,7 +156,6 @@ export default function MembersTable() {
           ))}
         </TableBody>
       </Table>
-      {/* Pagination component with spacing */}
       <div className="mt-4">
         <Pagination
           totalRecords={data?.total || 0}
