@@ -634,13 +634,12 @@ export const clubRouter = router({
       }
     }),
   // Get Club Manager by ID
-  getClubMangerById: permissionProtectedProcedure(PERMISSIONS.CLUB_VIEW)
-    .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input }) => {
+  getProfile: permissionProtectedProcedure(PERMISSIONS.CLUB_VIEW).query(
+    async ({ ctx }) => {
       try {
         const clubManager = await ctx.db.baseUser.findFirst({
           where: {
-            id: input.id,
+            id: ctx.session.user.id,
             role: Role.CLUB_MANAGER,
             federationId: ctx.session.user.federationId,
           },
@@ -710,7 +709,8 @@ export const clubRouter = router({
           cause: error.message,
         });
       }
-    }),
+    }
+  ),
   //Edit club Manager by Id
 
   editClubManagerById: permissionProtectedProcedure(PERMISSIONS.CLUB_UPDATE)

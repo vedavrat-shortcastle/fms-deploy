@@ -53,11 +53,10 @@ export default function ClubManagerSettings() {
   const { config, isLoading: isConfigLoading } = useFormConfig('CLUB');
 
   // Fetch clubManage details using tRPC
-  const { data, error, isLoading, refetch } =
-    trpc.club.getClubMangerById.useQuery(
-      { id: clubManagerId! },
-      { enabled: !!clubManagerId }
-    );
+  const { data, error, isLoading, refetch } = trpc.club.getProfile.useQuery(
+    undefined,
+    { enabled: !!clubManagerId }
+  );
 
   // Map clubManage data similar to the player implementation
   const mapClubManagerData = (data: any): EditClubManagerFormValues => ({
