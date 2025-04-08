@@ -5,7 +5,10 @@ import {
   router,
 } from '@/app/server/trpc';
 import { PERMISSIONS, roleMap } from '@/config/permissions';
-import { clubOnboardingSchema } from '@/schemas/Club.schema';
+import {
+  clubOnboardingSchema,
+  editclubManagerSchema,
+} from '@/schemas/Club.schema';
 import { createPlayerSchema, editPlayerSchema } from '@/schemas/Player.schema';
 import { hashPassword } from '@/utils/encoder';
 import { handleError } from '@/utils/errorHandler';
@@ -764,6 +767,209 @@ export const clubRouter = router({
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to edit player',
+          cause: error.message,
+        });
+      }
+    }),
+  // Get Club Manager by ID
+  getProfile: permissionProtectedProcedure(PERMISSIONS.CLUB_VIEW).query(
+    async ({ ctx }) => {
+      try {
+        const clubManager = await ctx.db.baseUser.findFirst({
+          where: {
+            id: ctx.session.user.id,
+            role: Role.CLUB_MANAGER,
+            federationId: ctx.session.user.federationId,
+          },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            middleName: true,
+            nameSuffix: true,
+            role: true,
+            profile: {
+              select: {
+                profileId: true,
+                profileType: true,
+              },
+            },
+          },
+        });
+
+        if (!clubManager) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'club Manager not found',
+          });
+        }
+
+        const clubManagerDetails = await ctx.db.clubManager.findUnique({
+          where: { id: clubManager.profile?.profileId },
+          select: {
+            id: true,
+            phoneNumber: true,
+            clubId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+
+        if (!clubManagerDetails) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'club Manager details not found',
+          });
+        }
+        const club = await ctx.db.club.findUnique({
+          where: { id: clubManagerDetails.clubId },
+          select: {
+            id: true,
+            name: true,
+            streetAddress: true,
+            streetAddress2: true,
+            country: true,
+            state: true,
+            city: true,
+            postalCode: true,
+          },
+        });
+
+        return {
+          ...clubManager,
+          ...clubManagerDetails,
+          ...club,
+        };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to fetch parent',
+          cause: error.message,
+        });
+      }
+    }
+  ),
+  //Edit club Manager by Id
+
+  editClubManagerById: permissionProtectedProcedure(PERMISSIONS.CLUB_UPDATE)
+    .input(editclubManagerSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        console.log('input', input);
+        const { clubManagerDetails, clubDetails } = input;
+        // Find the existing user
+        const existingUser = await ctx.db.baseUser.findUnique({
+          where: {
+            id: clubManagerDetails.id,
+            federationId: ctx.session.user.federationId,
+            role: Role.CLUB_MANAGER,
+          },
+          include: {
+            profile: {
+              select: {
+                profileId: true,
+                userStatus: true,
+                profileType: true,
+              },
+            },
+          },
+        });
+
+        if (!existingUser) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'club manager not found',
+          });
+        }
+
+        if (existingUser.profile?.userStatus !== 'ACTIVE') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: `club manager profile is ${existingUser.profile?.userStatus}`,
+          });
+        }
+
+        if (existingUser.profile.profileType !== ProfileType.CLUB_MANAGER) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Profile is not a club manager',
+          });
+        }
+
+        const existingClubManager = await ctx.db.clubManager.findUnique({
+          where: { id: existingUser.profile.profileId },
+          select: {
+            clubId: true,
+          },
+        });
+        if (!existingClubManager) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'club manager details not found',
+          });
+        }
+
+        // Check email uniqueness if email is being updated
+        if (
+          clubManagerDetails.email &&
+          clubManagerDetails.email !== existingUser.email
+        ) {
+          const emailExists = await ctx.db.baseUser.findUnique({
+            where: {
+              email_federationId: {
+                email: clubManagerDetails.email,
+                federationId: ctx.session.user.federationId,
+              },
+            },
+          });
+
+          if (emailExists) {
+            throw new TRPCError({
+              code: 'CONFLICT',
+              message: 'Email already exists',
+            });
+          }
+        }
+
+        // Perform the update in a transaction
+        const [updatedBaseUser, updatedclubManagerPhoneNumber] =
+          await ctx.db.$transaction([
+            // Update clubManagerDetails
+            ctx.db.baseUser.update({
+              where: { id: clubManagerDetails.id },
+              data: {
+                email: clubManagerDetails.email,
+                firstName: clubManagerDetails.firstName,
+                lastName: clubManagerDetails.lastName,
+                middleName: clubManagerDetails.middleName,
+                nameSuffix: clubManagerDetails.nameSuffix,
+              },
+            }),
+            // Update clubManager phone number
+            ctx.db.clubManager.update({
+              where: { id: existingUser.profile.profileId },
+              data: {
+                phoneNumber: clubManagerDetails.phoneNumber,
+              },
+            }),
+
+            // Update Parent (using parentDetails)
+            ctx.db.club.update({
+              where: { id: existingClubManager.clubId },
+              data: {
+                ...clubDetails,
+              },
+            }),
+          ]);
+
+        return {
+          ...updatedBaseUser,
+          ...updatedclubManagerPhoneNumber,
+          // ... updatedClubDetails,
+        };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to edit club manager',
           cause: error.message,
         });
       }

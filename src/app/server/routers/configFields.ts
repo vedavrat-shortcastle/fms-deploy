@@ -68,6 +68,7 @@ export const configRouter = router({
     .query(async ({ ctx, input }) => {
       try {
         const federationId = ctx.session.user.federationId;
+        console.log('CTX', ctx.session.user.federationId);
 
         const formConfig = await ctx.db.formTemplate.findUnique({
           where: {
