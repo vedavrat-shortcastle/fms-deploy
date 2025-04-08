@@ -57,14 +57,14 @@ const Sidebar: FC = () => {
       icon: <User size={20} />,
       label: t('players'),
       active: pathname === '/players',
-      roles: ['FED_ADMIN', 'PARENT'],
+      roles: ['FED_ADMIN', 'PARENT', 'CLUB_MANAGER'],
     },
     {
       href: '/memberships',
       icon: <ClipboardList size={20} />,
       label: t('memberships'),
       active: pathname === '/memberships',
-      roles: ['FED_ADMIN', 'PARENT', 'PLAYER'],
+      roles: ['FED_ADMIN', 'PARENT', 'PLAYER', 'CLUB_MANAGER'],
     },
     {
       href: '/events',

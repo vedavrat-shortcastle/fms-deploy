@@ -333,15 +333,15 @@ export const defaultFormConfigs = {
       {
         fieldName: 'firstName',
         displayName: 'Manager First Email',
-        placeholder: 'Enter First Name',
-        fieldType: FieldType.TEXT,
+        placeholder: 'Enter Manager First Name',
+        fieldType: FieldType.EMAIL,
         isMandatory: true,
         order: 3,
       },
       {
         fieldName: 'lastName',
         displayName: 'Manager Last Name',
-        placeholder: 'Enter Last Name',
+        placeholder: 'Enter Manager Last Name',
         fieldType: FieldType.TEXT,
         isMandatory: true,
         order: 4,
@@ -349,7 +349,7 @@ export const defaultFormConfigs = {
       {
         fieldName: 'middleName',
         displayName: 'Manager Middle Name',
-        placeholder: 'Enter Middle Name',
+        placeholder: 'Enter Manager Middle Name',
         fieldType: FieldType.TEXT,
         isMandatory: false,
         order: 5,
@@ -357,7 +357,7 @@ export const defaultFormConfigs = {
       {
         fieldName: 'nameSuffix',
         displayName: 'Manager Name Suffix',
-        placeholder: 'Enter Name Suffix',
+        placeholder: 'Enter Manager Name Suffix',
         fieldType: FieldType.TEXT,
         isMandatory: false,
         order: 6,
@@ -365,8 +365,8 @@ export const defaultFormConfigs = {
       {
         fieldName: 'phoneNumber',
         displayName: 'Manager Phone Number',
-        placeholder: 'Enter Phone Number',
-        fieldType: FieldType.TEXT,
+        placeholder: 'Enter Manager Phone Number',
+        fieldType: FieldType.NUMBER,
         isMandatory: true,
         order: 7,
       },
