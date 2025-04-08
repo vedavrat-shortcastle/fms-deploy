@@ -1,27 +1,10 @@
-// src/app/(protected)/admin-dashboard/AdminDashboard.tsx
 'use client';
 
 import { useTranslation } from 'react-i18next';
 import MetricCard from '@/components/dashboard-components/MetricCard';
 import DonutChart from '@/components/dashboard-components/DonutChart';
 import MembersGrowthChart from '@/components/dashboard-components/MemberGrowthChart';
-import {
-  GraduationCap,
-  PersonStanding,
-  Store,
-  UserCheck,
-  UserRound,
-  Users,
-} from 'lucide-react';
-
-const dummyMetricData = [
-  { value: '80', cardColor: '#E9FBEF', icon: <UserCheck size={32} /> },
-  { value: '100', cardColor: '#FFE6E9', icon: <Users size={32} /> },
-  { value: '30', cardColor: '#FEF9E6', icon: <PersonStanding size={32} /> },
-  { value: '50', cardColor: '#F3EBFA', icon: <UserRound size={32} /> },
-  { value: '20', cardColor: '#FEFFD7', icon: <GraduationCap size={32} /> },
-  { value: '8', cardColor: '#E9FFE3', icon: <Store size={32} /> },
-];
+import useDashboardMetrics from '@/hooks/useDashboardMetrics';
 
 export default function AdminDashboard() {
   const { t, i18n } = useTranslation('common');
@@ -36,7 +19,9 @@ export default function AdminDashboard() {
     t('totalClubs'),
   ];
 
-  const metricsWithTitles = dummyMetricData.map((metric, index) => ({
+  const metricDate = useDashboardMetrics();
+
+  const metricsWithTitles = metricDate.map((metric, index) => ({
     ...metric,
     title: metricTitles[index],
   }));
