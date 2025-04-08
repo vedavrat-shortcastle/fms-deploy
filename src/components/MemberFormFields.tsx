@@ -136,7 +136,7 @@ export default function MemberFormFields() {
         control={control}
         name="playerId"
         render={({ field }) => (
-          <FormItem className="flex flex-col">
+          <FormItem className="flex flex-col w-full">
             <FormLabel>Player</FormLabel>
             <Popover open={playerOpen} onOpenChange={setPlayerOpen}>
               <PopoverTrigger asChild>
@@ -160,18 +160,25 @@ export default function MemberFormFields() {
                   </Button>
                 </FormControl>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <Command>
+              <PopoverContent
+                className="w-full p-0"
+                style={{
+                  width: 'var(--radix-popover-trigger-width)',
+                  minWidth: '280px',
+                }}
+              >
+                <Command className="w-full">
                   <CommandInput
                     placeholder="Search player..."
                     value={playerSearchTerm}
                     onValueChange={handlePlayerSearchChange}
+                    className="w-full"
                   />
                   <CommandEmpty>
                     {playersLoading ? 'Loading...' : 'No player found.'}
                   </CommandEmpty>
                   <CommandGroup>
-                    <CommandList>
+                    <CommandList className="max-h-60 overflow-auto">
                       {availablePlayers.map((player) => (
                         <CommandItem
                           key={player.value}
@@ -180,6 +187,7 @@ export default function MemberFormFields() {
                             field.onChange(player.value);
                             setPlayerOpen(false);
                           }}
+                          className="w-full"
                         >
                           <Check
                             className={cn(
@@ -207,7 +215,7 @@ export default function MemberFormFields() {
         control={control}
         name="planId"
         render={({ field }) => (
-          <FormItem className="flex flex-col">
+          <FormItem className="flex flex-col w-full">
             <FormLabel>Membership Plan</FormLabel>
             <Popover open={planOpen} onOpenChange={setPlanOpen}>
               <PopoverTrigger asChild>
@@ -231,18 +239,25 @@ export default function MemberFormFields() {
                   </Button>
                 </FormControl>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <Command>
+              <PopoverContent
+                className="w-full p-0"
+                style={{
+                  width: 'var(--radix-popover-trigger-width)',
+                  minWidth: '280px',
+                }}
+              >
+                <Command className="w-full">
                   <CommandInput
                     placeholder="Search plan..."
                     value={planSearchTerm}
                     onValueChange={handlePlanSearchChange}
+                    className="w-full"
                   />
                   <CommandEmpty>
                     {plansLoading ? 'Loading...' : 'No plan found.'}
                   </CommandEmpty>
                   <CommandGroup>
-                    <CommandList>
+                    <CommandList className="max-h-60 overflow-auto">
                       {availablePlans.map((plan) => (
                         <CommandItem
                           key={plan.value}
@@ -251,6 +266,7 @@ export default function MemberFormFields() {
                             field.onChange(plan.value);
                             setPlanOpen(false);
                           }}
+                          className="w-full"
                         >
                           <Check
                             className={cn(
@@ -278,11 +294,11 @@ export default function MemberFormFields() {
         control={control}
         name="subscriptionType"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="w-full">
             <FormLabel>Subscription Type</FormLabel>
             <FormControl>
               <Select value={field.value || ''} onValueChange={field.onChange}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select Subscription Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -304,11 +320,11 @@ export default function MemberFormFields() {
         control={control}
         name="paymentMode"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="w-full">
             <FormLabel>Payment Mode</FormLabel>
             <FormControl>
               <Select value={field.value || ''} onValueChange={field.onChange}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select Payment Mode" />
                 </SelectTrigger>
                 <SelectContent>
