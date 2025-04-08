@@ -6,7 +6,7 @@ import {
 } from '@/app/server/trpc';
 import { PERMISSIONS, roleMap } from '@/config/permissions';
 import { clubOnboardingSchema } from '@/schemas/Club.schema';
-import { createPlayerSchema } from '@/schemas/Player.schema';
+import { createPlayerSchema, editPlayerSchema } from '@/schemas/Player.schema';
 import { hashPassword } from '@/utils/encoder';
 import { handleError } from '@/utils/errorHandler';
 import { generateCustomPlayerId } from '@/utils/generateCustomCode';
@@ -628,6 +628,142 @@ export const clubRouter = router({
       } catch (error: any) {
         handleError(error, {
           message: 'Failed to delete player',
+          cause: error.message,
+        });
+      }
+    }),
+
+  editPlayerById: protectedProcedure
+    .input(editPlayerSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // Step 1: Verify the user is a club manager
+        const clubManagerProfile = await ctx.db.userProfile.findFirst({
+          where: {
+            baseUserId: ctx.session.user.id,
+            profileType: ProfileType.CLUB_MANAGER,
+          },
+          select: { profileId: true },
+        });
+
+        if (!clubManagerProfile) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Not authorized as club manager',
+          });
+        }
+
+        // Step 2: Retrieve the club ID from the ClubManager record
+        const clubManager = await ctx.db.clubManager.findFirst({
+          where: { id: clubManagerProfile.profileId },
+          select: { clubId: true },
+        });
+
+        if (!clubManager) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Club not found for this manager',
+          });
+        }
+
+        const clubId = clubManager.clubId;
+
+        // Step 3: Fetch the player's BaseUser record
+        const playerBaseUser = await ctx.db.baseUser.findFirst({
+          where: {
+            id: input.baseUser.id,
+            role: Role.PLAYER,
+            federationId: ctx.session.user.federationId,
+            profile: {
+              profileType: ProfileType.PLAYER,
+              userStatus: { not: 'DELETED' },
+            },
+          },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            profile: {
+              select: {
+                profileId: true,
+                profileType: true,
+                userStatus: true,
+              },
+            },
+          },
+        });
+
+        if (!playerBaseUser) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Player not found',
+          });
+        }
+
+        const playerId = playerBaseUser.profile?.profileId;
+
+        // Step 4: Verify the player belongs to the club
+        const playerBelongsToClub = await ctx.db.player.findFirst({
+          where: {
+            id: playerId,
+            clubId: clubId,
+          },
+        });
+
+        if (!playerBelongsToClub) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Player does not belong to this club',
+          });
+        }
+
+        // Step 5: Check email uniqueness if email is being updated
+        if (
+          input.baseUser.email &&
+          input.baseUser.email !== playerBaseUser.email
+        ) {
+          const emailExists = await ctx.db.baseUser.findUnique({
+            where: {
+              email_federationId: {
+                email: input.baseUser.email,
+                federationId: ctx.session.user.federationId,
+              },
+            },
+          });
+
+          if (emailExists) {
+            throw new TRPCError({
+              code: 'CONFLICT',
+              message: 'Email already exists',
+            });
+          }
+        }
+
+        // Step 6: Hash the password if it's being updated (optional feature for club managers)
+        const updatedBaseUserData = { ...input.baseUser };
+
+        // Step 7: Update BaseUser and Player in a transaction
+        const [updatedBaseUser, updatedPlayer] = await ctx.db.$transaction([
+          ctx.db.baseUser.update({
+            where: { id: playerBaseUser.id },
+            data: updatedBaseUserData,
+          }),
+          ctx.db.player.update({
+            where: { id: playerId },
+            data: { ...input.playerDetails },
+          }),
+        ]);
+
+        // Step 8: Return the updated data
+        return {
+          ...updatedBaseUser,
+          playerDetails: updatedPlayer,
+        };
+      } catch (error: any) {
+        handleError(error, {
+          message: 'Failed to edit player',
           cause: error.message,
         });
       }
